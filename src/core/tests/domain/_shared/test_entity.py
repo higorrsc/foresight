@@ -22,13 +22,19 @@ class DummyEntity(AbstractEntity):
         """
 
         if not self.name:
-            raise ValueError("Name cannot be empty")
+            self.notification.add_error("Name cannot be empty")
+
         if not isinstance(self.name, str):
-            raise ValueError("Name must be a string")
+            self.notification.add_error("Name must be a string")
+
         if len(self.name) < 3:
-            raise ValueError("Name must be at least 3 characters long")
+            self.notification.add_error("Name must be at least 3 characters long")
+
         if len(self.name) > 255:
-            raise ValueError("Name must be less than 255 characters long")
+            self.notification.add_error("Name must be less than 255 characters long")
+
+        if self.notification.has_errors:
+            raise ValueError(self.notification.messages)
 
 
 class TestAbstractEntity:
@@ -75,7 +81,9 @@ class TestAbstractEntity:
         try:
             DummyEntity(name="")
         except ValueError as e:
-            assert str(e) == "Name cannot be empty"
+            assert (
+                str(e) == "Name cannot be empty,Name must be at least 3 characters long"
+            )
 
     def test_validate_short_name(self):
         """
@@ -103,6 +111,9 @@ class TestAbstractEntity:
         """
 
         try:
-            DummyEntity(name=123)  # type: ignore
+            DummyEntity(name=[])  # type: ignore
         except ValueError as e:
-            assert str(e) == "Name must be a string"
+            assert (
+                str(e)
+                == "Name cannot be empty,Name must be a string,Name must be at least 3 characters long"
+            )

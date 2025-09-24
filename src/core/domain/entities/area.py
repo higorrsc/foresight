@@ -25,10 +25,15 @@ class Area(AbstractEntity):
         """
 
         if not self.description or not self.description.strip():
-            raise ValueError("Description must be a non-empty string.")
+            self.notification.add_error("Description must be a non-empty string.")
 
         if len(self.description) > 100:
-            raise ValueError("Description must be at most 100 characters long.")
+            self.notification.add_error(
+                "Description must be at most 100 characters long."
+            )
+
+        if self.notification.has_errors:
+            raise ValueError(self.notification.messages)
 
     def __str__(self) -> str:
         """

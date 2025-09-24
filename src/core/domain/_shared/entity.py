@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from src.core.domain._shared import Notification
+
 
 @dataclass(kw_only=True, eq=False)
 class AbstractEntity(ABC):
@@ -13,6 +15,7 @@ class AbstractEntity(ABC):
     id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
+    notification: Notification = field(default_factory=Notification, init=False)
 
     def __eq__(self, other) -> bool:
         """
