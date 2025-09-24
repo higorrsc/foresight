@@ -14,7 +14,7 @@ class AbstractEntity(ABC):
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Check if two entities are equal.
 
@@ -32,7 +32,7 @@ class AbstractEntity(ABC):
 
         return self.id == other.id
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Validate the entity after initialization.
         """
@@ -40,7 +40,7 @@ class AbstractEntity(ABC):
         self._validate()
 
     @abstractmethod
-    def _validate(self):
+    def _validate(self) -> None:
         """
         Validate the entity.
 
