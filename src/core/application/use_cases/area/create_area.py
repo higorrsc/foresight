@@ -30,7 +30,7 @@ class CreateArea:
     Create a new area.
     """
 
-    def __init__(self, repository: AbstractRepository) -> None:
+    def __init__(self, repository: AbstractRepository[Area]) -> None:
         """
         Initialize the CreateArea use case.
         """
