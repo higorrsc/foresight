@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar
+from uuid import UUID
 
 T = TypeVar("T")
 
@@ -20,7 +21,7 @@ class AbstractRepository(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, entity_id: Any) -> Optional[T]:
+    def get_by_id(self, entity_id: UUID) -> Optional[T]:
         """
         Retrieve an entity by its ID.
 
@@ -51,7 +52,7 @@ class AbstractRepository(ABC, Generic[T]):
 
         raise NotImplementedError
 
-    def delete(self, entity_id: Any) -> None:
+    def delete(self, entity_id: UUID) -> None:
         """
         Delete an entity from the repository.
 

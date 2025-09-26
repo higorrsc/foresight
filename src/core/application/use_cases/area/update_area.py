@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from uuid import UUID
 
 from core.application.use_cases.area import AreaNotFoundError
 from core.domain._shared import AbstractRepository
@@ -12,7 +12,7 @@ class InputUpdateAreaDTO:
     Data Transfer Object for input data when updating an area.
     """
 
-    id: Any
+    id: UUID
     description: str
 
 
@@ -22,7 +22,7 @@ class OutputUpdateAreaDTO:
     Data Transfer Object for output data when updating an area.
     """
 
-    id: Any
+    id: UUID
     description: str
 
 

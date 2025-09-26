@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar
 from uuid import UUID
 
 from core.domain._shared import AbstractRepository
@@ -29,7 +29,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         self._entities.append(entity)
         return entity
 
-    def get_by_id(self, entity_id: Any) -> Optional[T]:
+    def get_by_id(self, entity_id: UUID) -> Optional[T]:
         """
         Retrieve an entity by its ID.
 

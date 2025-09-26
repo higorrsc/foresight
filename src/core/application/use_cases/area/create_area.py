@@ -1,6 +1,5 @@
-import uuid
 from dataclasses import dataclass, field
-from typing import Any
+from uuid import UUID, uuid4
 
 from core.domain._shared import AbstractRepository
 from core.domain.entities import Area
@@ -13,7 +12,7 @@ class InputCreateAreaDTO:
     """
 
     description: str
-    id: Any = field(default_factory=uuid.uuid4)
+    id: UUID = field(default_factory=uuid4)
 
 
 @dataclass
@@ -22,7 +21,7 @@ class OutputCreateAreaDTO:
     Data Transfer Object for output data when creating a new area.
     """
 
-    id: Any
+    id: UUID
 
 
 class CreateArea:

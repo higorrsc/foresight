@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Generic, Type, TypeVar
+from typing import Generic, Type, TypeVar
+from uuid import UUID
 
 from core.domain._shared import AbstractRepository
 
@@ -12,7 +13,7 @@ class InputDeleteRequestDTO:
     Data Transfer Object for delete requests.
     """
 
-    id: Any
+    id: UUID
 
 
 class GenericDeleteUseCase(Generic[T]):
