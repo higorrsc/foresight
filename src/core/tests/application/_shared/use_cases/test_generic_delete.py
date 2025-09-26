@@ -1,11 +1,11 @@
 import pytest
 
-from core.application._shared.use_cases.generic_delete import (
+from src.core.application._shared.use_cases.generic_delete import (
     GenericDeleteUseCase,
     InputDeleteRequestDTO,
 )
-from core.infrastructure.repositories import InMemoryRepository
-from core.tests.fakes import DummyEntity
+from src.core.infrastructure.repositories import InMemoryRepository
+from src.core.tests.fakes import DummyEntity
 
 
 class EntityNotFoundException(Exception):

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generic, List, TypeVar
 
-from core.domain._shared.repository import AbstractRepository
+from src.core.domain._shared.repository import AbstractRepository
 
 T = TypeVar("T")
 

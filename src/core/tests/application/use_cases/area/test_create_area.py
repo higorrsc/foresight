@@ -1,10 +1,10 @@
-from core.application.use_cases.area import (
+from src.core.application.use_cases.area import (
     CreateArea,
     InputCreateAreaDTO,
     OutputCreateAreaDTO,
 )
-from core.domain.entities import Area
-from core.infrastructure.repositories import InMemoryRepository
+from src.core.domain.entities import Area
+from src.core.infrastructure.repositories import InMemoryRepository
 
 
 class TestCreateArea:

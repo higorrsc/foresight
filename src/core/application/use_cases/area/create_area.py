@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
-from core.domain._shared import AbstractRepository
-from core.domain.entities import Area
+from src.core.domain._shared import AbstractRepository
+from src.core.domain.entities import Area
 
 
 @dataclass

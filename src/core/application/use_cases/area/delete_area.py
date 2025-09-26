@@ -1,7 +1,7 @@
-from core.application._shared.use_cases import GenericDeleteUseCase
-from core.application.use_cases.area import AreaNotFoundError
-from core.domain._shared.repository import AbstractRepository
-from core.domain.entities.area import Area
+from src.core.application._shared.use_cases import GenericDeleteUseCase
+from src.core.application.use_cases.area import AreaNotFoundError
+from src.core.domain._shared.repository import AbstractRepository
+from src.core.domain.entities import Area
 
 
 class DeleteAreaUseCase(GenericDeleteUseCase[Area]):

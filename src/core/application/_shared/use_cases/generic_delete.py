@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Generic, Type, TypeVar
 from uuid import UUID
 
-from core.domain._shared import AbstractRepository
+from src.core.domain._shared import AbstractRepository
 
 T = TypeVar("T")
 

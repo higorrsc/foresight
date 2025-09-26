@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from core.infrastructure.repositories import InMemoryRepository
-from core.tests.fakes import DummyEntity
+from src.core.infrastructure.repositories import InMemoryRepository
+from src.core.tests.fakes import DummyEntity
 
 
 class TestInMemoryRepository:

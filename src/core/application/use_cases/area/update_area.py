@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from core.application.use_cases.area import AreaNotFoundError
-from core.domain._shared import AbstractRepository
-from core.domain.entities import Area
+from src.core.application.use_cases.area import AreaNotFoundError
+from src.core.domain._shared import AbstractRepository
+from src.core.domain.entities import Area
 
 
 @dataclass

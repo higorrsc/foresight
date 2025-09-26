@@ -1,7 +1,7 @@
 from typing import Generic, List, Optional, TypeVar
 from uuid import UUID
 
-from core.domain._shared import AbstractRepository
+from src.core.domain._shared import AbstractRepository
 
 T = TypeVar("T")
 

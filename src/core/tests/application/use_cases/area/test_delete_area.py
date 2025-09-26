@@ -1,7 +1,7 @@
-from core.application._shared.use_cases import InputDeleteRequestDTO
-from core.application.use_cases.area import AreaNotFoundError, DeleteAreaUseCase
-from core.domain.entities import Area
-from core.infrastructure.repositories import InMemoryRepository
+from src.core.application._shared.use_cases import InputDeleteRequestDTO
+from src.core.application.use_cases.area import AreaNotFoundError, DeleteAreaUseCase
+from src.core.domain.entities import Area
+from src.core.infrastructure.repositories import InMemoryRepository
 
 
 class TestDeleteArea:
