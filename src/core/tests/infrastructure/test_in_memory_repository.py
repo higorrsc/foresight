@@ -1,11 +1,12 @@
 from uuid import UUID
 
-from core.tests.fakes import DummyEntity, InMemoryRepository
+from core.infrastructure.repositories import InMemoryRepository
+from core.tests.fakes import DummyEntity
 
 
-class TestAbstractRepository:
+class TestInMemoryRepository:
     """
-    Test cases for the AbstractRepository class.
+    Test cases for the InMemoryRepository class.
     """
 
     def test_save_entity(self):

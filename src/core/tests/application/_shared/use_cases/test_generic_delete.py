@@ -4,7 +4,8 @@ from core.application._shared.use_cases.generic_delete import (
     GenericDeleteUseCase,
     InputDeleteRequestDTO,
 )
-from core.tests.fakes import DummyEntity, InMemoryRepository
+from core.infrastructure.repositories import InMemoryRepository
+from core.tests.fakes import DummyEntity
 
 
 class EntityNotFoundException(Exception):

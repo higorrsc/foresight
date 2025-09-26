@@ -6,7 +6,7 @@ from core.application.use_cases.area import (
     UpdateArea,
 )
 from core.domain.entities import Area
-from core.tests.fakes import InMemoryRepository
+from core.infrastructure.repositories import InMemoryRepository
 
 
 class TestUpdateArea:

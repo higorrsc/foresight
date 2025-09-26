@@ -1,8 +1,8 @@
 import pytest
 
 from core.application._shared.use_cases.generic_list import GenericListUseCase
-from core.tests.fakes import InMemoryRepository
-from core.tests.fakes.dummy_entity import DummyEntity
+from core.infrastructure.repositories import InMemoryRepository
+from core.tests.fakes import DummyEntity
 
 
 @pytest.fixture

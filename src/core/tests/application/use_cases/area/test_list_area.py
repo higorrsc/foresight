@@ -1,7 +1,7 @@
 from core.application._shared.use_cases.generic_list import OutputGenericListDTO
 from core.application.use_cases.area import ListAreaUseCase
 from core.domain.entities import Area
-from core.tests.fakes import InMemoryRepository
+from core.infrastructure.repositories import InMemoryRepository
 
 
 class TestListArea:
