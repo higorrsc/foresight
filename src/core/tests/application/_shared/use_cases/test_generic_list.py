@@ -1,7 +1,7 @@
 import pytest
 
 from src.core.application._shared.use_cases.generic_list import GenericListUseCase
-from src.core.infrastructure.repositories import InMemoryRepository
+from src.core.infrastructure.repositories._shared import InMemoryRepository
 from src.core.tests.fakes import DummyEntity
 
 

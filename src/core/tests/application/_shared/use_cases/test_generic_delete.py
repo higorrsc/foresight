@@ -4,7 +4,7 @@ from src.core.application._shared.use_cases.generic_delete import (
     GenericDeleteUseCase,
     InputDeleteRequestDTO,
 )
-from src.core.infrastructure.repositories import InMemoryRepository
+from src.core.infrastructure.repositories._shared import InMemoryRepository
 from src.core.tests.fakes import DummyEntity
 
 
