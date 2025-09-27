@@ -22,7 +22,7 @@
   },
   "python.analysis.autoSearchPaths": false,
   "python.analysis.autoImportCompletions": true,
-  "python.analysis.extraPaths": ["./src"],
+  "python.analysis.extraPaths": ["."],
   "python.analysis.inlayHints.callArgumentNames": "all",
   "python.analysis.typeCheckingMode": "standard",
   "python.testing.pytestArgs": [
