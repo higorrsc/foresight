@@ -1,8 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, TypeVar
+from dataclasses import dataclass
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
 
 T = TypeVar("T")
+
+
+@dataclass
+class PaginatedResult(Generic[T]):
+    """
+    Paginated result of list operations.
+    """
+
+    data: List[T]
+    total: int
 
 
 class AbstractRepository(ABC, Generic[T]):
@@ -52,11 +63,27 @@ class AbstractRepository(ABC, Generic[T]):
 
         raise NotImplementedError
 
+    @abstractmethod
     def delete(self, entity_id: UUID) -> None:
         """
         Delete an entity from the repository.
 
         :param entity_id: The ID of the entity to be deleted.
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def search(
+        self,
+        filters: Optional[Dict[str, Any]] = None,
+        sort_by: Optional[str] = None,
+        sort_order: str = "asc",
+        offset: int = 0,
+        limit: int = 10,
+    ) -> PaginatedResult[T]:
+        """
+        Search for entities based on criteria, with sorting and pagination.
         """
 
         raise NotImplementedError

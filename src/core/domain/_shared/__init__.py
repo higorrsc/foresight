@@ -1,7 +1,7 @@
 from .notification import Notification
 from .entity import AbstractEntity
 from .exceptions import EntityNotFoundException, EntityValidationError
-from .repository import AbstractRepository
+from .repository import AbstractRepository, PaginatedResult
 from .value_object import AbstractValueObject
 
 __all__ = [
@@ -11,4 +11,5 @@ __all__ = [
     "AbstractRepository",
     "EntityValidationError",
     "EntityNotFoundException",
+    "PaginatedResult"
 ]
