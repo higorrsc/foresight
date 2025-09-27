@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
-from core.domain.entities import Area
-from core.infrastructure.mappers import AreaMapper
-from core.infrastructure.models import AreaModel
-from core.infrastructure.repositories import SQLAlchemyRepository
+from src.core.domain.entities import Area
+from src.core.infrastructure.mappers import AreaMapper
+from src.core.infrastructure.models import AreaModel
+from src.core.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 class AreaRepository(SQLAlchemyRepository[Area, AreaModel]):

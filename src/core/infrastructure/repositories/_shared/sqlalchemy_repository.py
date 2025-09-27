@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from core.domain._shared.repository import AbstractRepository
+from src.core.domain._shared.repository import AbstractRepository
 
 T = TypeVar("T")
 M = TypeVar("M")

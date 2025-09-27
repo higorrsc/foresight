@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from core.infrastructure.mappers import AreaMapper
+from src.core.infrastructure.mappers import AreaMapper
 from src.core.infrastructure.models import AreaModel
 from src.core.infrastructure.repositories._shared import SQLAlchemyRepository
 
