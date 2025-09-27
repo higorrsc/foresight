@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.api.dependencies.database import get_area_repository
-from src.core.application._shared.use_cases.generic_delete import DeleteRequestInputDTO
-from src.core.application._shared.use_cases.generic_get_by_id import (
+from src.core.application._shared.use_cases import (
+    DeleteRequestInputDTO,
     GetByIdRequestInputDTO,
+    ListRequestInputDTO,
 )
 from src.core.application.use_cases.area import (
     AreaNotFoundError,
@@ -46,6 +47,26 @@ class AreaUpdateBody(BaseModel):
     )
 
 
+class PaginationMetaResponse(BaseModel):
+    """
+    Metadata for pagination.
+    """
+
+    total_items: int
+    current_page: int
+    page_size: int
+    total_pages: int
+
+
+class PaginatedAreaResponse(BaseModel):
+    """
+    Response model for API.
+    """
+
+    data: List[AreaResponse]
+    meta: PaginationMetaResponse
+
+
 router = APIRouter(
     prefix="/areas",
     tags=["Areas"],
@@ -78,16 +99,54 @@ def create_area_endpoint(
 @router.get(
     "/",
     status_code=status.HTTP_200_OK,
-    response_model=List[AreaResponse],
+    response_model=PaginatedAreaResponse,
 )
-def list_areas_endpoint(repo: AreaRepository = Depends(get_area_repository)):
+def list_areas_endpoint(
+    repo: AreaRepository = Depends(get_area_repository),
+    description: Optional[str] = Query(
+        None,
+        description="Filtrar por parte da descrição",
+    ),
+    sort_by: Optional[str] = Query(
+        "description",
+        description="Campo para ordenação",
+    ),
+    sort_order: str = Query(
+        "asc",
+        enum=["asc", "desc"],
+        description="Ordem da ordenação",
+    ),
+    offset: int = Query(
+        0,
+        ge=0,
+        description="Offset para paginação",
+    ),
+    limit: int = Query(
+        10,
+        ge=1,
+        le=100,
+        description="Limite de registos por página",
+    ),
+):
     """
-    List all areas.
+    List areas with filters, order and pagination.
     """
 
+    filters = {}
+    if description:
+        filters["description"] = description
+
+    input_dto = ListRequestInputDTO(
+        filters=filters,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        offset=offset,
+        limit=limit,
+    )
+
     use_case = ListAreaUseCase(repo)
-    result = use_case.execute()
-    return result.data
+    result = use_case.execute(input_dto)
+    return result
 
 
 @router.get(
