@@ -83,42 +83,63 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         if entity:
             self._entities.remove(entity)
 
+    def __entity_matches_filters(self, entity: T, filters: Dict[str, Any]) -> bool:
+        """
+        Verify if an entity matches the given filters.
+        """
+
+        for field, value in filters.items():
+            if not hasattr(entity, field):
+                return False
+
+            entity_value = getattr(entity, field)
+            if value.lower() not in str(entity_value).lower():
+                return False
+        return True
+
+    def __apply_filters(self, entities: List[T], filters: Dict[str, Any]) -> List[T]:
+        """
+        Apply filters to a list of entities.
+        """
+
+        if not filters:
+            return entities
+
+        return [
+            entity
+            for entity in entities
+            if self.__entity_matches_filters(entity, filters)
+        ]
+
+    def __apply_sorting(
+        self, entities: List[T], sort_by: Optional[str], sort_order: str
+    ) -> List[T]:
+        """
+        Apply sorting to a list of entities.
+        """
+
+        if sort_by and (entities and hasattr(entities[0], sort_by)):
+            entities.sort(
+                key=operator.attrgetter(sort_by),
+                reverse=sort_order.lower() == "desc",
+            )
+        return entities
+
     def search(
         self,
-        filters: Dict[str, Any] | None = None,
-        sort_by: str | None = None,
+        filters: Optional[Dict[str, Any]] = None,
+        sort_by: Optional[str] = None,
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 100,
     ) -> PaginatedResult[T]:
-        results = list(self._entities)
-
-        if filters:
-            filtered_results = []
-            for entity in results:
-                match = True
-                for field, value in filters.items():
-                    if hasattr(entity, field):
-                        entity_value = getattr(entity, field)
-                        if value.lower() not in str(entity_value).lower():
-                            match = False
-                            break
-                    else:
-                        match = False
-                        break
-                if match:
-                    filtered_results.append(entity)
-            results = filtered_results
-
-        total = len(results)
-
-        if sort_by and hasattr(results[0] if results else None, sort_by):
-            results.sort(
-                key=operator.attrgetter(sort_by),
-                reverse=sort_order.lower() == "desc",
-            )
-
-        paginated_data = results[offset : offset + limit]
+        """
+        Search entities in the repository based on filters, sorting, and pagination.
+        """
+        filtered_results = self.__apply_filters(list(self._entities), filters or {})
+        total = len(filtered_results)
+        sorted_results = self.__apply_sorting(filtered_results, sort_by, sort_order)
+        paginated_data = sorted_results[offset : offset + limit]
 
         return PaginatedResult(
             data=paginated_data,
