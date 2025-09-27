@@ -6,7 +6,7 @@ from src.core.domain.entities import Area
 
 
 @dataclass
-class InputCreateAreaUseCaseDTO:
+class CreateAreaInputDTO:
     """
     Data Transfer Object for input data when creating a new area.
     """
@@ -16,7 +16,7 @@ class InputCreateAreaUseCaseDTO:
 
 
 @dataclass
-class OutputCreateAreaUseCaseDTO:
+class CreateAreaOutputDTO:
     """
     Data Transfer Object for output data when creating a new area.
     """
@@ -36,9 +36,7 @@ class CreateAreaUseCase:
 
         self._repository = repository
 
-    def execute(
-        self, input_dto: InputCreateAreaUseCaseDTO
-    ) -> OutputCreateAreaUseCaseDTO:
+    def execute(self, input_dto: CreateAreaInputDTO) -> CreateAreaOutputDTO:
         """
         Execute the use case to create a new area.
         """
@@ -52,4 +50,4 @@ class CreateAreaUseCase:
             raise ValueError(f"Invalid input data: {e}") from e
 
         self._repository.save(area)
-        return OutputCreateAreaUseCaseDTO(id=area.id)
+        return CreateAreaOutputDTO(id=area.id)

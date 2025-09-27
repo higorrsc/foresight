@@ -1,4 +1,4 @@
-from src.core.application._shared.use_cases import InputDeleteRequestDTO
+from src.core.application._shared.use_cases import DeleteRequestInputDTO
 from src.core.application.use_cases.area import AreaNotFoundError, DeleteAreaUseCase
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
@@ -20,7 +20,7 @@ class TestDeleteArea:
         area = Area(description="Area to be deleted")
         repository.save(area)
 
-        use_case.execute(InputDeleteRequestDTO(id=area.id))
+        use_case.execute(DeleteRequestInputDTO(id=area.id))
 
         assert repository.get_by_id(area.id) is None
 
@@ -35,6 +35,6 @@ class TestDeleteArea:
         non_existent_id = "123e4567-e89b-12d3-a456-426614174000"
 
         try:
-            use_case.execute(InputDeleteRequestDTO(id=non_existent_id))
+            use_case.execute(DeleteRequestInputDTO(id=non_existent_id))
         except AreaNotFoundError as e:
             assert str(e) == "Area with given ID not found."

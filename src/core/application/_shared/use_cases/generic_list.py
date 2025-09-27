@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 
 @dataclass(frozen=True)
-class OutputGenericListDTO(Generic[T]):
+class ListRequestOutputDTO(Generic[T]):
     """
     Data Transfer Object for list requests.
     """
@@ -29,7 +29,7 @@ class GenericListUseCase(Generic[T]):
 
         self._repository = repository
 
-    def execute(self) -> OutputGenericListDTO:
+    def execute(self) -> ListRequestOutputDTO:
         """
         Execute the list use case.
 
@@ -37,4 +37,4 @@ class GenericListUseCase(Generic[T]):
         """
 
         entities = self._repository.list()
-        return OutputGenericListDTO(data=entities)
+        return ListRequestOutputDTO(data=entities)

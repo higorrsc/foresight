@@ -7,7 +7,7 @@ from src.core.domain.entities import Area
 
 
 @dataclass
-class InputUpdateAreaUseCaseDTO:
+class UpdateAreaInputDTO:
     """
     Data Transfer Object for input data when updating an area.
     """
@@ -17,7 +17,7 @@ class InputUpdateAreaUseCaseDTO:
 
 
 @dataclass
-class OutputUpdateAreaUseCaseDTO:
+class UpdateAreaOutputDTO:
     """
     Data Transfer Object for output data when updating an area.
     """
@@ -38,9 +38,7 @@ class UpdateAreaUseCase:
 
         self._repository = repository
 
-    def execute(
-        self, input_dto: InputUpdateAreaUseCaseDTO
-    ) -> OutputUpdateAreaUseCaseDTO:
+    def execute(self, input_dto: UpdateAreaInputDTO) -> UpdateAreaOutputDTO:
         """
         Execute the use case to update an area.
         """
@@ -55,7 +53,7 @@ class UpdateAreaUseCase:
             raise ValueError(f"Invalid input data: {e}") from e
 
         self._repository.update(area)
-        return OutputUpdateAreaUseCaseDTO(
+        return UpdateAreaOutputDTO(
             id=area.id,
             description=area.description,
         )

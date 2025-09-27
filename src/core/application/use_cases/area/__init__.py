@@ -1,25 +1,17 @@
 from .exceptions import AreaNotFoundError
-from .create_area import (
-    CreateAreaUseCase,
-    InputCreateAreaUseCaseDTO,
-    OutputCreateAreaUseCaseDTO,
-)
+from .create_area import CreateAreaInputDTO, CreateAreaOutputDTO, CreateAreaUseCase
 from .delete_area import DeleteAreaUseCase
 from .list_area import ListAreaUseCase
-from .update_area import (
-    InputUpdateAreaUseCaseDTO,
-    OutputUpdateAreaUseCaseDTO,
-    UpdateAreaUseCase,
-)
+from .update_area import UpdateAreaInputDTO, UpdateAreaOutputDTO, UpdateAreaUseCase
 
 __all__ = [
     "CreateAreaUseCase",
-    "InputCreateAreaUseCaseDTO",
-    "OutputCreateAreaUseCaseDTO",
+    "CreateAreaInputDTO",
+    "CreateAreaOutputDTO",
     "ListAreaUseCase",
     "AreaNotFoundError",
     "DeleteAreaUseCase",
     "UpdateAreaUseCase",
-    "InputUpdateAreaUseCaseDTO",
-    "OutputUpdateAreaUseCaseDTO",
+    "UpdateAreaInputDTO",
+    "UpdateAreaOutputDTO",
 ]

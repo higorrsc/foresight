@@ -1,8 +1,8 @@
 import pytest
 
 from src.core.application.use_cases.area import (
-    InputUpdateAreaUseCaseDTO,
-    OutputUpdateAreaUseCaseDTO,
+    UpdateAreaInputDTO,
+    UpdateAreaOutputDTO,
     UpdateAreaUseCase,
 )
 from src.core.domain.entities import Area
@@ -25,8 +25,8 @@ class TestUpdateArea:
         area = Area(description="Initial Description")
         repository.save(area)
 
-        output: OutputUpdateAreaUseCaseDTO = use_case.execute(
-            InputUpdateAreaUseCaseDTO(
+        output: UpdateAreaOutputDTO = use_case.execute(
+            UpdateAreaInputDTO(
                 id=area.id,
                 description="Updated Description",
             )
@@ -51,7 +51,7 @@ class TestUpdateArea:
             match="Invalid input data: Description must be a non-empty string.",
         ):
             use_case.execute(
-                InputUpdateAreaUseCaseDTO(
+                UpdateAreaInputDTO(
                     id=area.id,
                     description="",  # Invalid description
                 )
@@ -73,7 +73,7 @@ class TestUpdateArea:
             match="Invalid input data: Description must be at most 100 characters long.",
         ):
             use_case.execute(
-                InputUpdateAreaUseCaseDTO(
+                UpdateAreaInputDTO(
                     id=area.id,
                     description="a" * 200,  # Invalid description
                 )

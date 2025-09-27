@@ -8,7 +8,7 @@ T = TypeVar("T")
 
 
 @dataclass(frozen=True)
-class InputDeleteRequestDTO:
+class DeleteRequestInputDTO:
     """
     Data Transfer Object for delete requests.
     """
@@ -39,7 +39,7 @@ class GenericDeleteUseCase(Generic[T]):
         self._not_found_exception = not_found_exception
         self._not_found_message = not_found_message
 
-    def execute(self, request: InputDeleteRequestDTO) -> None:
+    def execute(self, request: DeleteRequestInputDTO) -> None:
         """
         Execute the delete use case.
 

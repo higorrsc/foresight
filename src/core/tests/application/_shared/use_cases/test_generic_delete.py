@@ -1,8 +1,8 @@
 import pytest
 
 from src.core.application._shared.use_cases.generic_delete import (
+    DeleteRequestInputDTO,
     GenericDeleteUseCase,
-    InputDeleteRequestDTO,
 )
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 from src.core.tests.fakes import DummyEntity
@@ -49,7 +49,7 @@ class TestGenericDeleteUseCase:
         entity = DummyEntity(name="Test Entity")
         repository.save(entity)
 
-        entity_id = InputDeleteRequestDTO(id=entity.id)
+        entity_id = DeleteRequestInputDTO(id=entity.id)
         delete_use_case.execute(request=entity_id)
 
         assert repository.get_by_id(entity_id) is None
@@ -59,7 +59,7 @@ class TestGenericDeleteUseCase:
         Test deleting a non-existing entity raises the appropriate exception.
         """
 
-        invalid_entity = InputDeleteRequestDTO(
+        invalid_entity = DeleteRequestInputDTO(
             id="c1c4d4d7-f545-5f27-b366-1546b022e622"
         )
 

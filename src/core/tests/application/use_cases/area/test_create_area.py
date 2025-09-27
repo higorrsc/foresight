@@ -1,7 +1,7 @@
 from src.core.application.use_cases.area import (
+    CreateAreaInputDTO,
+    CreateAreaOutputDTO,
     CreateAreaUseCase,
-    InputCreateAreaUseCaseDTO,
-    OutputCreateAreaUseCaseDTO,
 )
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
@@ -19,10 +19,10 @@ class TestCreateArea:
 
         repository = InMemoryRepository[Area]()
         use_case = CreateAreaUseCase(repository)
-        output = use_case.execute(InputCreateAreaUseCaseDTO("Test Area"))
+        output = use_case.execute(CreateAreaInputDTO("Test Area"))
 
         assert output.id is not None
-        assert isinstance(output, OutputCreateAreaUseCaseDTO)
+        assert isinstance(output, CreateAreaOutputDTO)
 
     def test_create_area_with_invalid_data(self):
         """
@@ -33,7 +33,7 @@ class TestCreateArea:
         use_case = CreateAreaUseCase(repository)
 
         try:
-            use_case.execute(InputCreateAreaUseCaseDTO(""))
+            use_case.execute(CreateAreaInputDTO(""))
             assert False, "Expected ValueError for empty name"
         except ValueError as e:
             assert (

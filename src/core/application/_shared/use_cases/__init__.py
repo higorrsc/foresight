@@ -1,9 +1,9 @@
-from .generic_delete import GenericDeleteUseCase, InputDeleteRequestDTO
-from .generic_list import GenericListUseCase, OutputGenericListDTO
+from .generic_delete import DeleteRequestInputDTO, GenericDeleteUseCase
+from .generic_list import GenericListUseCase, ListRequestOutputDTO
 
 __all__ = [
     "GenericDeleteUseCase",
-    "InputDeleteRequestDTO",
+    "DeleteRequestInputDTO",
     "GenericListUseCase",
-    "OutputGenericListDTO",
+    "ListRequestOutputDTO",
 ]
