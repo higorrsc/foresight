@@ -19,6 +19,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: Optional[str] = None
 
+    SECRET_KEY: str = "default_secret_key_if_not_in_env_file"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], info: ValidationInfo) -> str:
