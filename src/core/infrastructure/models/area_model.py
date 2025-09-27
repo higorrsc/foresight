@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import UUID, Column, DateTime, String
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -15,9 +15,9 @@ class AreaModel(Base):
     __tablename__ = "areas"
 
     id = Column(
-        String(36),
+        UUID(as_uuid=True),
         primary_key=True,
-        default=lambda: str(uuid4()),
+        default=uuid4,
     )
     description = Column(
         String(100),
