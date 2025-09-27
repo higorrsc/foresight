@@ -1,5 +1,6 @@
-from .exceptions import InvalidUserError, UsernameAlreadyExistsError
+from .exceptions import InvalidUserError, UsernameAlreadyExistsError, UserNotFoundError
 from .create_user import CreateUserInputDTO, CreateUserOutputDTO, CreateUserUseCase
+from .delete_user import DeleteUserUseCase
 
 __all__ = [
     "CreateUserUseCase",
@@ -7,4 +8,6 @@ __all__ = [
     "CreateUserOutputDTO",
     "UsernameAlreadyExistsError",
     "InvalidUserError",
+    "UserNotFoundError",
+    "DeleteUserUseCase",
 ]
