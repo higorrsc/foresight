@@ -2,9 +2,8 @@ from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import UUID, Column, DateTime, String
-from sqlalchemy.orm import declarative_base
 
-Base = declarative_base()
+from src.core.infrastructure.config.database import Base
 
 
 class AreaModel(Base):
