@@ -6,6 +6,8 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
+from src.core.infrastructure.config.settings import settings
+
 project_root = os.path.realpath(
     os.path.join(
         os.path.dirname(__file__),
@@ -21,6 +23,7 @@ sys.path.insert(
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL) #type:ignore
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
