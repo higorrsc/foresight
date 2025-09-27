@@ -114,13 +114,12 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
 
         total = query.count()
 
-        if sort_by:
-            if hasattr(self._model_cls, sort_by):
-                column = getattr(self._model_cls, sort_by)
-                if sort_order.lower() == "desc":
-                    query = query.order_by(desc(column))
-                else:
-                    query = query.order_by(asc(column))
+        if sort_by and hasattr(self._model_cls, sort_by):
+            column = getattr(self._model_cls, sort_by)
+            if sort_order.lower() == "desc":
+                query = query.order_by(desc(column))
+            else:
+                query = query.order_by(asc(column))
 
         query = query.offset(offset).limit(limit)
 
