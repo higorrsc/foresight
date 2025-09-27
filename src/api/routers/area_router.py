@@ -1,8 +1,11 @@
-from typing import Dict
+from datetime import datetime
+from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
 
+from src.api.dependencies.database import get_area_repository
 from src.core.application._shared.use_cases.generic_delete import DeleteRequestInputDTO
 from src.core.application._shared.use_cases.generic_get_by_id import (
     GetByIdRequestInputDTO,
@@ -17,16 +20,31 @@ from src.core.application.use_cases.area import (
     UpdateAreaInputDTO,
     UpdateAreaUseCase,
 )
-from src.core.domain.entities.area import Area
-from src.core.infrastructure.repositories._shared import InMemoryRepository
+from src.core.infrastructure.repositories.area_repository import AreaRepository
 
-area_repository = InMemoryRepository[Area]()
 
-create_area_use_case = CreateAreaUseCase(area_repository)
-list_area_use_case = ListAreaUseCase(area_repository)
-update_area_use_case = UpdateAreaUseCase(area_repository)
-delete_area_use_case = DeleteAreaUseCase(area_repository)
-get_area_by_id_use_case = GetAreaByIdUseCase(area_repository)
+class AreaResponse(BaseModel):
+    """
+    Response model for API.
+    """
+
+    id: UUID
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class AreaUpdateBody(BaseModel):
+    """
+    Request model for update area.
+    """
+
+    description: str = Field(
+        ...,
+        min_length=3,
+        max_length=100,
+    )
+
 
 router = APIRouter(
     prefix="/areas",
@@ -37,15 +55,18 @@ router = APIRouter(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=None,
 )
-def create_area_endpoint(request: CreateAreaInputDTO):
+def create_area_endpoint(
+    request: CreateAreaInputDTO,
+    repo: AreaRepository = Depends(get_area_repository),
+):
     """
     Create a new area.
     """
 
     try:
-        result = create_area_use_case.execute(request)
+        use_case = CreateAreaUseCase(repo)
+        result = use_case.execute(request)
         return {"id": result.id}
     except ValueError as e:
         raise HTTPException(
@@ -57,45 +78,36 @@ def create_area_endpoint(request: CreateAreaInputDTO):
 @router.get(
     "/",
     status_code=status.HTTP_200_OK,
-    response_model=None,
+    response_model=List[AreaResponse],
 )
-def list_areas_endpoint():
+def list_areas_endpoint(repo: AreaRepository = Depends(get_area_repository)):
     """
     List all areas.
     """
 
-    areas = list_area_use_case.execute()
-    return [
-        {
-            "id": area.id,
-            "description": area.description,
-            "created_at": area.created_at,
-            "updated_at": area.updated_at,
-        }
-        for area in areas.data
-    ]
+    use_case = ListAreaUseCase(repo)
+    result = use_case.execute()
+    return result.data
 
 
 @router.get(
     "/{area_id}",
     status_code=status.HTTP_200_OK,
-    response_model=None,
+    response_model=AreaResponse,
 )
-def get_area_by_id_endpoint(area_id: UUID):
+def get_area_by_id_endpoint(
+    area_id: UUID,
+    repo: AreaRepository = Depends(get_area_repository),
+):
     """
     Getting an area by its ID.
     """
 
     try:
+        use_case = GetAreaByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=area_id)
-
-        output_dto = get_area_by_id_use_case.execute(input_dto)
-        return {
-            "id": output_dto.id,
-            "description": output_dto.description,
-            "created_at": output_dto.created_at,
-            "updated_at": output_dto.updated_at,
-        }
+        area = use_case.execute(input_dto)
+        return area
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -111,24 +123,23 @@ def get_area_by_id_endpoint(area_id: UUID):
 @router.put(
     "/{area_id}",
     status_code=status.HTTP_200_OK,
-    response_model=None,
 )
-def update_area_endpoint(area_id: UUID, request_body: Dict):
+def update_area_endpoint(
+    area_id: UUID,
+    request_body: AreaUpdateBody,
+    repo: AreaRepository = Depends(get_area_repository),
+):
     """
     Update an existing area.
     """
 
     try:
-        description = request_body.get("description")
-        if description is None:
-            raise ValueError("Description is required")
-
+        use_case = UpdateAreaUseCase(repo)
         input_dto = UpdateAreaInputDTO(
             id=area_id,
-            description=description,
+            description=request_body.description,
         )
-
-        output_dto = update_area_use_case.execute(input_dto)
+        output_dto = use_case.execute(input_dto)
         return {
             "id": output_dto.id,
             "description": output_dto.description,
@@ -148,15 +159,18 @@ def update_area_endpoint(area_id: UUID, request_body: Dict):
 @router.delete(
     "/{area_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    response_model=None,
 )
-def delete_area_endpoint(area_id: UUID):
+def delete_area_endpoint(
+    area_id: UUID,
+    repo: AreaRepository = Depends(get_area_repository),
+):
     """
     Delete an existing area.
     """
 
     try:
-        delete_area_use_case.execute(DeleteRequestInputDTO(area_id))
+        use_case = DeleteAreaUseCase(repo)
+        use_case.execute(DeleteRequestInputDTO(area_id))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
