@@ -54,7 +54,7 @@ class UpdateAreaUseCase:
         except ValueError as e:
             raise ValueError(f"Invalid input data: {e}") from e
 
-        self._repository.save(area)
+        self._repository.update(area)
         return OutputUpdateAreaUseCaseDTO(
             id=area.id,
             description=area.description,
