@@ -1,5 +1,5 @@
 {
-  "cSpell.words": [],
+  "cSpell.words": ["nullable", "onupdate"],
   "editor.codeActionsOnSave": {
     "source.addMissingImports": "always",
     "source.fixAll.eslint": "always",
