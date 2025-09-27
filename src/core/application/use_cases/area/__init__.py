@@ -1,4 +1,4 @@
-from .exceptions import AreaNotFoundError
+from .exceptions import AreaNotFoundError, InvalidAreaError
 from .create_area import CreateAreaInputDTO, CreateAreaOutputDTO, CreateAreaUseCase
 from .delete_area import DeleteAreaUseCase
 from .list_area import ListAreaUseCase
@@ -14,4 +14,5 @@ __all__ = [
     "UpdateAreaUseCase",
     "UpdateAreaInputDTO",
     "UpdateAreaOutputDTO",
+    "InvalidAreaError",
 ]
