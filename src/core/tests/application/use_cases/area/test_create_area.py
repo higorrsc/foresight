@@ -1,5 +1,5 @@
 from src.core.application.use_cases.area import (
-    CreateArea,
+    CreateAreaUseCase,
     InputCreateAreaDTO,
     OutputCreateAreaDTO,
 )
@@ -9,7 +9,7 @@ from src.core.infrastructure.repositories._shared import InMemoryRepository
 
 class TestCreateArea:
     """
-    Test the CreateArea use case.
+    Test the CreateAreaUseCase.
     """
 
     def test_create_area_with_valid_data(self):
@@ -18,7 +18,7 @@ class TestCreateArea:
         """
 
         repository = InMemoryRepository[Area]()
-        use_case = CreateArea(repository)
+        use_case = CreateAreaUseCase(repository)
         output = use_case.execute(InputCreateAreaDTO("Test Area"))
 
         assert output.id is not None
@@ -30,7 +30,7 @@ class TestCreateArea:
         """
 
         repository = InMemoryRepository[Area]()
-        use_case = CreateArea(repository)
+        use_case = CreateAreaUseCase(repository)
 
         try:
             use_case.execute(InputCreateAreaDTO(""))

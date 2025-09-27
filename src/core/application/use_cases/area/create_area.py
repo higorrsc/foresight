@@ -24,14 +24,14 @@ class OutputCreateAreaDTO:
     id: UUID
 
 
-class CreateArea:
+class CreateAreaUseCase:
     """
     Create a new area.
     """
 
     def __init__(self, repository: AbstractRepository[Area]) -> None:
         """
-        Initialize the CreateArea use case.
+        Initialize the CreateAreaUseCase.
         """
 
         self._repository = repository
