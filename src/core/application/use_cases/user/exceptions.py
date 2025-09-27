@@ -10,6 +10,12 @@ class UserUseCaseError(Exception):
     """
 
 
+class InvalidPasswordError(UserUseCaseError):
+    """
+    Exception raised when a password is invalid.
+    """
+
+
 class UserNotFoundError(UserUseCaseError):
     """
     Exception raised when a User is not found.

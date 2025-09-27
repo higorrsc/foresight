@@ -1,4 +1,10 @@
-from .exceptions import InvalidUserError, UsernameAlreadyExistsError, UserNotFoundError
+from .exceptions import (
+    InvalidPasswordError,
+    InvalidUserError,
+    UsernameAlreadyExistsError,
+    UserNotFoundError,
+)
+from .change_password import ChangePasswordInputDTO, ChangePasswordUseCase
 from .create_user import CreateUserInputDTO, CreateUserOutputDTO, CreateUserUseCase
 from .delete_user import DeleteUserUseCase
 
@@ -10,4 +16,7 @@ __all__ = [
     "InvalidUserError",
     "UserNotFoundError",
     "DeleteUserUseCase",
+    "ChangePasswordUseCase",
+    "ChangePasswordInputDTO",
+    "InvalidPasswordError",
 ]
