@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 
+from src.core.domain._shared import EntityValidationError
 from src.core.domain.entities import Area
 
 
@@ -16,7 +17,7 @@ class TestCreateAreaEntity:
         """
 
         with pytest.raises(
-            ValueError,
+            EntityValidationError,
             match="Description must be a non-empty string.",
         ):
             Area(description="")
@@ -30,7 +31,7 @@ class TestCreateAreaEntity:
         long_description = "A" * 101  # 101 characters long
 
         with pytest.raises(
-            ValueError,
+            EntityValidationError,
             match="Description must be at most 100 characters long.",
         ):
             Area(description=long_description)
@@ -99,13 +100,13 @@ class TestUpdateAreaEntity:
 
     def test_update_area_with_empty_description_raises_value_error(self):
         """
-        Test that updating the Area with an empty description raises a ValueError.
+        Test that updating the Area with an empty description raises a EntityValidationError.
         """
 
         area = Area(description="Initial Description")
 
         with pytest.raises(
-            ValueError,
+            EntityValidationError,
             match="Description must be a non-empty string.",
         ):
             area.update_area("")
@@ -113,14 +114,14 @@ class TestUpdateAreaEntity:
     def test_update_area_with_long_description_raises_value_error(self):
         """
         Test that updating the Area with a description longer
-        than 100 characters raises a ValueError.
+        than 100 characters raises a EntityValidationError.
         """
 
         area = Area(description="Initial Description")
         long_description = "A" * 101  # 101 characters long
 
         with pytest.raises(
-            ValueError,
+            EntityValidationError,
             match="Description must be at most 100 characters long.",
         ):
             area.update_area(long_description)

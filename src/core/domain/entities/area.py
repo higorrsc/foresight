@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core.domain._shared import AbstractEntity
+from src.core.domain._shared import AbstractEntity, EntityValidationError
 
 
 @dataclass(kw_only=True, eq=False)
@@ -33,7 +33,7 @@ class Area(AbstractEntity):
             )
 
         if self.notification.has_errors:
-            raise ValueError(self.notification.messages)
+            raise EntityValidationError(self.notification.messages)
 
     def __str__(self) -> str:
         """
