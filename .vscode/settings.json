@@ -1,5 +1,17 @@
 {
-  "cSpell.words": ["nullable", "onupdate"],
+  "cSpell.words": [
+    "autoflush",
+    "fastapi",
+    "ipython",
+    "mypy",
+    "nullable",
+    "onupdate",
+    "pydantic",
+    "pytest",
+    "sessionmaker",
+    "sqlalchemy",
+    "uvicorn"
+  ],
   "editor.codeActionsOnSave": {
     "source.addMissingImports": "always",
     "source.fixAll.eslint": "always",
