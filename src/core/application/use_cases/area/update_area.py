@@ -26,7 +26,7 @@ class OutputUpdateAreaDTO:
     description: str
 
 
-class UpdateArea:
+class UpdateAreaUseCase:
     """
     Use case for updating an existing area.
     """

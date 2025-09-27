@@ -3,7 +3,7 @@ import pytest
 from src.core.application.use_cases.area import (
     InputUpdateAreaDTO,
     OutputUpdateAreaDTO,
-    UpdateArea,
+    UpdateAreaUseCase,
 )
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
@@ -11,7 +11,7 @@ from src.core.infrastructure.repositories._shared import InMemoryRepository
 
 class TestUpdateArea:
     """
-    Test suite for the UpdateArea use case.
+    Test suite for the UpdateAreaUseCase use case.
     """
 
     def test_update_area_with_valid_data(self):
@@ -20,7 +20,7 @@ class TestUpdateArea:
         """
 
         repository = InMemoryRepository[Area]()
-        use_case = UpdateArea(repository)
+        use_case = UpdateAreaUseCase(repository)
 
         area = Area(description="Initial Description")
         repository.save(area)
@@ -41,7 +41,7 @@ class TestUpdateArea:
         """
 
         repository = InMemoryRepository[Area]()
-        use_case = UpdateArea(repository)
+        use_case = UpdateAreaUseCase(repository)
 
         area = Area(description="Initial Description")
         repository.save(area)
@@ -63,7 +63,7 @@ class TestUpdateArea:
         """
 
         repository = InMemoryRepository[Area]()
-        use_case = UpdateArea(repository)
+        use_case = UpdateAreaUseCase(repository)
 
         area = Area(description="Initial Description")
         repository.save(area)
