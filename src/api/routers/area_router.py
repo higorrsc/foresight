@@ -69,6 +69,8 @@ def list_areas_endpoint():
         {
             "id": area.id,
             "description": area.description,
+            "created_at": area.created_at,
+            "updated_at": area.updated_at,
         }
         for area in areas.data
     ]
