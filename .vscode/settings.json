@@ -1,15 +1,18 @@
 {
   "cSpell.words": [
     "autoflush",
+    "dbname",
     "fastapi",
     "ipython",
     "mypy",
     "nullable",
     "onupdate",
+    "pathsep",
     "pydantic",
     "pytest",
     "sessionmaker",
     "sqlalchemy",
+    "sqlite",
     "uvicorn"
   ],
   "editor.codeActionsOnSave": {
