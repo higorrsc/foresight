@@ -1,4 +1,7 @@
-from src.core.application._shared.use_cases.generic_list import ListRequestOutputDTO
+from src.core.application._shared.use_cases.generic_list import (
+    ListRequestInputDTO,
+    ListResponseOutputDTO,
+)
 from src.core.application.use_cases.area import ListAreaUseCase
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
@@ -23,7 +26,7 @@ class TestListArea:
         repository.save(area1)
         repository.save(area2)
 
-        areas: ListRequestOutputDTO[Area] = use_case.execute()
+        areas: ListResponseOutputDTO[Area] = use_case.execute(ListRequestInputDTO())
 
         assert len(areas.data) == 2
         assert areas.data[0].id is not None
@@ -39,6 +42,6 @@ class TestListArea:
         repository = InMemoryRepository[Area]()
         use_case = ListAreaUseCase(repository)
 
-        areas: ListRequestOutputDTO[Area] = use_case.execute()
+        areas: ListResponseOutputDTO[Area] = use_case.execute(ListRequestInputDTO())
 
         assert len(areas.data) == 0
