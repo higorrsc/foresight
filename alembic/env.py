@@ -5,7 +5,6 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
 from src.core.infrastructure.config.settings import settings
 
 project_root = os.path.realpath(
@@ -23,7 +22,7 @@ sys.path.insert(
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL) #type:ignore
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)  # type:ignore
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -47,6 +46,50 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+def process_revision_directives(context, revision, directives):
+    """
+    Prevents Alembic from generating type-change migrations for UUID
+    columns when the backend is SQLite.
+    This is necessary due to a SQLite limitation with autogenerate.
+    """
+
+    if context.dialect.name != "sqlite":
+        return
+
+    script = directives[0]
+    if script.upgrade_ops is None:
+        return
+
+    for script in directives:
+        if script.upgrade_ops is not None:
+            new_upgrade_ops = []
+            for op in script.upgrade_ops.ops:
+                is_alter_uuid = (
+                    op.__class__.__name__ == "ModifyTableOps"
+                    and op.ops[0].__class__.__name__ == "AlterColumnOp"
+                    and "UUID" in str(getattr(op.ops[0], "modify_type", ""))
+                )
+                if is_alter_uuid:
+                    print(f"INFO: Ignorando operação de UPGRADE para UUID no SQLite.")
+                    continue
+                new_upgrade_ops.append(op)
+            script.upgrade_ops.ops = new_upgrade_ops
+
+        if script.downgrade_ops is not None:
+            new_downgrade_ops = []
+            for op in script.downgrade_ops.ops:
+                is_alter_uuid = (
+                    op.__class__.__name__ == "ModifyTableOps"
+                    and op.ops[0].__class__.__name__ == "AlterColumnOp"
+                    and "UUID" in str(getattr(op.ops[0], "existing_type", ""))
+                )
+                if is_alter_uuid:
+                    print(f"INFO: Ignorando operação de DOWNGRADE para UUID no SQLite.")
+                    continue
+                new_downgrade_ops.append(op)
+            script.downgrade_ops.ops = new_downgrade_ops
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -65,6 +108,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        process_revision_directives=process_revision_directives,
     )
 
     with context.begin_transaction():
@@ -85,7 +129,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
