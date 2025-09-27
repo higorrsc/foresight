@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from src.core.application.use_cases.area import AreaNotFoundError
-from src.core.domain._shared import AbstractRepository
+from src.core.application.use_cases.area import AreaNotFoundError, InvalidAreaError
+from src.core.domain._shared import AbstractRepository, EntityValidationError
 from src.core.domain.entities import Area
 
 
@@ -49,8 +49,8 @@ class UpdateAreaUseCase:
 
         try:
             area.update_area(new_description=input_dto.description)
-        except ValueError as e:
-            raise ValueError(f"Invalid input data: {e}") from e
+        except EntityValidationError as e:
+            raise InvalidAreaError(f"Invalid input data: {e}") from e
 
         self._repository.update(area)
         return UpdateAreaOutputDTO(

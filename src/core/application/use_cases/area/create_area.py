@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
-from src.core.domain._shared import AbstractRepository
+from src.core.application.use_cases.area import InvalidAreaError
+from src.core.domain._shared import AbstractRepository, EntityValidationError
 from src.core.domain.entities import Area
 
 
@@ -46,8 +47,8 @@ class CreateAreaUseCase:
                 id=input_dto.id,
                 description=input_dto.description,
             )
-        except ValueError as e:
-            raise ValueError(f"Invalid input data: {e}") from e
+        except EntityValidationError as e:
+            raise InvalidAreaError(f"Invalid input data: {e}")
 
         self._repository.save(area)
         return CreateAreaOutputDTO(id=area.id)

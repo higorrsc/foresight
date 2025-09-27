@@ -1,6 +1,7 @@
 import pytest
 
 from src.core.application.use_cases.area import (
+    InvalidAreaError,
     UpdateAreaInputDTO,
     UpdateAreaOutputDTO,
     UpdateAreaUseCase,
@@ -47,7 +48,7 @@ class TestUpdateArea:
         repository.save(area)
 
         with pytest.raises(
-            ValueError,
+            InvalidAreaError,
             match="Invalid input data: Description must be a non-empty string.",
         ):
             use_case.execute(
@@ -69,7 +70,7 @@ class TestUpdateArea:
         repository.save(area)
 
         with pytest.raises(
-            ValueError,
+            InvalidAreaError,
             match="Invalid input data: Description must be at most 100 characters long.",
         ):
             use_case.execute(
