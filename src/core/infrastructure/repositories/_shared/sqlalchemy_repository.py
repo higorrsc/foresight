@@ -1,9 +1,10 @@
-from typing import Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 
-from src.core.domain._shared.repository import AbstractRepository
+from src.core.domain._shared.repository import AbstractRepository, PaginatedResult
 
 T = TypeVar("T")
 M = TypeVar("M")
@@ -89,3 +90,44 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         if model:
             self._session.delete(model)
             self._session.commit()
+
+    def search(
+        self,
+        filters: Optional[Dict[str, Any]] = None,
+        sort_by: Optional[str] = None,
+        sort_order: str = "asc",
+        offset: int = 0,
+        limit: int = 100,
+    ) -> PaginatedResult[T]:
+        """
+        Search for entities based on criteria, with sorting and pagination.
+        """
+
+        query = self._session.query(self._model_cls)
+
+        if filters:
+            for field, value in filters.items():
+                if hasattr(self._model_cls, field):
+                    query = query.filter(
+                        getattr(self._model_cls, field).ilike(f"%{value}%")
+                    )
+
+        total = query.count()
+
+        if sort_by:
+            if hasattr(self._model_cls, sort_by):
+                column = getattr(self._model_cls, sort_by)
+                if sort_order.lower() == "desc":
+                    query = query.order_by(desc(column))
+                else:
+                    query = query.order_by(asc(column))
+
+        query = query.offset(offset).limit(limit)
+
+        models = query.all()
+        entities = [self._mapper.to_entity(m) for m in models]
+
+        return PaginatedResult(
+            data=entities,
+            total=total,
+        )

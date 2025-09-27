@@ -1,7 +1,9 @@
-from typing import Generic, List, Optional, TypeVar
+import operator
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
 
 from src.core.domain._shared import AbstractRepository
+from src.core.domain._shared.repository import PaginatedResult
 
 T = TypeVar("T")
 
@@ -80,3 +82,45 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
         if entity:
             self._entities.remove(entity)
+
+    def search(
+        self,
+        filters: Dict[str, Any] | None = None,
+        sort_by: str | None = None,
+        sort_order: str = "asc",
+        offset: int = 0,
+        limit: int = 100,
+    ) -> PaginatedResult[T]:
+        results = list(self._entities)
+
+        if filters:
+            filtered_results = []
+            for entity in results:
+                match = True
+                for field, value in filters.items():
+                    if hasattr(entity, field):
+                        entity_value = getattr(entity, field)
+                        if value.lower() not in str(entity_value).lower():
+                            match = False
+                            break
+                    else:
+                        match = False
+                        break
+                if match:
+                    filtered_results.append(entity)
+            results = filtered_results
+
+        total = len(results)
+
+        if sort_by and hasattr(results[0] if results else None, sort_by):
+            results.sort(
+                key=operator.attrgetter(sort_by),
+                reverse=sort_order.lower() == "desc",
+            )
+
+        paginated_data = results[offset : offset + limit]
+
+        return PaginatedResult(
+            data=paginated_data,
+            total=total,
+        )
