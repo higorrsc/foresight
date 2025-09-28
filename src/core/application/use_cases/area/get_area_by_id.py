@@ -1,6 +1,6 @@
 from src.core.application._shared.use_cases import GenericGetByIdUseCase
-from src.core.application.use_cases.area.exceptions import AreaNotFoundError
-from src.core.domain._shared.repository import AbstractRepository
+from src.core.application.use_cases.area import AreaNotFoundError
+from src.core.domain._shared import AbstractRepository
 from src.core.domain.entities import Area
 
 
