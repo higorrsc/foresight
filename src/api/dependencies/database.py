@@ -3,7 +3,7 @@ from typing import Generator
 from fastapi import Depends
 
 from src.core.infrastructure.config.database import SessionLocal
-from src.core.infrastructure.repositories.area_repository import AreaRepository
+from src.core.infrastructure.repositories import AreaRepository, UserRepository
 
 
 def get_db_session() -> Generator:
@@ -29,3 +29,13 @@ def get_area_repository(
     """
 
     return AreaRepository(session)
+
+
+def get_user_repository(
+    session: SessionLocal = Depends(get_db_session),
+) -> UserRepository:
+    """
+    Return an UserRepository instance with database session.
+    """
+
+    return UserRepository(session)
