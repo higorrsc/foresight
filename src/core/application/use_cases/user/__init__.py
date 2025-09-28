@@ -4,6 +4,7 @@ from .exceptions import (
     UsernameAlreadyExistsError,
     UserNotFoundError,
 )
+from .authenticate_user import AuthenticateUserInputDTO, AuthenticateUserUseCase
 from .change_password import ChangePasswordInputDTO, ChangePasswordUseCase
 from .create_user import CreateUserInputDTO, CreateUserOutputDTO, CreateUserUseCase
 from .delete_user import DeleteUserUseCase
@@ -11,6 +12,8 @@ from .get_user_by_id import GetUserByIdUseCase
 from .list_user import ListUserUseCase
 
 __all__ = [
+    "AuthenticateUserInputDTO",
+    "AuthenticateUserUseCase",
     "ChangePasswordInputDTO",
     "ChangePasswordUseCase",
     "CreateUserInputDTO",
