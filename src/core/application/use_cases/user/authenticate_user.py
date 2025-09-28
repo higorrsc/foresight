@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core.application.use_cases.user.exceptions import UserNotFoundError
+from src.core.application.use_cases.user import InvalidPasswordError, UserNotFoundError
 from src.core.domain.entities import User
 from src.core.infrastructure.repositories import UserRepository
 
@@ -37,6 +37,6 @@ class AuthenticateUserUseCase:
             raise UserNotFoundError("Invalid username or password")
 
         if not user.verify_password(input_dto.password):
-            raise UserNotFoundError("Invalid username or password")
+            raise InvalidPasswordError("Invalid username or password")
 
         return user
