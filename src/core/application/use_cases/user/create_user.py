@@ -3,7 +3,6 @@ from uuid import UUID
 
 from src.core.domain._shared import AbstractRepository, EntityValidationError
 from src.core.domain.entities import User, hash_password
-from src.core.infrastructure.repositories import UserRepository
 
 from .exceptions import InvalidUserError, UsernameAlreadyExistsError
 
@@ -33,7 +32,7 @@ class CreateUserUseCase:
     Use case for creating a new user.
     """
 
-    def __init__(self, repository: AbstractRepository[UserRepository]):
+    def __init__(self, repository: AbstractRepository[User]):
         """
         Constructor Initialize the CreateUserUseCase.
         """
