@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.api.routers import area_router, user_router
+from src.api.routers import area_router, auth_router, user_router
 from src.core.infrastructure.config.database import Base, engine
 from src.core.infrastructure.models import AreaModel
 
@@ -12,10 +12,17 @@ app = FastAPI(
     title="Foresight API",
     description="API para simulação orçamentária e projeção de gastos/custos.",
     version="1.0.0",
+    swagger_ui_init_oauth={
+        "usePkceWithAuthorizationCodeGrant": True,
+        "clientId": "foresight-swagger-ui",  # Nome de cliente fictício
+        "clientSecret": None,  # Não usar um client_secret
+        "persistAuthorization": True,
+    },
 )
 
 app.include_router(area_router.router)
 app.include_router(user_router.router)
+app.include_router(auth_router.router)
 
 
 @app.get("/")
