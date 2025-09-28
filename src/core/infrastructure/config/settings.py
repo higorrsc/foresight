@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "default_secret_key_if_not_in_env_file"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    AUTH_PROVIDER: str = "local"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
