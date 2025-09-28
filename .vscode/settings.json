@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "anotheruser",
     "autoflush",
     "dbname",
     "descomentar",
@@ -21,7 +22,8 @@
     "SGBD",
     "sqlalchemy",
     "sqlite",
-    "uvicorn"
+    "uvicorn",
+    "wrongpassword"
   ],
   "editor.codeActionsOnSave": {
     "source.addMissingImports": "always",
