@@ -20,9 +20,10 @@ app = FastAPI(
     },
 )
 
-app.include_router(area_router.router)
-app.include_router(user_router.router)
 app.include_router(auth_router.router)
+app.include_router(user_router.public_router)
+app.include_router(user_router.protected_router)
+app.include_router(area_router.router)
 
 
 @app.get("/")

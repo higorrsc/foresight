@@ -24,7 +24,6 @@ from src.core.application.use_cases.user import (
     UsernameAlreadyExistsError,
     UserNotFoundError,
 )
-from src.core.domain.entities import User
 from src.core.infrastructure.repositories import UserRepository
 
 
@@ -55,7 +54,12 @@ class ChangePasswordBody(BaseModel):
     new_password: str = Field(..., min_length=8)
 
 
-router = APIRouter(
+public_router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+)
+
+protected_router = APIRouter(
     prefix="/users",
     tags=["Users"],
     dependencies=[
@@ -64,7 +68,7 @@ router = APIRouter(
 )
 
 
-@router.post(
+@public_router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=UserResponse,
@@ -93,7 +97,7 @@ def create_user_endpoint(
         ) from e
 
 
-@router.get(
+@protected_router.get(
     "/",
     status_code=status.HTTP_200_OK,
     response_model=PaginatedUserResponse,
@@ -124,7 +128,7 @@ def list_users_endpoint(
     return result
 
 
-@router.get(
+@protected_router.get(
     "/{user_id}",
     status_code=status.HTTP_200_OK,
     response_model=UserResponse,
@@ -154,7 +158,7 @@ def get_user_by_id_endpoint(
         ) from e
 
 
-@router.delete(
+@protected_router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
@@ -176,7 +180,7 @@ def delete_user_endpoint(
         ) from e
 
 
-@router.patch("/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+@protected_router.patch("/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
 def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
@@ -209,15 +213,3 @@ def change_password_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
-
-
-@router.get(
-    "/me",
-    response_model=UserResponse,
-)
-async def read_users_me(current_user: User = Depends(get_current_user)):
-    """
-    Endpoint de exemplo que retorna as informações do utilizador autenticado.
-    """
-
-    return current_user
