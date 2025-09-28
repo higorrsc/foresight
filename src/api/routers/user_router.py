@@ -6,20 +6,24 @@ from pydantic import BaseModel, Field
 
 from src.api.dependencies.database import get_user_repository
 from src.api.routers.dto import PaginationMetaResponse
-from src.core.application._shared.use_cases import ListRequestInputDTO
-from src.core.application._shared.use_cases.generic_delete import DeleteRequestInputDTO
+from src.core.application._shared.use_cases import (
+    DeleteRequestInputDTO,
+    GetByIdRequestInputDTO,
+    ListRequestInputDTO,
+)
 from src.core.application.use_cases.user import (
     ChangePasswordInputDTO,
     ChangePasswordUseCase,
     CreateUserInputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
+    GetUserByIdUseCase,
     InvalidPasswordError,
     ListUserUseCase,
     UsernameAlreadyExistsError,
     UserNotFoundError,
 )
-from src.core.infrastructure.repositories.user_repository import UserRepository
+from src.core.infrastructure.repositories import UserRepository
 
 
 class UserResponse(BaseModel):
@@ -84,7 +88,11 @@ def create_user_endpoint(
         ) from e
 
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=PaginatedUserResponse)
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedUserResponse,
+)
 def list_users_endpoint(
     repo: UserRepository = Depends(get_user_repository),
     username: str = Query(None, description="Filtrar por parte do username"),
@@ -111,7 +119,40 @@ def list_users_endpoint(
     return result
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.get(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserResponse,
+)
+def get_user_by_id_endpoint(
+    user_id: UUID,
+    repo: UserRepository = Depends(get_user_repository),
+):
+    """
+    Getting an user by its ID.
+    """
+
+    try:
+        use_case = GetUserByIdUseCase(repo)
+        input_dto = GetByIdRequestInputDTO(id=user_id)
+        user = use_case.execute(input_dto)
+        return user
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_user_endpoint(
     user_id: UUID,
     repo: UserRepository = Depends(get_user_repository),
