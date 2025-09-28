@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "anotheruser",
+    "anypassword",
     "autoflush",
     "dbname",
     "descomentar",
@@ -10,6 +11,7 @@
     "ipython",
     "mssql",
     "mypy",
+    "nonexistentuser",
     "nullable",
     "onupdate",
     "pathsep",
