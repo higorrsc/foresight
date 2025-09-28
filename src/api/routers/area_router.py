@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.api.dependencies.database import get_area_repository
+from src.api.routers.dto import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
     DeleteRequestInputDTO,
     GetByIdRequestInputDTO,
@@ -45,17 +46,6 @@ class AreaUpdateBody(BaseModel):
         min_length=3,
         max_length=100,
     )
-
-
-class PaginationMetaResponse(BaseModel):
-    """
-    Metadata for pagination.
-    """
-
-    total_items: int
-    current_page: int
-    page_size: int
-    total_pages: int
 
 
 class PaginatedAreaResponse(BaseModel):
