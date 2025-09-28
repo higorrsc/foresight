@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.api.routers import area_router
+from src.api.routers import area_router, user_router
 from src.core.infrastructure.config.database import Base, engine
 from src.core.infrastructure.models import AreaModel
 
@@ -15,6 +15,7 @@ app = FastAPI(
 )
 
 app.include_router(area_router.router)
+app.include_router(user_router.router)
 
 
 @app.get("/")
