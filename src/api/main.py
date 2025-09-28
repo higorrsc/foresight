@@ -12,12 +12,6 @@ app = FastAPI(
     title="Foresight API",
     description="API para simulação orçamentária e projeção de gastos/custos.",
     version="1.0.0",
-    swagger_ui_init_oauth={
-        "usePkceWithAuthorizationCodeGrant": True,
-        "clientId": "foresight-swagger-ui",  # Nome de cliente fictício
-        "clientSecret": None,  # Não usar um client_secret
-        "persistAuthorization": True,
-    },
 )
 
 app.include_router(auth_router.router)

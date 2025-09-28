@@ -1,8 +1,6 @@
 from datetime import timedelta
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 
 from src.api.auth.security import create_access_token
 from src.api.dependencies.database import get_user_repository
@@ -26,7 +24,8 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    username: str = Form(...),
+    password: str = Form(...),
     repository: UserRepository = Depends(get_user_repository),
 ):
     """
@@ -35,8 +34,8 @@ async def login_for_access_token(
 
     use_case = AuthenticateUserUseCase(repository)
     input_dto = AuthenticateUserInputDTO(
-        username=form_data.username,
-        password=form_data.password,
+        username=username,
+        password=password,
     )
 
     try:
