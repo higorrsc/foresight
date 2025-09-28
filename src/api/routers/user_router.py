@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
+from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.database import get_user_repository
 from src.api.routers.dto import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
@@ -23,6 +24,7 @@ from src.core.application.use_cases.user import (
     UsernameAlreadyExistsError,
     UserNotFoundError,
 )
+from src.core.domain.entities import User
 from src.core.infrastructure.repositories import UserRepository
 
 
@@ -56,6 +58,9 @@ class ChangePasswordBody(BaseModel):
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
+    dependencies=[
+        Depends(get_current_user),
+    ],
 )
 
 
@@ -204,3 +209,15 @@ def change_password_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
+
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    """
+    Endpoint de exemplo que retorna as informações do utilizador autenticado.
+    """
+
+    return current_user
