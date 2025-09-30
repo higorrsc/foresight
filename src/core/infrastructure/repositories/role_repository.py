@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from src.core.domain.entities import Role
@@ -19,3 +21,11 @@ class RoleRepository(SQLAlchemyRepository[Role, RoleModel]):
         """
 
         super().__init__(session, RoleModel, mapper=RoleMapper)
+
+    def get_by_name(self, name: str) -> Optional[Role]:
+        """
+        Get a role by its name.
+        """
+
+        model = self._session.query(self._model_cls).filter_by(name=name).first()
+        return self._mapper.to_entity(model) if model else None
