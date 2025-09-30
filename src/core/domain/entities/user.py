@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Set
 
 from passlib.context import CryptContext
 
@@ -15,6 +16,7 @@ class User(AbstractEntity):
 
     username: str
     hashed_password: str
+    roles: Set[str] = field(default_factory=set)
 
     def verify_password(self, plain_password: str) -> bool:
         """
@@ -22,6 +24,13 @@ class User(AbstractEntity):
         """
 
         return pwd_context.verify(plain_password, self.hashed_password)
+
+    def has_role(self, role_name: str) -> bool:
+        """
+        Check if the user has a specific role.
+        """
+
+        return role_name in self.roles
 
     def _validate(self) -> None:
         """

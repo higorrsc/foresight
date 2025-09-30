@@ -76,3 +76,14 @@ class TestUserEntity:
         user2 = User(username="user2", hashed_password="hash2")
 
         assert user1 != user2
+
+    def test_user_has_role(self):
+        """
+        Test the has_role method of the User entity.
+        """
+
+        user = User(username="testuser", hashed_password="hash")
+        user.roles.add("admin")
+
+        assert user.has_role("admin") is True
+        assert user.has_role("user") is False
