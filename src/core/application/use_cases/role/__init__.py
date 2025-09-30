@@ -3,6 +3,7 @@ from .create_role import CreateRoleInputDTO, CreateRoleOutputDTO, CreateRoleUseC
 from .delete_role import DeleteRoleUseCase
 from .get_role_by_id import GetRoleByIdUseCase
 from .list_role import ListRoleUseCase
+from .update_role import UpdateRoleRequestDTO, UpdateRoleResponseDTO, UpdateRoleUseCase
 
 __all__ = [
     "CreateRoleInputDTO",
@@ -13,4 +14,7 @@ __all__ = [
     "InvalidRoleError",
     "ListRoleUseCase",
     "RoleNotFoundError",
+    "UpdateRoleRequestDTO",
+    "UpdateRoleResponseDTO",
+    "UpdateRoleUseCase",
 ]
