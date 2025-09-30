@@ -1,6 +1,7 @@
+from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import UUID, Column, ForeignKey, String, Table
+from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table
 from sqlalchemy.orm import relationship
 
 from src.core.infrastructure.config.database import Base
@@ -41,6 +42,18 @@ class RoleModel(Base):
         index=True,
         nullable=False,
     )
-    description = Column(String, nullable=True)
+    description = Column(
+        String,
+        nullable=True,
+    )
+    created_at = Column(
+        DateTime,
+        default=datetime.now,
+    )
+    updated_at = Column(
+        DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
+    )
 
     users = relationship("UserModel", secondary=user_roles, back_populates="roles")
