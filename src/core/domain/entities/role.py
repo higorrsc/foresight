@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from src.core.domain._shared.entity import AbstractEntity
 from src.core.domain._shared.exceptions import EntityValidationError
@@ -12,6 +13,15 @@ class Role(AbstractEntity):
 
     name: str
     description: str
+
+    def update_role(self, new_name: str, new_description: Optional[str] = None) -> None:
+        """
+        Updates the name and description of the Role entity.
+        """
+
+        self.name = new_name
+        self.description = new_description  # type: ignore
+        self._validate()
 
     def _validate(self) -> None:
         if not self.name or not self.name.strip():
