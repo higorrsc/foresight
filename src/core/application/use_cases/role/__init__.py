@@ -1,5 +1,6 @@
-from .create_role import CreateRoleInputDTO, CreateRoleOutputDTO, CreateRoleUseCase
 from .exceptions import InvalidRoleError, RoleNotFoundError
+from .create_role import CreateRoleInputDTO, CreateRoleOutputDTO, CreateRoleUseCase
+from .delete_role import DeleteRoleUseCase
 
 __all__ = [
     "CreateRoleUseCase",
@@ -7,4 +8,5 @@ __all__ = [
     "CreateRoleOutputDTO",
     "RoleNotFoundError",
     "InvalidRoleError",
+    "DeleteRoleUseCase",
 ]
