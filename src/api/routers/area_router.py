@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.api.dependencies.auth import get_current_user
+from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers.dto import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
@@ -24,6 +25,8 @@ from src.core.application.use_cases.area import (
     UpdateAreaUseCase,
 )
 from src.core.infrastructure.repositories.area_repository import AreaRepository
+
+allow_admin_only = RoleChecker(["admin"])
 
 
 class AreaResponse(BaseModel):
@@ -212,6 +215,7 @@ def update_area_endpoint(
 @router.delete(
     "/{area_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(allow_admin_only)],
 )
 def delete_area_endpoint(
     area_id: UUID,
