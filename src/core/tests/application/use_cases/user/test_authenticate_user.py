@@ -5,6 +5,7 @@ from src.core.application.use_cases.user import (
     AuthenticateUserUseCase,
     UserNotFoundError,
 )
+from src.core.application.use_cases.user.exceptions import InvalidPasswordError
 from src.core.domain.entities import User, hash_password
 from src.core.tests.fakes import UserInMemoryRepository
 
@@ -93,7 +94,7 @@ class TestAuthenticateUserUseCase:
         )
 
         with pytest.raises(
-            UserNotFoundError,
+            InvalidPasswordError,
             match="Invalid username or password",
         ):
             use_case.execute(input_dto)
