@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.api.routers import area_router, auth_router, user_router
+from src.api.routers import area_router, auth_router, role_router, user_router
 from src.core.infrastructure.config.database import Base, engine
 from src.core.infrastructure.models import AreaModel
 
@@ -15,6 +15,7 @@ app = FastAPI(
 )
 
 app.include_router(auth_router.router)
+app.include_router(role_router.router)
 app.include_router(user_router.public_router)
 app.include_router(user_router.protected_router)
 app.include_router(area_router.router)
