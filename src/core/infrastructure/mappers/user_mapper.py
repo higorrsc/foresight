@@ -27,10 +27,12 @@ class UserMapper:
         Converts a UserModel instance to a User entity.
         """
 
+        role_names = {role.name for role in model.roles} if model.roles else set()
         return User(
             id=model.id,  # type: ignore
             username=model.username,  # type: ignore
             hashed_password=model.password,  # type: ignore
             created_at=model.created_at,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
+            roles=role_names,
         )
