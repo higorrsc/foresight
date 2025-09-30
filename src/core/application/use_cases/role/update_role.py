@@ -55,10 +55,16 @@ class UpdateRoleUseCase:
             raise RoleNotFoundError(f"Role with id {input_dto.id} not found.")
 
         try:
-            role.update_role(
-                new_name=input_dto.name,
-                new_description=input_dto.description,
-            )
+            if not input_dto.name:
+                role.update_role(
+                    new_name=role.name,
+                    new_description=input_dto.description,
+                )
+            else:
+                role.update_role(
+                    new_name=input_dto.name,
+                    new_description=input_dto.description,
+                )
         except EntityValidationError as e:
             raise InvalidRoleError(f"Invalid input data: {e}") from e
 
