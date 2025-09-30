@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import UUID, Column, DateTime, String
+from sqlalchemy.orm import relationship
 
 from src.core.infrastructure.config.database import Base
 
@@ -35,4 +36,10 @@ class UserModel(Base):
         DateTime,
         default=datetime.now,
         onupdate=datetime.now,
+    )
+    roles = relationship(
+        "RoleModel",
+        secondary="user_roles",
+        back_populates="users",
+        lazy="joined",
     )
