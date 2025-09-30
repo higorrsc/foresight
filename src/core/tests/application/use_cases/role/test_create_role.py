@@ -67,3 +67,15 @@ class TestCreateRoleUseCase:
                     "Test Description",
                 )
             )
+
+    def test_create_role_without_description(self):
+        """
+        Test the creation of a role without description.
+        """
+
+        repository = InMemoryRepository[Role]()
+        use_case = CreateRoleUseCase(repository)
+        output = use_case.execute(CreateRoleInputDTO("Test Role"))
+
+        assert output.id is not None
+        assert isinstance(output, CreateRoleOutputDTO)

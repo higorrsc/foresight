@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from uuid import UUID
 
 from src.core.application.use_cases.role.exceptions import InvalidRoleError
@@ -14,7 +15,7 @@ class CreateRoleInputDTO:
     """
 
     name: str
-    description: str
+    description: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -46,7 +47,7 @@ class CreateRoleUseCase:
         try:
             role = Role(
                 name=input_dto.name,
-                description=input_dto.description,
+                description=input_dto.description,  # type: ignore
             )
         except EntityValidationError as e:
             raise InvalidRoleError(f"Invalid input data: {e}") from e
