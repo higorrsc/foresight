@@ -10,6 +10,7 @@ from .create_user import CreateUserInputDTO, CreateUserOutputDTO, CreateUserUseC
 from .delete_user import DeleteUserUseCase
 from .get_user_by_id import GetUserByIdUseCase
 from .list_user import ListUserUseCase
+from .set_user_roles import SetUserRolesRequestDTO, SetUserRolesUseCase
 
 __all__ = [
     "AuthenticateUserInputDTO",
@@ -24,6 +25,8 @@ __all__ = [
     "InvalidPasswordError",
     "InvalidUserError",
     "ListUserUseCase",
+    "SetUserRolesRequestDTO",
+    "SetUserRolesUseCase",
     "UsernameAlreadyExistsError",
     "UserNotFoundError",
 ]
