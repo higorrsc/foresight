@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.database import get_user_repository
+from src.api.dependencies.database import get_role_repository, get_user_repository
 from src.api.routers.dto import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
     DeleteRequestInputDTO,
@@ -25,6 +25,7 @@ from src.core.application.use_cases.user import (
     UserNotFoundError,
 )
 from src.core.infrastructure.repositories import UserRepository
+from src.core.infrastructure.repositories.role_repository import RoleRepository
 
 
 class UserResponse(BaseModel):
@@ -75,14 +76,18 @@ protected_router = APIRouter(
 )
 def create_user_endpoint(
     request: CreateUserInputDTO,
-    repo: UserRepository = Depends(get_user_repository),
+    user_repo: UserRepository = Depends(get_user_repository),
+    role_repo: RoleRepository = Depends(get_role_repository),
 ):
     """
     Create a new user.
     """
 
     try:
-        use_case = CreateUserUseCase(repository=repo)
+        use_case = CreateUserUseCase(
+            user_repo,
+            role_repo,
+        )
         result = use_case.execute(request)
         return result
     except UsernameAlreadyExistsError as e:

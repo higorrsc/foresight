@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from src.core.domain.entities.user import User
 from src.core.infrastructure.mappers import UserMapper
 from src.core.infrastructure.models import UserModel
+from src.core.infrastructure.models.role_model import RoleModel
 from src.core.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
@@ -34,3 +35,24 @@ class UserRepository(SQLAlchemyRepository[User, UserModel]):
             self._session.query(self._model_cls).filter_by(username=username).first()
         )
         return self._mapper.to_entity(model) if model else None
+
+    def save(self, entity: User) -> Optional[User]:
+        """
+        Save User entity
+        """
+
+        model = self._mapper.to_model(entity)
+
+        if entity.roles:
+            role_models = (
+                self._session.query(RoleModel)
+                .filter(RoleModel.name.in_(entity.roles))
+                .all()
+            )
+            model.roles = role_models
+
+        self._session.add(model)
+        self._session.commit()
+        self._session.refresh(model)
+
+        return self._mapper.to_entity(model)

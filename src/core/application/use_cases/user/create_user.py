@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List, Optional
 from uuid import UUID
 
-from src.core.domain._shared import AbstractRepository, EntityValidationError
+from src.core.domain._shared import EntityValidationError
 from src.core.domain.entities import User, hash_password
+from src.core.infrastructure.repositories import RoleRepository, UserRepository
 
 from .exceptions import InvalidUserError, UsernameAlreadyExistsError
 
@@ -15,6 +17,7 @@ class CreateUserInputDTO:
 
     username: str
     password: str
+    roles: Optional[List[str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -32,19 +35,24 @@ class CreateUserUseCase:
     Use case for creating a new user.
     """
 
-    def __init__(self, repository: AbstractRepository[User]):
+    def __init__(
+        self,
+        user_repository: UserRepository,
+        role_repository: RoleRepository,
+    ):
         """
         Constructor Initialize the CreateUserUseCase.
         """
 
-        self._repository = repository
+        self._user_repository = user_repository
+        self._role_repository = role_repository
 
     def execute(self, input_dto: CreateUserInputDTO) -> CreateUserOutputDTO:
         """
         Execute the use case to create a new user.
         """
 
-        existing_user = self._repository.get_by_username(input_dto.username)  # type: ignore
+        existing_user = self._user_repository.get_by_username(input_dto.username)  # type: ignore
         if existing_user:
             raise UsernameAlreadyExistsError(
                 f"Username '{input_dto.username}' already exists."
@@ -52,15 +60,23 @@ class CreateUserUseCase:
 
         hashed_pwd = hash_password(input_dto.password)
 
+        role_names = set(input_dto.roles) if input_dto.roles else set()
+        if not role_names:
+            guest_role = self._role_repository.get_by_name("guest")
+            if not guest_role:
+                raise RuntimeError("Default role 'guest' not found in the system.")
+            role_names.add(guest_role.name)
+
         try:
             new_user = User(
                 username=input_dto.username,
                 hashed_password=hashed_pwd,
+                roles=role_names,
             )
         except EntityValidationError as e:
             raise InvalidUserError(f"Invalid user data: {e}") from e
 
-        self._repository.save(new_user)  # type: ignore
+        self._user_repository.save(new_user)  # type: ignore
 
         return CreateUserOutputDTO(
             id=new_user.id,
