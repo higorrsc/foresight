@@ -7,7 +7,8 @@ from src.core.application.use_cases.user import (
     UsernameAlreadyExistsError,
 )
 from src.core.domain.entities import User
-from src.core.tests.fakes import UserInMemoryRepository
+from src.core.domain.entities.role import Role
+from src.core.tests.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 
 class TestCreateUserUseCase:
@@ -23,13 +24,31 @@ class TestCreateUserUseCase:
 
         return UserInMemoryRepository()
 
-    def test_create_user_with_valid_data(self, user_in_memory_repository):
+    @pytest.fixture
+    def role_in_memory_repository(self):
+        """
+        Fixture that represents a role repository.
+        """
+
+        repo = RoleInMemoryRepository()
+        repo.save(Role(name="guest", description=""))
+
+        return repo
+
+    def test_create_user_with_valid_data(
+        self,
+        user_in_memory_repository,
+        role_in_memory_repository,
+    ):
         """
         Test create user with valid data.
         """
 
         repo = user_in_memory_repository
-        use_case = CreateUserUseCase(repository=repo)
+        use_case = CreateUserUseCase(
+            user_in_memory_repository,
+            role_in_memory_repository,
+        )
 
         input_dto = CreateUserInputDTO(
             username="testuser",
@@ -47,7 +66,9 @@ class TestCreateUserUseCase:
         assert saved_user.verify_password("StrongPassword123")
 
     def test_create_user_with_existing_username_raises_error(
-        self, user_in_memory_repository
+        self,
+        user_in_memory_repository,
+        role_in_memory_repository,
     ):
         """
         Test create user with existing username.
@@ -61,7 +82,10 @@ class TestCreateUserUseCase:
         )
         repo.save(existing_user)
 
-        use_case = CreateUserUseCase(repository=repo)
+        use_case = CreateUserUseCase(
+            user_in_memory_repository,
+            role_in_memory_repository,
+        )
 
         input_dto = CreateUserInputDTO(
             username="existinguser",
@@ -75,13 +99,18 @@ class TestCreateUserUseCase:
             use_case.execute(input_dto)
 
     def test_create_user_with_invalid_domain_data_raises_error(
-        self, user_in_memory_repository
+        self,
+        user_in_memory_repository,
+        role_in_memory_repository,
     ):
         """
         Testa que a exceção de validação do domínio é corretamente propagada.
         """
         repo = user_in_memory_repository
-        use_case = CreateUserUseCase(repository=repo)
+        use_case = CreateUserUseCase(
+            user_in_memory_repository,
+            role_in_memory_repository,
+        )
 
         input_dto = CreateUserInputDTO(
             username="",
