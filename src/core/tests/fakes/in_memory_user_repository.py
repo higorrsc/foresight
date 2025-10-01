@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.core.domain.entities import User
+from src.core.domain.entities.role import Role
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 
 
@@ -18,5 +19,22 @@ class UserInMemoryRepository(InMemoryRepository[User]):
         for user in self._entities:
             if user.username == username:
                 return user
+
+        return None
+
+
+class RoleInMemoryRepository(InMemoryRepository[Role]):
+    """
+    In Memory Repository specific to test Role entity,
+    this implements get_by_name method.
+    """
+
+    def get_by_name(self, name: str) -> Optional[Role]:
+        """
+        Method to get a role by its name.
+        """
+        for role in self._entities:
+            if role.name == name:
+                return role
 
         return None
