@@ -56,3 +56,28 @@ class UserRepository(SQLAlchemyRepository[User, UserModel]):
         self._session.refresh(model)
 
         return self._mapper.to_entity(model)
+
+    def update(self, entity: User) -> Optional[User]:
+        """
+        Update User entity
+        """
+
+        model = self._session.query(self._model_cls).get(entity.id)
+        if not model:
+            return None
+
+        model.username = entity.username
+        model.hashed_password = entity.hashed_password
+
+        if entity.roles is not None:
+            role_models = (
+                self._session.query(RoleModel)
+                .filter(RoleModel.name.in_(entity.roles))
+                .all()
+            )
+            model.roles = role_models
+
+        self._session.commit()
+        self._session.refresh(model)
+
+        return self._mapper.to_entity(model)
