@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from src.api.routers import area_router, auth_router, role_router, user_router
 from src.core.infrastructure.config.database import Base, SessionLocal, engine
-from src.core.infrastructure.db import seed_initial_roles
+from src.core.infrastructure.db import seed_initial_roles, seed_initial_users
 from src.core.infrastructure.models import AreaModel
 
 Base.metadata.create_all(bind=engine)
@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
     db_session = SessionLocal()
     try:
         seed_initial_roles(db_session)
+        seed_initial_users(db_session)
     finally:
         db_session.close()
 
@@ -38,9 +39,9 @@ app = FastAPI(
 )
 
 app.include_router(auth_router.router)
-app.include_router(role_router.router)
 app.include_router(user_router.public_router)
 app.include_router(user_router.protected_router)
+app.include_router(role_router.router)
 app.include_router(area_router.router)
 
 
