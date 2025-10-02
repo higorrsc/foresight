@@ -5,6 +5,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 
+from src.api.dependencies.auth import get_current_user
+from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository
 from src.api.routers.dto import PaginationMetaResponse
 from src.core.application._shared.use_cases.generic_delete import DeleteRequestInputDTO
@@ -25,6 +27,8 @@ from src.core.application.use_cases.role.update_role import (
     UpdateRoleUseCase,
 )
 from src.core.infrastructure.repositories import RoleRepository
+
+allow_admin_only = RoleChecker(["admin"])
 
 
 class RoleResponse(BaseModel):
@@ -60,6 +64,9 @@ class PaginatedRoleResponse(BaseModel):
 router = APIRouter(
     prefix="/roles",
     tags=["Roles"],
+    dependencies=[
+        Depends(get_current_user),
+    ],
 )
 
 
