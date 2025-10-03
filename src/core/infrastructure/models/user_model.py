@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import UUID, Column, DateTime, String
+from sqlalchemy import UUID, Boolean, Column, DateTime, String
 from sqlalchemy.orm import relationship
 
 from src.core.infrastructure.config.database import Base
@@ -24,18 +24,9 @@ class UserModel(Base):
         unique=True,
         nullable=False,
     )
-    password = Column(
-        String(100),
+    hashed_password = Column(
+        String,
         nullable=False,
-    )
-    created_at = Column(
-        DateTime,
-        default=datetime.now,
-    )
-    updated_at = Column(
-        DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
     )
     roles = relationship(
         "RoleModel",
@@ -52,6 +43,22 @@ class UserModel(Base):
         nullable=True,
     )
     email = Column(
-        String(100),
+        String,
         nullable=True,
+        unique=True,
+        index=True,
+    )
+    is_active = Column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+    created_at = Column(
+        DateTime,
+        default=datetime.now,
+    )
+    updated_at = Column(
+        DateTime,
+        default=datetime.now,
+        onupdate=datetime.now,
     )
