@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.database import get_role_repository, get_user_repository
@@ -20,12 +20,15 @@ from src.core.application.use_cases.user import (
     DeleteUserUseCase,
     GetUserByIdUseCase,
     InvalidPasswordError,
+    InvalidUserError,
     ListUserUseCase,
+    UpdateUserProfileUseCase,
     UsernameAlreadyExistsError,
     UserNotFoundError,
+    UserProfileRequestDTO,
 )
-from src.core.infrastructure.repositories import UserRepository
-from src.core.infrastructure.repositories.role_repository import RoleRepository
+from src.core.domain.entities import User
+from src.core.infrastructure.repositories import RoleRepository, UserRepository
 
 
 class UserResponse(BaseModel):
@@ -53,6 +56,17 @@ class ChangePasswordBody(BaseModel):
 
     old_password: str
     new_password: str = Field(..., min_length=8)
+
+
+class UpdateUserProfileBody(BaseModel):
+    """
+    Request model for update profile.
+    """
+
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
+    email: Optional[EmailStr] = None
+    is_active: Optional[bool] = None
 
 
 public_router = APIRouter(
@@ -185,7 +199,10 @@ def delete_user_endpoint(
         ) from e
 
 
-@protected_router.patch("/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+@protected_router.patch(
+    "/{user_id}/password",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
@@ -209,6 +226,52 @@ def change_password_endpoint(
             detail=str(e),
         ) from e
     except InvalidPasswordError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@protected_router.patch(
+    "/{user_id}/profile",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def update_profile_endpoint(
+    user_id: UUID,
+    request_body: UpdateUserProfileBody,
+    repo: UserRepository = Depends(get_user_repository),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Update the profile of an existing user.
+    """
+
+    if ("admin" not in current_user.roles) and (current_user.id != user_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not allowed to update another user's profile",
+        )
+
+    updated_data = request_body.model_dump(exclude_unset=True)
+    input_dto = UserProfileRequestDTO(
+        user_id=user_id,
+        **updated_data,
+    )
+
+    try:
+        use_case = UpdateUserProfileUseCase(repository=repo)
+        use_case.execute
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except InvalidUserError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
