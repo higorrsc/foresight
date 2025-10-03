@@ -68,6 +68,10 @@ class UserRepository(SQLAlchemyRepository[User, UserModel]):
 
         model.username = entity.username
         model.hashed_password = entity.hashed_password
+        model.first_name = entity.first_name
+        model.last_name = entity.last_name
+        model.email = entity.email
+        model.is_active = entity.is_active
 
         if entity.roles is not None:
             role_models = (
