@@ -55,9 +55,11 @@ class User(AbstractEntity):
                 "Last name must be at most 100 characters long."
             )
 
-        if self.email:
+        if self.email and self.email.strip():
+            print(self.email)
             try:
-                validate_email(self.email)
+                valid_email = validate_email(self.email)
+                self.email = valid_email.normalized
             except EmailNotValidError as e:
                 self.notification.add_error(str(e))
 
