@@ -1,4 +1,5 @@
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Set
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -31,13 +32,43 @@ from src.core.domain.entities import User
 from src.core.infrastructure.repositories import RoleRepository, UserRepository
 
 
-class UserResponse(BaseModel):
+class UserSummaryResponse(BaseModel):
     """
-    Class that represents a user response.
+    Class that represents a user summary response.
     """
 
     id: UUID
     username: str
+
+    class Config:
+        """
+        Allow Pydantic read from objects
+        """
+
+        from_attributes = True
+
+
+class UserDetailResponse(BaseModel):
+    """
+    Class that represents a user detailed response.
+    """
+
+    id: UUID
+    username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    roles: Set[str] = set()
+
+    class Config:
+        """
+        Allow Pydantic read from objects
+        """
+
+        from_attributes = True
 
 
 class PaginatedUserResponse(BaseModel):
@@ -45,8 +76,15 @@ class PaginatedUserResponse(BaseModel):
     Response model for API.
     """
 
-    data: List[UserResponse]
+    data: List[UserSummaryResponse]
     meta: PaginationMetaResponse
+
+    class Config:
+        """
+        Allow Pydantic read from objects
+        """
+
+        from_attributes = True
 
 
 class ChangePasswordBody(BaseModel):
@@ -86,7 +124,7 @@ protected_router = APIRouter(
 @public_router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=UserResponse,
+    response_model=UserSummaryResponse,
 )
 def create_user_endpoint(
     request: CreateUserInputDTO,
@@ -150,7 +188,7 @@ def list_users_endpoint(
 @protected_router.get(
     "/{user_id}",
     status_code=status.HTTP_200_OK,
-    response_model=UserResponse,
+    response_model=UserDetailResponse,
 )
 def get_user_by_id_endpoint(
     user_id: UUID,
@@ -265,7 +303,7 @@ def update_profile_endpoint(
 
     try:
         use_case = UpdateUserProfileUseCase(repository=repo)
-        use_case.execute
+        use_case.execute(input_dto=input_dto)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
