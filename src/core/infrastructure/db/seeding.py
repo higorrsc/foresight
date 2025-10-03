@@ -37,21 +37,26 @@ def seed_initial_users(db_session: Session):
     print("Checking for initial users...")
     user_repo = UserRepository(db_session)
     users_to_create = {
-        "admin": "foresight_admin",
-        "guest": "foresight_guest",
+        "admin": {
+            "password": "foresight_admin",
+            "roles": ["admin"],
+        },
+        "guest": {
+            "password": "foresight_guest",
+            "roles": ["guest"],
+        },
     }
 
-    for user_name, password in users_to_create.items():
-        existing_user = user_repo.get_by_username(user_name)
-        if not existing_user:
+    for username, data in users_to_create.items():
+        if not user_repo.get_by_username(username):
             new_user = User(
-                username=user_name,
-                hashed_password=hash_password(password),
-                roles=[user_name],  # type: ignore
+                username=username,
+                hashed_password=hash_password(data["password"]),
+                roles=set(data["roles"]),
             )
             user_repo.save(new_user)
-            print(f"User '{user_name}' created successfully.")
+            print(f"User '{username}' created successfully.")
         else:
-            print(f"User '{user_name}' already exists.")
+            print(f"User '{username}' already exists.")
 
     print("Initial users seeded successfully.")
