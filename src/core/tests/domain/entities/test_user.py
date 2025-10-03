@@ -87,3 +87,26 @@ class TestUserEntity:
 
         assert user.has_role("admin") is True
         assert user.has_role("user") is False
+
+    def test_create_user_with_full_data(self):
+        """
+        Test creating a user with full data.
+        """
+
+        user = User(
+            username="testuser",
+            hashed_password="hash",
+            roles={"admin"},
+            first_name="Admin",
+            last_name="User",
+            email="admin@gmail.com",
+            is_active=False,
+        )
+
+        assert user.username == "testuser"
+        assert user.hashed_password == "hash"
+        assert user.roles == {"admin"}
+        assert user.first_name == "Admin"
+        assert user.last_name == "User"
+        assert user.email == "admin@gmail.com"
+        assert user.is_active is False

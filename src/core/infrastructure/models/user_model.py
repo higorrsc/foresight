@@ -43,3 +43,15 @@ class UserModel(Base):
         back_populates="users",
         lazy="joined",
     )
+    first_name = Column(
+        String(100),
+        nullable=True,
+    )
+    last_name = Column(
+        String(100),
+        nullable=True,
+    )
+    email = Column(
+        String(100),
+        nullable=True,
+    )
