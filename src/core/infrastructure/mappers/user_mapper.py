@@ -16,7 +16,11 @@ class UserMapper:
         return UserModel(
             id=entity.id,
             username=entity.username,
-            password=entity.hashed_password,
+            hashed_password=entity.hashed_password,
+            first_name=entity.first_name,
+            last_name=entity.last_name,
+            email=entity.email,
+            is_active=entity.is_active,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
@@ -31,7 +35,11 @@ class UserMapper:
         return User(
             id=model.id,  # type: ignore
             username=model.username,  # type: ignore
-            hashed_password=model.password,  # type: ignore
+            hashed_password=model.hashed_password,  # type: ignore
+            first_name=model.first_name,  # type: ignore
+            last_name=model.last_name,  # type: ignore
+            email=model.email if model.email else None,  # type: ignore
+            is_active=model.is_active,  # type: ignore
             created_at=model.created_at,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
             roles=role_names,
