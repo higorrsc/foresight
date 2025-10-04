@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from src.core.tests.fakes import DummyEntity
+from tests.core.fakes import DummyEntity
 
 
 class TestAbstractEntity:

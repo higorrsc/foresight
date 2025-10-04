@@ -6,7 +6,7 @@ from src.core.application.use_cases.user import (
     UserProfileRequestDTO,
 )
 from src.core.domain.entities import User, hash_password
-from src.core.tests.fakes import UserInMemoryRepository
+from tests.core.fakes import UserInMemoryRepository
 
 
 class TestUpdateUserProfile:

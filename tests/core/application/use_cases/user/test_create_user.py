@@ -8,7 +8,7 @@ from src.core.application.use_cases.user import (
 )
 from src.core.domain.entities import User
 from src.core.domain.entities.role import Role
-from src.core.tests.fakes import RoleInMemoryRepository, UserInMemoryRepository
+from tests.core.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 
 class TestCreateUserUseCase:

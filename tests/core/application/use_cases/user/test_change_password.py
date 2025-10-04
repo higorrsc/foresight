@@ -9,7 +9,7 @@ from src.core.application.use_cases.user import (
     UserNotFoundError,
 )
 from src.core.domain.entities.user import User, hash_password
-from src.core.tests.fakes import UserInMemoryRepository
+from tests.core.fakes import UserInMemoryRepository
 
 
 class TestChangePasswordUseCase:

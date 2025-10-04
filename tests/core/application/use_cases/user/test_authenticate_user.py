@@ -7,7 +7,7 @@ from src.core.application.use_cases.user import (
 )
 from src.core.application.use_cases.user.exceptions import InvalidPasswordError
 from src.core.domain.entities import User, hash_password
-from src.core.tests.fakes import UserInMemoryRepository
+from tests.core.fakes import UserInMemoryRepository
 
 
 class TestAuthenticateUserUseCase:

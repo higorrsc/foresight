@@ -8,7 +8,7 @@ from src.core.application._shared.use_cases import (
 )
 from src.core.domain._shared import EntityNotFoundException
 from src.core.infrastructure.repositories._shared import InMemoryRepository
-from src.core.tests.fakes import DummyEntity
+from tests.core.fakes import DummyEntity
 
 
 @pytest.fixture

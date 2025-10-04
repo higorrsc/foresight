@@ -7,7 +7,7 @@ from src.core.application.use_cases.user import SetUserRolesUseCase, UserNotFoun
 from src.core.application.use_cases.user.set_user_roles import SetUserRolesRequestDTO
 from src.core.domain.entities.role import Role
 from src.core.domain.entities.user import User
-from src.core.tests.fakes.in_memory_user_repository import (
+from tests.core.fakes.in_memory_user_repository import (
     RoleInMemoryRepository,
     UserInMemoryRepository,
 )

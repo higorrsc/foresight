@@ -5,7 +5,7 @@ from src.core.application._shared.use_cases.generic_delete import (
     GenericDeleteUseCase,
 )
 from src.core.infrastructure.repositories._shared import InMemoryRepository
-from src.core.tests.fakes import DummyEntity
+from tests.core.fakes import DummyEntity
 
 
 class EntityNotFoundException(Exception):

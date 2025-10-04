@@ -6,7 +6,7 @@ from src.core.application._shared.use_cases import GetByIdRequestInputDTO
 from src.core.application.use_cases.user import GetUserByIdUseCase
 from src.core.application.use_cases.user.exceptions import UserNotFoundError
 from src.core.domain.entities.user import User
-from src.core.tests.fakes import UserInMemoryRepository
+from tests.core.fakes import UserInMemoryRepository
 
 
 class TestGetUserByIdUseCase:
