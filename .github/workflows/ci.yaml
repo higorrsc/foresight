@@ -24,9 +24,9 @@ jobs:
 
       # Passo 2: Configura o uv (nosso gestor de pacotes e ambiente)
       - name: Set up uv
-        uses: ywiyogo/setup-uv@v1
+        uses: astral-sh/setup-uv@v1
         with:
-          uv-version: "latest"
+          version: "latest"
 
       # Passo 3: Configura o ambiente Python
       - name: Set up Python
