@@ -1,54 +1,45 @@
 name: Python CI/CD
 
-# 1. Gatilhos (Triggers): Quando este workflow deve ser executado
 on:
-  # Executa a cada push para a branch 'main' ou 'develop'
   push:
     branches: ["main", "develop"]
-  # Executa a cada pull request aberto para a branch 'main' ou 'develop'
   pull_request:
     branches: ["main", "develop"]
-  # Permite que você execute este workflow manualmente a partir da aba Actions do GitHub
   workflow_dispatch:
 
 jobs:
-  # Define um "job" (trabalho) chamado 'build-and-test'
   build-and-test:
-    # O tipo de máquina que o job irá executar (Ubuntu é o mais comum)
     runs-on: ubuntu-latest
 
     steps:
-      # Passo 1: Faz o checkout do seu código do repositório
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      # Passo 2: Configura o uv (nosso gestor de pacotes e ambiente)
       - name: Set up uv
         uses: astral-sh/setup-uv@v1
         with:
           version: "latest"
 
-      # Passo 3: Configura o ambiente Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # Usa a versão do Python definida no seu ficheiro .python-version
           python-version-file: ".python-version"
-          # Configura o cache para as dependências instaladas pelo uv
-          cache: "uv"
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
 
-      # Passo 4: Instala as dependências do projeto
       - name: Install dependencies
         run: uv sync
 
-      # Passo 5: Verifica a formatação do código com Black
       - name: Lint with Black
         run: uv run black --check .
 
-      # Passo 6: Faz a checagem de tipos com Mypy
       - name: Type check with Mypy
         run: uv run mypy .
 
-      # Passo 7: Executa os testes com Pytest
       - name: Test with Pytest
         run: uv run pytest
