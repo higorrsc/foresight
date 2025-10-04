@@ -2,15 +2,10 @@ import uuid
 
 import pytest
 
-from src.core.application._shared.use_cases.generic_get_by_id import (
-    GetByIdRequestInputDTO,
-)
-from src.core.application.use_cases.role.exceptions import RoleNotFoundError
-from src.core.application.use_cases.role.get_role_by_id import GetRoleByIdUseCase
-from src.core.domain.entities.role import Role
-from src.core.infrastructure.repositories._shared.in_memory_repository import (
-    InMemoryRepository,
-)
+from src.core.application._shared.use_cases import GetByIdRequestInputDTO
+from src.core.application.use_cases.role import GetRoleByIdUseCase, RoleNotFoundError
+from src.core.domain.entities import Role
+from src.core.infrastructure.repositories._shared import InMemoryRepository
 
 
 class TestGetRoleByIdUseCase:

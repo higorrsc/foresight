@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 
 from src.core.domain.entities.user import User
 from src.core.infrastructure.mappers import UserMapper
-from src.core.infrastructure.models import UserModel
-from src.core.infrastructure.models.role_model import RoleModel
+from src.core.infrastructure.models import RoleModel, UserModel
 from src.core.infrastructure.repositories._shared import SQLAlchemyRepository
 
 

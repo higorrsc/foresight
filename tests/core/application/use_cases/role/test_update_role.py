@@ -1,10 +1,8 @@
 import pytest
 
-from src.core.domain._shared.exceptions import EntityValidationError
-from src.core.domain.entities.role import Role
-from src.core.infrastructure.repositories._shared.in_memory_repository import (
-    InMemoryRepository,
-)
+from src.core.domain._shared import EntityValidationError
+from src.core.domain.entities import Role
+from src.core.infrastructure.repositories._shared import InMemoryRepository
 
 
 class TestUpdateRoleUseCase:

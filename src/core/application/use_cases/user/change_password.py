@@ -1,14 +1,17 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from src.core.application.use_cases.user import InvalidPasswordError, UserNotFoundError
 from src.core.domain.entities.user import hash_password
 from src.core.infrastructure.repositories import UserRepository
-
-from .exceptions import InvalidPasswordError, UserNotFoundError
 
 
 @dataclass(frozen=True)
 class ChangePasswordInputDTO:
+    """
+    Data Transfer Object for input data when changing a user's password.
+    """
+
     user_id: UUID
     old_password: str
     new_password: str

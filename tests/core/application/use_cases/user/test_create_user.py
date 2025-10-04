@@ -6,8 +6,7 @@ from src.core.application.use_cases.user import (
     InvalidUserError,
     UsernameAlreadyExistsError,
 )
-from src.core.domain.entities import User
-from src.core.domain.entities.role import Role
+from src.core.domain.entities import Role, User
 from tests.core.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 

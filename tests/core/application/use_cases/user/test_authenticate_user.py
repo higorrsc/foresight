@@ -3,9 +3,9 @@ import pytest
 from src.core.application.use_cases.user import (
     AuthenticateUserInputDTO,
     AuthenticateUserUseCase,
+    InvalidPasswordError,
     UserNotFoundError,
 )
-from src.core.application.use_cases.user.exceptions import InvalidPasswordError
 from src.core.domain.entities import User, hash_password
 from tests.core.fakes import UserInMemoryRepository
 

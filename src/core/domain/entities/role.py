@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from src.core.domain._shared.entity import AbstractEntity
-from src.core.domain._shared.exceptions import EntityValidationError
+from src.core.domain._shared import AbstractEntity, EntityValidationError
 
 
 @dataclass(kw_only=True, eq=False)

@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from src.core.application.use_cases.role.exceptions import InvalidRoleError
-from src.core.domain._shared import AbstractRepository
-from src.core.domain._shared.exceptions import EntityValidationError
+from src.core.application.use_cases.role import InvalidRoleError
+from src.core.domain._shared import AbstractRepository, EntityValidationError
 from src.core.domain.entities import Role
 
 

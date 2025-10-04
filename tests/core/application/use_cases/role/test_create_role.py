@@ -4,8 +4,8 @@ from src.core.application.use_cases.role import (
     CreateRoleInputDTO,
     CreateRoleOutputDTO,
     CreateRoleUseCase,
+    InvalidRoleError,
 )
-from src.core.application.use_cases.role.exceptions import InvalidRoleError
 from src.core.domain.entities import Role
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 

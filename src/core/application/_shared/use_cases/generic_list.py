@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from math import ceil
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from src.core.domain._shared.repository import AbstractRepository
+from src.core.domain._shared import AbstractRepository
 
 T = TypeVar("T")
 

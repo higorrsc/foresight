@@ -2,8 +2,8 @@ import pytest
 
 from src.core.application._shared.use_cases import ListRequestInputDTO
 from src.core.application.use_cases.user import ListUserUseCase
-from src.core.domain.entities.user import User
-from tests.core.fakes.in_memory_user_repository import UserInMemoryRepository
+from src.core.domain.entities import User
+from tests.core.fakes import UserInMemoryRepository
 
 
 class TestListUserUseCase:

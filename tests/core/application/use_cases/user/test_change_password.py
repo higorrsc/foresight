@@ -8,7 +8,7 @@ from src.core.application.use_cases.user import (
     InvalidPasswordError,
     UserNotFoundError,
 )
-from src.core.domain.entities.user import User, hash_password
+from src.core.domain.entities import User, hash_password
 from tests.core.fakes import UserInMemoryRepository
 
 

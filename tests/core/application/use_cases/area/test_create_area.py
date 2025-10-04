@@ -4,8 +4,8 @@ from src.core.application.use_cases.area import (
     CreateAreaInputDTO,
     CreateAreaOutputDTO,
     CreateAreaUseCase,
+    InvalidAreaError,
 )
-from src.core.application.use_cases.area.exceptions import InvalidAreaError
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 

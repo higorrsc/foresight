@@ -2,8 +2,7 @@ import operator
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
 
-from src.core.domain._shared import AbstractRepository
-from src.core.domain._shared.repository import PaginatedResult
+from src.core.domain._shared import AbstractRepository, PaginatedResult
 
 T = TypeVar("T")
 

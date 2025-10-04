@@ -3,14 +3,13 @@ from uuid import uuid4
 
 import pytest
 
-from src.core.application.use_cases.user import SetUserRolesUseCase, UserNotFoundError
-from src.core.application.use_cases.user.set_user_roles import SetUserRolesRequestDTO
-from src.core.domain.entities.role import Role
-from src.core.domain.entities.user import User
-from tests.core.fakes.in_memory_user_repository import (
-    RoleInMemoryRepository,
-    UserInMemoryRepository,
+from src.core.application.use_cases.user import (
+    SetUserRolesRequestDTO,
+    SetUserRolesUseCase,
+    UserNotFoundError,
 )
+from src.core.domain.entities import Role, User
+from tests.core.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 
 class TestSetUserRolesUseCase:

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from uuid import UUID
 
-from src.core.application.use_cases.user.exceptions import UserNotFoundError
+from src.core.application.use_cases.user import UserNotFoundError
 from src.core.infrastructure.repositories import RoleRepository, UserRepository
 
 

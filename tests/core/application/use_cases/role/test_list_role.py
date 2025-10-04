@@ -1,7 +1,7 @@
 import pytest
 
-from src.core.application._shared.use_cases.generic_list import ListRequestInputDTO
-from src.core.application.use_cases.role.list_role import ListRoleUseCase
+from src.core.application._shared.use_cases import ListRequestInputDTO
+from src.core.application.use_cases.role import ListRoleUseCase
 from src.core.domain.entities import Role
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 

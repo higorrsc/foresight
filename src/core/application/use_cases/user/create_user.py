@@ -2,11 +2,13 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from uuid import UUID
 
+from src.core.application.use_cases.user import (
+    InvalidUserError,
+    UsernameAlreadyExistsError,
+)
 from src.core.domain._shared import EntityValidationError
 from src.core.domain.entities import User, hash_password
 from src.core.infrastructure.repositories import RoleRepository, UserRepository
-
-from .exceptions import InvalidUserError, UsernameAlreadyExistsError
 
 
 @dataclass(frozen=True)
