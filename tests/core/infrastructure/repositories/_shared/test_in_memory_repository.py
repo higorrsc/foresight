@@ -14,7 +14,7 @@ class TestInMemoryRepository:
         Test saving an entity to the repository.
         """
 
-        repository = InMemoryRepository()
+        repository: InMemoryRepository = InMemoryRepository()
         entity = DummyEntity(name="Test Entity")
         saved_entity = repository.save(entity)
 
@@ -37,7 +37,7 @@ class TestInMemoryRepository:
         Test retrieving an entity by ID when it does not exist.
         """
 
-        repository = InMemoryRepository()
+        repository: InMemoryRepository = InMemoryRepository()
         found_entity = repository.get_by_id(
             UUID("12345678-1234-5678-1234-567812345678")
         )
@@ -62,7 +62,7 @@ class TestInMemoryRepository:
         """
 
         entity = DummyEntity(name="Old Name")
-        repository = InMemoryRepository(entities=[entity])
+        repository: InMemoryRepository = InMemoryRepository(entities=[entity])
 
         updated_entity = DummyEntity(id=entity.id, name="New Name")
         repository.update(updated_entity)
@@ -76,7 +76,7 @@ class TestInMemoryRepository:
         """
 
         entity = DummyEntity(name="To Be Deleted")
-        repository = InMemoryRepository(entities=[entity])
+        repository: InMemoryRepository = InMemoryRepository(entities=[entity])
 
         repository.delete(entity.id)
         found_entity = repository.get_by_id(entity.id)
