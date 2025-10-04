@@ -13,6 +13,7 @@ from src.core.application._shared.use_cases import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
+from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import (
     ChangePasswordInputDTO,
     ChangePasswordUseCase,
@@ -130,6 +131,11 @@ def create_user_endpoint(
     except UsernameAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        ) from e
+    except InvalidRoleError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
     except ValueError as e:
