@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.database import get_role_repository, get_user_repository
-from src.api.routers.dto import PaginationMetaResponse
+from src.api.routers._shared import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
     DeleteRequestInputDTO,
     GetByIdRequestInputDTO,
