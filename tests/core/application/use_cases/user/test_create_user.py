@@ -1,5 +1,6 @@
 import pytest
 
+from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import (
     CreateUserInputDTO,
     CreateUserUseCase,
@@ -103,9 +104,9 @@ class TestCreateUserUseCase:
         role_in_memory_repository,
     ):
         """
-        Testa que a exceção de validação do domínio é corretamente propagada.
+        Test create user with invalid domain data.
         """
-        repo = user_in_memory_repository
+
         use_case = CreateUserUseCase(
             user_in_memory_repository,
             role_in_memory_repository,
@@ -119,5 +120,30 @@ class TestCreateUserUseCase:
         with pytest.raises(
             InvalidUserError,
             match="Invalid user data: Username is required.",
+        ):
+            use_case.execute(input_dto)
+
+    def test_create_user_with_invalid_role_raises_error(
+        self,
+        user_in_memory_repository,
+        role_in_memory_repository,
+    ):
+        """
+        Test create user with invalid role.
+        """
+
+        use_case = CreateUserUseCase(
+            user_in_memory_repository,
+            role_in_memory_repository,
+        )
+        input_dto = CreateUserInputDTO(
+            username="testuser",
+            password="StrongPassword123",
+            roles=["invalid_role"],
+        )
+
+        with pytest.raises(
+            InvalidRoleError,
+            match="Role 'invalid_role' does not exist.",
         ):
             use_case.execute(input_dto)

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from uuid import UUID
 
+from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import (
     InvalidUserError,
     UsernameAlreadyExistsError,
@@ -63,7 +64,11 @@ class CreateUserUseCase:
         hashed_pwd = hash_password(input_dto.password)
 
         role_names = set(input_dto.roles) if input_dto.roles else set()
-        if not role_names:
+        if role_names:
+            for role in role_names:
+                if not self._role_repository.get_by_name(role):
+                    raise InvalidRoleError(f"Role '{role}' does not exist.")
+        else:
             guest_role = self._role_repository.get_by_name("guest")
             if not guest_role:
                 raise RuntimeError("Default role 'guest' not found in the system.")
