@@ -51,8 +51,8 @@ def seed_initial_users(db_session: Session):
         if not user_repo.get_by_username(username):
             new_user = User(
                 username=username,
-                hashed_password=hash_password(data["password"]),
-                roles=set(data["roles"]),
+                hashed_password=hash_password(str(data["password"])),
+                roles=set(data.get("roles", [])),
             )
             user_repo.save(new_user)
             print(f"User '{username}' created successfully.")
