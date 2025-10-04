@@ -25,4 +25,12 @@ dev = [
     "ipython>=9.5.0",
     "mypy>=1.18.2",
     "pytest>=8.4.2",
+    "types-passlib>=1.7.7.20250602",
+    "types-python-jose>=3.5.0.20250531",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+explicit_package_bases = true
+namespace_packages = true
+check_untyped_defs = true
