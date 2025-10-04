@@ -66,6 +66,7 @@ router = APIRouter(
     tags=["Roles"],
     dependencies=[
         Depends(get_current_user),
+        Depends(allow_admin_only),
     ],
 )
 
