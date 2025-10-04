@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import pytest
 
 from src.core.application._shared.use_cases.generic_delete import (
@@ -60,7 +62,7 @@ class TestGenericDeleteUseCase:
         """
 
         invalid_entity = DeleteRequestInputDTO(
-            id="c1c4d4d7-f545-5f27-b366-1546b022e622"
+            id=UUID("c1c4d4d7-f545-5f27-b366-1546b022e622")
         )
 
         with pytest.raises(EntityNotFoundException) as exc_info:

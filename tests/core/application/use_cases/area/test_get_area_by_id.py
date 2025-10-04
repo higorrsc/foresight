@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import pytest
 
 from src.core.application._shared.use_cases import GetByIdRequestInputDTO
@@ -35,7 +37,7 @@ class TestGetAreaByIdUseCase:
         repository = InMemoryRepository[Area]()
         use_case = GetAreaByIdUseCase(repository)
 
-        non_existent_id = "123e4567-e89b-12d3-a456-426614174000"
+        non_existent_id: UUID = UUID("123e4567-e89b-12d3-a456-426614174000")
 
         with pytest.raises(AreaNotFoundError, match="Area with given ID not found."):
             use_case.execute(GetByIdRequestInputDTO(id=non_existent_id))

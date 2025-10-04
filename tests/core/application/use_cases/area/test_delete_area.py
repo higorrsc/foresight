@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from src.core.application._shared.use_cases import DeleteRequestInputDTO
 from src.core.application.use_cases.area import AreaNotFoundError, DeleteAreaUseCase
 from src.core.domain.entities import Area
@@ -32,7 +34,7 @@ class TestDeleteArea:
         repository = InMemoryRepository[Area]()
         use_case = DeleteAreaUseCase(repository)
 
-        non_existent_id = "123e4567-e89b-12d3-a456-426614174000"
+        non_existent_id: UUID = UUID("123e4567-e89b-12d3-a456-426614174000")
 
         try:
             use_case.execute(DeleteRequestInputDTO(id=non_existent_id))
