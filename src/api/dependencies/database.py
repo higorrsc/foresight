@@ -1,6 +1,7 @@
 from typing import Generator
 
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from src.core.infrastructure.config.database import SessionLocal
 from src.core.infrastructure.repositories import (
@@ -26,7 +27,7 @@ def get_db_session() -> Generator:
 
 
 def get_area_repository(
-    session: SessionLocal = Depends(get_db_session),
+    session: Session = Depends(get_db_session),
 ) -> AreaRepository:
     """
     Return an AreaRepository instance with database session.
@@ -36,7 +37,7 @@ def get_area_repository(
 
 
 def get_user_repository(
-    session: SessionLocal = Depends(get_db_session),
+    session: Session = Depends(get_db_session),
 ) -> UserRepository:
     """
     Return an UserRepository instance with database session.
@@ -46,7 +47,7 @@ def get_user_repository(
 
 
 def get_role_repository(
-    session: SessionLocal = Depends(get_db_session),
+    session: Session = Depends(get_db_session),
 ) -> RoleRepository:
     """
     Return an RoleRepository instance with database session.
