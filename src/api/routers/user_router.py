@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
+from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository, get_user_repository
 from src.api.routers._shared import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
@@ -31,6 +32,8 @@ from src.core.application.use_cases.user import (
 )
 from src.core.domain.entities import User
 from src.core.infrastructure.repositories import RoleRepository, UserRepository
+
+allow_admin_only = RoleChecker(["admin"])
 
 
 class UserSummaryResponse(BaseModel):
@@ -209,6 +212,7 @@ def get_user_by_id_endpoint(
 @protected_router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(allow_admin_only)],
 )
 def delete_user_endpoint(
     user_id: UUID,
@@ -236,10 +240,17 @@ def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
     repo: UserRepository = Depends(get_user_repository),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Change the password of an existing user.
     """
+
+    if ("admin" not in current_user.roles) and (current_user.id != user_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not allowed to update another user's password",
+        )
 
     try:
         use_case = ChangePasswordUseCase(repository=repo)
