@@ -61,16 +61,16 @@ class UserRepository(SQLAlchemyRepository[User, UserModel]):
         Update User entity
         """
 
-        model = self._session.query(self._model_cls).get(entity.id)
+        model = self._session.get(self._model_cls, entity.id)
         if not model:
             return None
 
-        model.username = entity.username
-        model.hashed_password = entity.hashed_password
-        model.first_name = entity.first_name
-        model.last_name = entity.last_name
-        model.email = entity.email
-        model.is_active = entity.is_active
+        model.username = entity.username  # type: ignore
+        model.hashed_password = entity.hashed_password  # type: ignore
+        model.first_name = entity.first_name  # type: ignore
+        model.last_name = entity.last_name  # type: ignore
+        model.email = entity.email  # type: ignore
+        model.is_active = entity.is_active  # type: ignore
 
         if entity.roles is not None:
             role_models = (
