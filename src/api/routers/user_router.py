@@ -3,7 +3,7 @@ from typing import List, Optional, Set
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.database import get_role_repository, get_user_repository
@@ -40,12 +40,7 @@ class UserSummaryResponse(BaseModel):
     id: UUID
     username: str
 
-    class Config:
-        """
-        Allow Pydantic read from objects
-        """
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserDetailResponse(BaseModel):
@@ -63,12 +58,7 @@ class UserDetailResponse(BaseModel):
     updated_at: datetime
     roles: Set[str] = set()
 
-    class Config:
-        """
-        Allow Pydantic read from objects
-        """
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginatedUserResponse(BaseModel):
@@ -79,12 +69,7 @@ class PaginatedUserResponse(BaseModel):
     data: List[UserSummaryResponse]
     meta: PaginationMetaResponse
 
-    class Config:
-        """
-        Allow Pydantic read from objects
-        """
-
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChangePasswordBody(BaseModel):
