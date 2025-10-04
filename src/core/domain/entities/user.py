@@ -56,7 +56,6 @@ class User(AbstractEntity):
             )
 
         if self.email and self.email.strip():
-            print(self.email)
             try:
                 valid_email = validate_email(self.email)
                 self.email = valid_email.normalized
