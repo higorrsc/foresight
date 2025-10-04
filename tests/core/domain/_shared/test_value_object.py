@@ -115,7 +115,7 @@ class TestAbstractValueObject:
         try:
             DummyValueObjectForMoneyType(
                 amount=Decimal("10.00"),
-                currency=123,  # type: ignore ❌ currency is not a string
+                currency=123,  # type: ignore
             )
         except ValueError as e:
             assert str(e) == "Currency must be a string"
