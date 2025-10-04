@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import pytest
 
+from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import (
     SetUserRolesRequestDTO,
     SetUserRolesUseCase,
@@ -125,7 +126,7 @@ class TestSetUserRolesUseCase:
         )
 
         with pytest.raises(
-            ValueError,
+            InvalidRoleError,
             match="Role 'non_existent_role' does not exist.",
         ):
             use_case.execute(input_dto)

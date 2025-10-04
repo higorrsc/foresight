@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from uuid import UUID
 
+from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import UserNotFoundError
 from src.core.infrastructure.repositories import RoleRepository, UserRepository
 
@@ -45,7 +46,7 @@ class SetUserRolesUseCase:
         role_names_set = set(input_dto.role_names)
         for role_name in role_names_set:
             if not self._role_repository.get_by_name(role_name):
-                raise ValueError(f"Role '{role_name}' does not exist.")
+                raise InvalidRoleError(f"Role '{role_name}' does not exist.")
 
         user.roles = role_names_set
         self._user_repository.update(user)
