@@ -94,7 +94,7 @@ class TestUpdateAreaEntity:
 
         area = Area(description="Initial Description")
         new_description = "Updated Description"
-        area.update_area(new_description)
+        area.update_description(new_description)
 
         assert area.description == new_description
 
@@ -109,7 +109,7 @@ class TestUpdateAreaEntity:
             EntityValidationError,
             match="Description must be a non-empty string.",
         ):
-            area.update_area("")
+            area.update_description("")
 
     def test_update_area_with_long_description_raises_value_error(self):
         """
@@ -124,7 +124,7 @@ class TestUpdateAreaEntity:
             EntityValidationError,
             match="Description must be at most 100 characters long.",
         ):
-            area.update_area(long_description)
+            area.update_description(long_description)
 
 
 class TestAreaEquality:

@@ -1,11 +1,10 @@
 import pytest
 
-from src.core.application.use_cases.area import (
-    CreateAreaInputDTO,
-    CreateAreaOutputDTO,
-    CreateAreaUseCase,
-    InvalidAreaError,
+from src.core.application._shared.use_cases import (
+    CreateDescribedEntityInputDTO,
+    CreateDescribedEntityOutputDTO,
 )
+from src.core.application.use_cases.area import CreateAreaUseCase, InvalidAreaError
 from src.core.domain.entities import Area
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 
@@ -22,10 +21,10 @@ class TestCreateArea:
 
         repository = InMemoryRepository[Area]()
         use_case = CreateAreaUseCase(repository)
-        output = use_case.execute(CreateAreaInputDTO("Test Area"))
+        output = use_case.execute(CreateDescribedEntityInputDTO("Test Area"))
 
         assert output.id is not None
-        assert isinstance(output, CreateAreaOutputDTO)
+        assert isinstance(output, CreateDescribedEntityOutputDTO)
 
     def test_create_area_with_invalid_data(self):
         """
@@ -39,6 +38,6 @@ class TestCreateArea:
             InvalidAreaError,
             match="Invalid input data: Description must be a non-empty string.",
         ) as exc_info:
-            use_case.execute(CreateAreaInputDTO(""))
+            use_case.execute(CreateDescribedEntityInputDTO(""))
 
         assert "Description must be a non-empty string." in str(exc_info.value)
