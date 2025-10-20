@@ -10,18 +10,18 @@ from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers._shared import PaginationMetaResponse
 from src.core.application._shared.use_cases import (
+    CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
+    UpdateDescribedEntityInputDTO,
 )
 from src.core.application.use_cases.area import (
     AreaNotFoundError,
-    CreateAreaInputDTO,
     CreateAreaUseCase,
     DeleteAreaUseCase,
     GetAreaByIdUseCase,
     ListAreaUseCase,
-    UpdateAreaInputDTO,
     UpdateAreaUseCase,
 )
 from src.core.infrastructure.repositories.area_repository import AreaRepository
@@ -75,7 +75,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
 )
 def create_area_endpoint(
-    request: CreateAreaInputDTO,
+    request: CreateDescribedEntityInputDTO,
     repo: AreaRepository = Depends(get_area_repository),
 ):
     """
@@ -191,7 +191,7 @@ def update_area_endpoint(
 
     try:
         use_case = UpdateAreaUseCase(repo)
-        input_dto = UpdateAreaInputDTO(
+        input_dto = UpdateDescribedEntityInputDTO(
             id=area_id,
             description=request_body.description,
         )
