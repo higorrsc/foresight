@@ -23,11 +23,17 @@ class Role(AbstractEntity):
         self._validate()
 
     def _validate(self) -> None:
+        """
+        Validates the Role entity's attributes.
+        """
+
         if not self.name or not self.name.strip():
             self.notification.add_error("Role name is required.")
+
         if len(self.name) > 100:
             self.notification.add_error(
                 "Role name must be at most 100 characters long."
             )
+
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
