@@ -1,59 +1,21 @@
-from dataclasses import dataclass
-from uuid import UUID
-
+from src.core.application._shared.use_cases import UpdateDescribedEntityUseCase
 from src.core.application.use_cases.area import AreaNotFoundError, InvalidAreaError
-from src.core.domain._shared import AbstractRepository, EntityValidationError
+from src.core.domain._shared import AbstractRepository
 from src.core.domain.entities import Area
 
 
-@dataclass
-class UpdateAreaInputDTO:
-    """
-    Data Transfer Object for input data when updating an area.
-    """
-
-    id: UUID
-    description: str
-
-
-@dataclass
-class UpdateAreaOutputDTO:
-    """
-    Data Transfer Object for output data when updating an area.
-    """
-
-    id: UUID
-    description: str
-
-
-class UpdateAreaUseCase:
+class UpdateAreaUseCase(UpdateDescribedEntityUseCase[Area]):
     """
     Use case for updating an existing area.
     """
 
     def __init__(self, repository: AbstractRepository[Area]) -> None:
         """
-        Initialize the update use case.
+        Initialize the UpdateAreaUseCase.
         """
 
-        self._repository = repository
-
-    def execute(self, input_dto: UpdateAreaInputDTO) -> UpdateAreaOutputDTO:
-        """
-        Execute the use case to update an area.
-        """
-
-        area = self._repository.get_by_id(input_dto.id)
-        if area is None:
-            raise AreaNotFoundError(f"Area with id {input_dto.id} not found.")
-
-        try:
-            area.update_area(new_description=input_dto.description)
-        except EntityValidationError as e:
-            raise InvalidAreaError(f"Invalid input data: {e}") from e
-
-        self._repository.update(area)
-        return UpdateAreaOutputDTO(
-            id=area.id,
-            description=area.description,
+        super().__init__(
+            repository,
+            AreaNotFoundError,
+            InvalidAreaError,
         )
