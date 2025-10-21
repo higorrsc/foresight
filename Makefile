@@ -44,3 +44,7 @@ type-check:
 test:
 	@echo "🧪 Executando os testes com pytest..."
 	@uv run pytest
+
+coverage:
+	@echo "🧪 Gerando relatório de cobertura de testes..."
+	@uv run pytest --cov=src --cov-report=term-missing --cov-report=html
