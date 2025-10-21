@@ -1,6 +1,5 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 
 from src.core.infrastructure.mappers import AreaMapper
 from src.core.infrastructure.models import AreaModel
@@ -10,31 +9,13 @@ Base = declarative_base()
 
 
 @pytest.fixture
-def session():
-    """
-    Fixture to create a new database session for each test.
-    """
-
-    engine = create_engine("sqlite:///:memory:", echo=False)
-    TestingSessionLocal = sessionmaker(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    AreaModel.metadata.create_all(bind=engine)
-
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@pytest.fixture
-def repository(session):
+def repository(db_session_for_test):
     """
     Fixture to provide a repository instance for testing.
     """
 
     return SQLAlchemyRepository(
-        session,
+        db_session_for_test,
         AreaModel,
         AreaMapper,
     )

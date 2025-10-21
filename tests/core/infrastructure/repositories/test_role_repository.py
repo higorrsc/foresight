@@ -1,34 +1,15 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from src.core.domain.entities.role import Role
-from src.core.infrastructure.config.database import Base
 from src.core.infrastructure.repositories import RoleRepository
 
 
 @pytest.fixture(scope="function")
-def session():
-    """
-    Create a new database session for each test.
-    """
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-    db_session = SessionLocal()
-    yield db_session
-
-    db_session.close()
-    Base.metadata.drop_all(engine)
-
-
-@pytest.fixture(scope="function")
-def role_repository(session):
+def role_repository(db_session_for_test):
     """
     Create a RoleRepository instance for testing.
     """
-    return RoleRepository(session)
+    return RoleRepository(db_session_for_test)
 
 
 class TestRoleRepository:
@@ -41,7 +22,7 @@ class TestRoleRepository:
         Test saving a role and retrieving it by ID.
         """
 
-        role = Role(name="admin", description="Administrator role")
+        role = Role(name="admin2", description="Administrator role")
         saved_role = role_repository.save(role)
 
         assert saved_role is not None
@@ -49,7 +30,7 @@ class TestRoleRepository:
 
         found_role = role_repository.get_by_id(role.id)
         assert found_role is not None
-        assert found_role.name == "admin"
+        assert found_role.name == "admin2"
 
     def test_get_by_name_found(self, role_repository):
         """

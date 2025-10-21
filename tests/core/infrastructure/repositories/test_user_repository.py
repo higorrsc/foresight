@@ -1,36 +1,16 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from src.core.domain.entities import User, hash_password
-from src.core.infrastructure.config.database import Base
 from src.core.infrastructure.repositories import UserRepository
 
 
 @pytest.fixture(scope="function")
-def session():
-    """
-    Create a new database session for each test.
-    """
-
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-    db_session = SessionLocal()
-    yield db_session
-
-    db_session.close()
-    Base.metadata.drop_all(engine)
-
-
-@pytest.fixture(scope="function")
-def user_repository(session):
+def user_repository(db_session_for_test):
     """
     Create a UserRepository instance for testing.
     """
 
-    return UserRepository(session)
+    return UserRepository(db_session_for_test)
 
 
 class TestUserRepository:

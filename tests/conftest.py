@@ -1,5 +1,5 @@
 import os
-from typing import Any, Generator
+from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -62,7 +62,7 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def client(db_session_for_test: Session) -> Generator[TestClient, Any, Any]:
+def client(db_session_for_test: Session) -> Generator[TestClient, None, None]:
     """
     Create client for each test.
     """
