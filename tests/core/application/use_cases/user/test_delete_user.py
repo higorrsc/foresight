@@ -41,7 +41,9 @@ class TestDeleteUserUseCase:
         use_case.execute(input_dto)
 
         found_user = repo.get_by_id(user_to_delete.id)
-        assert found_user is None
+        assert found_user is not None
+        assert found_user.deleted_at is not None
+        assert found_user.is_active is False
 
     def test_delete_non_existent_user_raises_error(self, user_in_memory_repository):
         """

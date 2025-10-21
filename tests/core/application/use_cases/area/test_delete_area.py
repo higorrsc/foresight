@@ -23,8 +23,11 @@ class TestDeleteArea:
         repository.save(area)
 
         use_case.execute(DeleteRequestInputDTO(id=area.id))
+        deleted_area = repository.get_by_id(area.id)
 
-        assert repository.get_by_id(area.id) is None
+        assert deleted_area is not None
+        assert deleted_area.is_active is False
+        assert deleted_area.deleted_at is not None
 
     def test_delete_non_existent_area(self):
         """
