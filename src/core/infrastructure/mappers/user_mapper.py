@@ -21,6 +21,7 @@ class UserMapper:
             last_name=entity.last_name,
             email=entity.email,
             is_active=entity.is_active,
+            deleted_at=getattr(entity, "deleted_at", None),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
@@ -32,7 +33,7 @@ class UserMapper:
         """
 
         role_names = {role.name for role in model.roles} if model.roles else set()
-        return User(
+        user = User(
             id=model.id,  # type: ignore
             username=model.username,  # type: ignore
             hashed_password=model.hashed_password,  # type: ignore
@@ -44,3 +45,8 @@ class UserMapper:
             updated_at=model.updated_at,  # type: ignore
             roles=role_names,
         )
+
+        if hasattr(model, "deleted_at") and hasattr(user, "deleted_at"):
+            setattr(user, "deleted_at", model.deleted_at)
+
+        return user

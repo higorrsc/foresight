@@ -16,6 +16,8 @@ class AreaMapper:
         return AreaModel(
             id=entity.id,
             description=entity.description,
+            is_active=entity.is_active,
+            deleted_at=getattr(entity, "deleted_at", None),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
@@ -26,9 +28,15 @@ class AreaMapper:
         Converts an AreaModel instance to an Area entity.
         """
 
-        return Area(
+        area = Area(
             id=model.id,  # type: ignore
             description=model.description,  # type: ignore
+            is_active=model.is_active,  # type: ignore
             created_at=model.created_at,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )
+
+        if hasattr(model, "deleted_at") and hasattr(area, "deleted_at"):
+            setattr(area, "deleted_at", model.deleted_at)
+
+        return area

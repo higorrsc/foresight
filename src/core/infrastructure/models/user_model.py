@@ -52,6 +52,11 @@ class UserModel(Base):
         Boolean,
         default=True,
         nullable=False,
+        index=True,
+    )
+    deleted_at = Column(
+        DateTime,
+        nullable=True,
     )
     created_at = Column(
         DateTime,
