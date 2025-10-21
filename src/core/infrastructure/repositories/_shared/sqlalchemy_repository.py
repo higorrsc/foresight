@@ -98,12 +98,16 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 100,
+        include_inactive: bool = False,
     ) -> PaginatedResult[T]:
         """
         Search for entities based on criteria, with sorting and pagination.
         """
 
         query = self._session.query(self._model_cls)
+
+        if not include_inactive and hasattr(self._model_cls, "is_active"):
+            query = query.filter(getattr(self._model_cls, "is_active") == True)  # type: ignore
 
         if filters:
             for field, value in filters.items():
