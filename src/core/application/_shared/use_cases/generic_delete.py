@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Generic, Type, TypeVar
 from uuid import UUID
 
-from src.core.domain._shared import AbstractRepository
+from src.core.domain._shared import AbstractRepository, SoftDeletableMixin
 
 T = TypeVar("T")
 
@@ -52,4 +52,8 @@ class GenericDeleteUseCase(Generic[T]):
                 self._not_found_message.format(id=request.id)
             )
 
-        self._repository.delete(request.id)
+        if isinstance(entity, SoftDeletableMixin):
+            entity.soft_delete()
+            self._repository.update(entity)
+        else:
+            self._repository.delete(request.id)
