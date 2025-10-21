@@ -4,13 +4,17 @@ from typing import Optional, Set
 from email_validator import EmailNotValidError, validate_email
 from passlib.context import CryptContext
 
-from src.core.domain._shared import AbstractEntity, EntityValidationError
+from src.core.domain._shared import (
+    AbstractEntity,
+    EntityValidationError,
+    SoftDeletableMixin,
+)
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
 @dataclass(kw_only=True, eq=False)
-class User(AbstractEntity):
+class User(AbstractEntity, SoftDeletableMixin):
     """
     Entity representing a user in the system.
     """
@@ -21,7 +25,6 @@ class User(AbstractEntity):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
-    is_active: bool = True
 
     def verify_password(self, plain_password: str) -> bool:
         """

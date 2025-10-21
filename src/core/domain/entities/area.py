@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from src.core.domain._shared import DescribedEntity
+from src.core.domain._shared import DescribedEntity, SoftDeletableMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class Area(DescribedEntity):
+class Area(DescribedEntity, SoftDeletableMixin):
     """
     Entity representing a geographical or logical area within the system.
     """
