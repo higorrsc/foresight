@@ -1,7 +1,8 @@
-from .notification import Notification
 from .exceptions import EntityNotFoundException, EntityValidationError
-from .entity import AbstractEntity
-from .described_entity import DescribedEntity
+from .notification import Notification
+from .entities.entity import AbstractEntity
+from .entities.described_entity import DescribedEntity
+from .mixins import SoftDeletableMixin
 from .repository import AbstractRepository, PaginatedResult
 from .value_object import AbstractValueObject
 
@@ -14,4 +15,5 @@ __all__ = [
     "EntityValidationError",
     "Notification",
     "PaginatedResult",
+    "SoftDeletableMixin",
 ]

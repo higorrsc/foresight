@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
-from src.core.domain._shared import AbstractEntity, EntityValidationError
+from src.core.domain._shared import EntityValidationError
+from src.core.domain._shared.entities import AbstractEntity
 
 
 @dataclass(kw_only=True, eq=False)
