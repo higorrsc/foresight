@@ -15,4 +15,4 @@ class AbstractAuthenticationProvider(ABC):
         Get a user from a token.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover

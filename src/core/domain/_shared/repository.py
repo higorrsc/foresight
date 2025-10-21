@@ -29,7 +29,7 @@ class AbstractRepository(ABC, Generic[T]):
         :param entity: The entity to be saved.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def get_by_id(self, entity_id: UUID) -> Optional[T]:
@@ -40,7 +40,7 @@ class AbstractRepository(ABC, Generic[T]):
         :return: The entity if found, otherwise None.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def list(self) -> List[T]:
@@ -50,7 +50,7 @@ class AbstractRepository(ABC, Generic[T]):
         :return: A list of all entities.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def update(self, entity: T) -> Optional[T]:
@@ -61,7 +61,7 @@ class AbstractRepository(ABC, Generic[T]):
         :return: The updated entity.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def delete(self, entity_id: UUID) -> None:
@@ -71,7 +71,7 @@ class AbstractRepository(ABC, Generic[T]):
         :param entity_id: The ID of the entity to be deleted.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def search(
@@ -86,4 +86,4 @@ class AbstractRepository(ABC, Generic[T]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover

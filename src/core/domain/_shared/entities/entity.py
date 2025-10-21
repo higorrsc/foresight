@@ -55,4 +55,4 @@ class AbstractEntity(ABC):
             ValueError: If the entity is in an invalid state.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover

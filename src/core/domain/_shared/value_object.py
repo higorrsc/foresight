@@ -28,4 +28,4 @@ class AbstractValueObject(ABC):
             ValueError: If the value object is in an invalid state.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
