@@ -1,10 +1,11 @@
 import os
-from typing import Generator
+from typing import Any, Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool, StaticPool
 
 from src.api.dependencies.database import get_db_session
 from src.api.main import app
@@ -15,6 +16,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./test.sqlite3"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
+    poolclass=StaticPool if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else NullPool,
 )
 TestingSessionLocal = sessionmaker(
     autocommit=False,
@@ -30,10 +32,6 @@ def setup_database():
     """
 
     Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-    seed_initial_roles(session)
-    seed_initial_users(session)
-    session.close()
     yield
     os.remove("test.sqlite3")
 
@@ -41,12 +39,20 @@ def setup_database():
 @pytest.fixture(scope="function")
 def db_session_for_test(setup_database) -> Generator[Session, None, None]:
     """
-    Create transaction for each test.
+    Creates ONE transaction for each test, seeds data, and rolls back at the end.
     """
 
     connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
+
+    for table in reversed(Base.metadata.sorted_tables):
+        session.execute(table.delete())
+
+    seed_initial_roles(session)
+    session.flush()
+    seed_initial_users(session)
+    session.flush()
 
     yield session
 
@@ -56,7 +62,7 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def client(db_session_for_test: Session) -> TestClient:
+def client(db_session_for_test: Session) -> Generator[TestClient, Any, Any]:
     """
     Create client for each test.
     """
@@ -66,4 +72,6 @@ def client(db_session_for_test: Session) -> TestClient:
 
     app.dependency_overrides[get_db_session] = override_get_db_session_for_test
 
-    return TestClient(app)
+    yield TestClient(app)
+
+    app.dependency_overrides.clear()

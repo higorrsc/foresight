@@ -1,62 +1,92 @@
 from sqlalchemy.orm import Session
 
-from src.core.domain.entities import Role, User, hash_password
-from src.core.infrastructure.repositories import RoleRepository, UserRepository
+from src.core.domain.entities import hash_password
+from src.core.infrastructure.models import RoleModel, UserModel
 
 
 def seed_initial_roles(db_session: Session):
     """
-    Create initial roles 'admin' and 'guest' if they don't exist.
+    Creates initial roles 'admin' and 'guest' if they don't exist, using RoleModel for queries.
     """
 
     print("Checking for initial roles...")
-    role_repo = RoleRepository(db_session)
 
-    roles_to_create = {
-        "admin": "Administrator with full access to the system.",
-        "guest": "User with limited viewing permissions.",
-    }
+    admin_exists = db_session.query(RoleModel).filter_by(name="admin").first()
+    guest_exists = db_session.query(RoleModel).filter_by(name="guest").first()
 
-    for role_name, role_desc in roles_to_create.items():
-        existing_role = role_repo.get_by_name(role_name)
-        if not existing_role:
-            new_role = Role(name=role_name, description=role_desc)
-            role_repo.save(new_role)
-            print(f"Role '{role_name}' created successfully.")
-        else:
-            print(f"Role '{role_name}' already exists.")
+    if not admin_exists:
+        admin_role_model = RoleModel(
+            name="admin",
+            description="Administrator with full access.",
+        )
+        db_session.add(admin_role_model)
+        print("Role 'admin' created.")
+    # else:
+    # print("Role 'admin' already exists.")
 
-    print("Initial roles seeded successfully.")
+    if not guest_exists:
+        guest_role_model = RoleModel(
+            name="guest",
+            description="User with limited permissions.",
+        )
+        db_session.add(guest_role_model)
+        print("Role 'guest' created.")
+    # else:
+    # print("Role 'guest' already exists.")
+
+    print("Initial roles seeding completed.")
 
 
 def seed_initial_users(db_session: Session):
     """
-    Create initial users 'admin' and 'guest' if they don't exist.
+    Creates initial users 'admin' and 'guest' if they don't exist, using UserModel for queries.
+    Associates roles by querying RoleModel.
     """
 
     print("Checking for initial users...")
-    user_repo = UserRepository(db_session)
+
+    admin_exists = db_session.query(UserModel).filter_by(username="admin").first()
+    guest_exists = db_session.query(UserModel).filter_by(username="guest").first()
+
     users_to_create = {
-        "admin": {
-            "password": "foresight_admin",
-            "roles": ["admin"],
-        },
-        "guest": {
-            "password": "foresight_guest",
-            "roles": ["guest"],
-        },
+        "admin": {"password": "foresight_admin", "roles": ["admin"]},
+        "guest": {"password": "foresight_guest", "roles": ["guest"]},
     }
 
-    for username, data in users_to_create.items():
-        if not user_repo.get_by_username(username):
-            new_user = User(
-                username=username,
-                hashed_password=hash_password(str(data["password"])),
-                roles=set(data.get("roles", [])),
-            )
-            user_repo.save(new_user)
-            print(f"User '{username}' created successfully.")
-        else:
-            print(f"User '{username}' already exists.")
+    if not admin_exists:
+        data = users_to_create["admin"]
+        roles = (
+            db_session.query(RoleModel).filter(RoleModel.name.in_(data["roles"])).all()
+        )
+        if len(roles) != len(data["roles"]):
+            print(f"Warning: Not all roles found for user 'admin': {data['roles']}")
 
-    print("Initial users seeded successfully.")
+        admin_user_model = UserModel(
+            username="admin",
+            hashed_password=hash_password(str(data["password"])),
+            roles=roles,
+        )
+        db_session.add(admin_user_model)
+        print("User 'admin' created.")
+    # else:
+    # print("User 'admin' already exists.")
+
+    if not guest_exists:
+        data = users_to_create["guest"]
+        roles = (
+            db_session.query(RoleModel).filter(RoleModel.name.in_(data["roles"])).all()
+        )
+        if len(roles) != len(data["roles"]):
+            print(f"Warning: Not all roles found for user 'guest': {data['roles']}")
+
+        guest_user_model = UserModel(
+            username="guest",
+            hashed_password=hash_password(str(data["password"])),
+            roles=roles,
+        )
+        db_session.add(guest_user_model)
+        print("User 'guest' created.")
+    # else:
+    # print("User 'guest' already exists.")
+
+    print("Initial users seeding completed.")

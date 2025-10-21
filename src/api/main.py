@@ -21,7 +21,12 @@ async def lifespan(app: FastAPI):
     db_session = SessionLocal()
     try:
         seed_initial_roles(db_session)
+        db_session.flush()
         seed_initial_users(db_session)
+        db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+        print(f"Seeding error: {e}")
     finally:
         db_session.close()
 
