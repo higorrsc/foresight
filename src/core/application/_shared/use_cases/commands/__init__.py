@@ -4,6 +4,7 @@ from .generic_create_described import (
     CreateDescribedEntityUseCase,
 )
 from .generic_delete import DeleteRequestInputDTO, GenericDeleteUseCase
+from .generic_restore import GenericRestoreUseCase, RestoreRequestInputDTO
 from .generic_update_described import (
     UpdateDescribedEntityInputDTO,
     UpdateDescribedEntityOutputDTO,
@@ -19,4 +20,6 @@ __all__ = [
     "UpdateDescribedEntityInputDTO",
     "UpdateDescribedEntityOutputDTO",
     "UpdateDescribedEntityUseCase",
+    "RestoreRequestInputDTO",
+    "GenericRestoreUseCase",
 ]
