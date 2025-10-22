@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, Form, HTTPException, status
 
 from src.api.auth.security import create_access_token
 from src.api.dependencies.database import get_user_repository
-from src.core.application.use_cases.user import (
+from src.core.application.use_cases.user import InvalidPasswordError, UserNotFoundError
+from src.core.application.use_cases.user.commands import (
     AuthenticateUserInputDTO,
     AuthenticateUserUseCase,
-    InvalidPasswordError,
-    UserNotFoundError,
 )
 from src.core.infrastructure.config.settings import settings
 from src.core.infrastructure.repositories import UserRepository

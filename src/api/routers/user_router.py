@@ -9,26 +9,30 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository, get_user_repository
 from src.api.routers._shared import PaginationMetaResponse
-from src.core.application._shared.use_cases import (
-    DeleteRequestInputDTO,
+from src.core.application._shared.use_cases.commands import DeleteRequestInputDTO
+from src.core.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
 from src.core.application.use_cases.role import InvalidRoleError
 from src.core.application.use_cases.user import (
+    InvalidPasswordError,
+    InvalidUserError,
+    UsernameAlreadyExistsError,
+    UserNotFoundError,
+)
+from src.core.application.use_cases.user.commands import (
     ChangePasswordInputDTO,
     ChangePasswordUseCase,
     CreateUserInputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
-    GetUserByIdUseCase,
-    InvalidPasswordError,
-    InvalidUserError,
-    ListUserUseCase,
     UpdateUserProfileUseCase,
-    UsernameAlreadyExistsError,
-    UserNotFoundError,
     UserProfileRequestDTO,
+)
+from src.core.application.use_cases.user.queries import (
+    GetUserByIdUseCase,
+    ListUserUseCase,
 )
 from src.core.domain.entities import User
 from src.core.infrastructure.repositories import RoleRepository, UserRepository

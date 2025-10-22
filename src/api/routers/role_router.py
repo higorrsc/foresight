@@ -9,21 +9,22 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository
 from src.api.routers._shared import PaginationMetaResponse
-from src.core.application._shared.use_cases.generic_delete import DeleteRequestInputDTO
-from src.core.application._shared.use_cases.generic_get_by_id import (
+from src.core.application._shared.use_cases.commands import DeleteRequestInputDTO
+from src.core.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
+    ListRequestInputDTO,
 )
-from src.core.application._shared.use_cases.generic_list import ListRequestInputDTO
-from src.core.application.use_cases.role import (
+from src.core.application.use_cases.role import InvalidRoleError, RoleNotFoundError
+from src.core.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleUseCase,
     DeleteRoleUseCase,
-    GetRoleByIdUseCase,
-    InvalidRoleError,
-    ListRoleUseCase,
-    RoleNotFoundError,
     UpdateRoleRequestDTO,
     UpdateRoleUseCase,
+)
+from src.core.application.use_cases.role.queries import (
+    GetRoleByIdUseCase,
+    ListRoleUseCase,
 )
 from src.core.infrastructure.repositories import RoleRepository
 

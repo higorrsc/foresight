@@ -9,21 +9,24 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers._shared import PaginationMetaResponse
-from src.core.application._shared.use_cases import (
+from src.core.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
-    GetByIdRequestInputDTO,
-    ListRequestInputDTO,
     UpdateDescribedEntityInputDTO,
 )
-from src.core.application.use_cases.area import (
-    AreaNotFoundError,
+from src.core.application._shared.use_cases.queries import (
+    GetByIdRequestInputDTO,
+    ListRequestInputDTO,
+)
+from src.core.application.use_cases.area import AreaNotFoundError, InvalidAreaError
+from src.core.application.use_cases.area.commands import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
-    GetAreaByIdUseCase,
-    InvalidAreaError,
-    ListAreaUseCase,
     UpdateAreaUseCase,
+)
+from src.core.application.use_cases.area.queries import (
+    GetAreaByIdUseCase,
+    ListAreaUseCase,
 )
 from src.core.infrastructure.repositories.area_repository import AreaRepository
 
