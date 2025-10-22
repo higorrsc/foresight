@@ -37,6 +37,14 @@ class TestCreateUserUseCase:
 
         return repo
 
+    @pytest.fixture
+    def empty_role_in_memory_repository(self):
+        """
+        Fixture that represents an empty role repository.
+        """
+
+        return RoleInMemoryRepository()
+
     def test_create_user_with_valid_data(
         self,
         user_in_memory_repository,
@@ -147,5 +155,30 @@ class TestCreateUserUseCase:
         with pytest.raises(
             InvalidRoleError,
             match="Role 'invalid_role' does not exist.",
+        ):
+            use_case.execute(input_dto)
+
+    def test_create_user_with_without_role_and_try_to_assign_guest_roles_raises_error(
+        self,
+        user_in_memory_repository,
+        empty_role_in_memory_repository,
+    ):
+        """
+        Test create user with valid data.
+        """
+
+        use_case = CreateUserUseCase(
+            user_in_memory_repository,
+            empty_role_in_memory_repository,
+        )
+
+        input_dto = CreateUserInputDTO(
+            username="testuser",
+            password="StrongPassword123",
+        )
+
+        with pytest.raises(
+            RuntimeError,
+            match="Default role 'guest' not found.",
         ):
             use_case.execute(input_dto)
