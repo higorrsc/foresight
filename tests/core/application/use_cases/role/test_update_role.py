@@ -1,6 +1,13 @@
+from uuid import uuid4
+
 import pytest
 
-from src.core.domain._shared import EntityValidationError
+from src.core.application.use_cases.role import (
+    InvalidRoleError,
+    RoleNotFoundError,
+    UpdateRoleRequestDTO,
+    UpdateRoleUseCase,
+)
 from src.core.domain.entities import Role
 from src.core.infrastructure.repositories._shared import InMemoryRepository
 
@@ -24,13 +31,21 @@ class TestUpdateRoleUseCase:
         """
 
         repo = role_in_memory_repository
+        use_case = UpdateRoleUseCase(repository=repo)
+
         role = Role(name="Test", description="Test role")
         repo.save(role)
 
-        role.update_role(new_name="Updated", new_description="Updated role")
-        repo.update(role)
-        assert role.name == "Updated"
-        assert role.description == "Updated role"
+        input_dto = UpdateRoleRequestDTO(
+            id=role.id,
+            name="Updated",
+            description="Updated role",
+        )
+
+        output = use_case.execute(input_dto)
+
+        assert output.name == "Updated"
+        assert output.description == "Updated role"
 
     def test_update_role_with_invalid_name(self, role_in_memory_repository):
         """
@@ -38,11 +53,44 @@ class TestUpdateRoleUseCase:
         """
 
         repo = role_in_memory_repository
+        use_case = UpdateRoleUseCase(repository=repo)
+
         role = Role(name="Test", description="Test role")
         repo.save(role)
 
+        input_dto = UpdateRoleRequestDTO(
+            id=role.id,
+            name="a" * 101,
+            description="Updated role",
+        )
+
         with pytest.raises(
-            EntityValidationError,
-            match="Role name is required.",
+            InvalidRoleError,
+            match="Role name must be at most 100 characters long.",
         ):
-            role.update_role(new_name="")
+            use_case.execute(input_dto)
+
+    def test_update_role_with_invalid_id(self, role_in_memory_repository):
+        """ ""
+        Test update role with invalid id.
+        """
+
+        repo = role_in_memory_repository
+        use_case = UpdateRoleUseCase(repository=repo)
+
+        role = Role(name="Test", description="Test role")
+        repo.save(role)
+
+        invalid_id = uuid4()
+
+        input_dto = UpdateRoleRequestDTO(
+            id=invalid_id,
+            name="Updated",
+            description="Updated role",
+        )
+
+        with pytest.raises(
+            RoleNotFoundError,
+            match=f"Role with id {invalid_id} not found.",
+        ):
+            use_case.execute(input_dto)
