@@ -1,6 +1,8 @@
+from uuid import uuid4
+
 import pytest
 
-from src.core.application.use_cases.user import InvalidUserError
+from src.core.application.use_cases.user import InvalidUserError, UserNotFoundError
 from src.core.application.use_cases.user.commands import (
     UpdateUserProfileUseCase,
     UserProfileRequestDTO,
@@ -79,5 +81,27 @@ class TestUpdateUserProfile:
         with pytest.raises(
             InvalidUserError,
             match="Invalid user data: An email address must have an @-sign.",
+        ):
+            use_case.execute(input_dto)
+
+    def test_update_user_profile_with_invalid_id(self, user_in_memory_repository):
+        """
+        Test update user with invalid id.
+        """
+
+        invalid_id = uuid4()
+
+        input_dto = UserProfileRequestDTO(
+            user_id=invalid_id,
+            first_name="John",
+            last_name="Doe",
+            email="john.doe#email.com",
+            is_active=True,
+        )
+        use_case = UpdateUserProfileUseCase(user_in_memory_repository)
+
+        with pytest.raises(
+            UserNotFoundError,
+            match=f"User with id '{invalid_id}' not found.",
         ):
             use_case.execute(input_dto)
