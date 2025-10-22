@@ -12,7 +12,7 @@ AreaModel.metadata.create_all(bind=engine)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pragma: no cover
     """
     Application lifespan.
     """

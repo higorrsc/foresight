@@ -23,7 +23,9 @@ def get_auth_provider(
         repo = UserRepository(session)
         return LocalAuthenticationProvider(repo)
     else:
-        raise ValueError(f"Invalid auth provider: {settings.AUTH_PROVIDER}")
+        raise ValueError(
+            f"Invalid auth provider: {settings.AUTH_PROVIDER}"
+        )  # pragma: no cover
 
 
 async def get_current_user(

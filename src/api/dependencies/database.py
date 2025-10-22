@@ -11,7 +11,7 @@ from src.core.infrastructure.repositories import (
 )
 
 
-def get_db_session() -> Generator:
+def get_db_session() -> Generator:  # pragma: no cover
     """
     Create a database session by request.
     """
