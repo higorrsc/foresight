@@ -64,6 +64,7 @@ class UserDetailResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    deleted_at: Optional[datetime] = None
     roles: Set[str] = set()
 
     model_config = ConfigDict(from_attributes=True)

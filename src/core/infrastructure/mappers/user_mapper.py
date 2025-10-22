@@ -13,7 +13,7 @@ class UserMapper:
         Converts a User entity to a UserModel instance.
         """
 
-        return UserModel(
+        model = UserModel(
             id=entity.id,
             username=entity.username,
             hashed_password=entity.hashed_password,
@@ -21,10 +21,14 @@ class UserMapper:
             last_name=entity.last_name,
             email=entity.email,
             is_active=entity.is_active,
-            deleted_at=getattr(entity, "deleted_at", None),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
+
+        if hasattr(entity, "deleted_at"):
+            model.deleted_at = entity.deleted_at  # type: ignore
+
+        return model
 
     @staticmethod
     def to_entity(model: "UserModel") -> User:

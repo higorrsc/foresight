@@ -40,8 +40,10 @@ class AreaResponse(BaseModel):
 
     id: UUID
     description: str
+    is_active: bool
     created_at: datetime
     updated_at: datetime
+    deleted_at: Optional[datetime] = None
 
 
 class AreaUpdateBody(BaseModel):

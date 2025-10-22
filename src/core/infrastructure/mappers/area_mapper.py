@@ -13,14 +13,18 @@ class AreaMapper:
         Converts an Area entity to an AreaModel instance.
         """
 
-        return AreaModel(
+        model = AreaModel(
             id=entity.id,
             description=entity.description,
             is_active=entity.is_active,
-            deleted_at=getattr(entity, "deleted_at", None),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
+
+        if hasattr(entity, "deleted_at"):
+            model.deleted_at = entity.deleted_at  # type: ignore
+
+        return model
 
     @staticmethod
     def to_entity(model: "AreaModel") -> Area:
