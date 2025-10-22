@@ -110,3 +110,41 @@ class TestUserEntity:
         assert user.last_name == "User"
         assert user.email == "admin@gmail.com"
         assert user.is_active is False
+
+    def test_create_user_with_invalid_first_name(self):
+        """
+        Test creating a user with invalid first_name.
+        """
+
+        with pytest.raises(
+            EntityValidationError,
+            match="First name must be at most 100 characters long.",
+        ):
+            User(
+                username="testuser",
+                hashed_password="hash",
+                roles={"admin"},
+                first_name="a" * 101,
+                last_name="User",
+                email="admin@gmail.com",
+                is_active=False,
+            )
+
+    def test_create_user_with_invalid_last_name(self):
+        """
+        Test creating a user with invalid last_name.
+        """
+
+        with pytest.raises(
+            EntityValidationError,
+            match="Last name must be at most 100 characters long.",
+        ):
+            User(
+                username="testuser",
+                hashed_password="hash",
+                roles={"admin"},
+                first_name="Admin",
+                last_name="u" * 101,
+                email="admin@gmail.com",
+                is_active=False,
+            )
