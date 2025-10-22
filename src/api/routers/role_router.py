@@ -17,12 +17,11 @@ from src.core.application._shared.use_cases.generic_list import ListRequestInput
 from src.core.application.use_cases.role import (
     CreateRoleInputDTO,
     CreateRoleUseCase,
+    DeleteRoleUseCase,
+    GetRoleByIdUseCase,
+    InvalidRoleError,
     ListRoleUseCase,
-)
-from src.core.application.use_cases.role.delete_role import DeleteRoleUseCase
-from src.core.application.use_cases.role.exceptions import RoleNotFoundError
-from src.core.application.use_cases.role.get_role_by_id import GetRoleByIdUseCase
-from src.core.application.use_cases.role.update_role import (
+    RoleNotFoundError,
     UpdateRoleRequestDTO,
     UpdateRoleUseCase,
 )
@@ -87,7 +86,7 @@ def create_role_endpoint(
         use_case = CreateRoleUseCase(repository=repo)
         result = use_case.execute(request)
         return {"id": result.id}
-    except ValueError as e:
+    except (ValueError, InvalidRoleError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),

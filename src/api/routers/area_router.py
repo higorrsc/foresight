@@ -21,6 +21,7 @@ from src.core.application.use_cases.area import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
     GetAreaByIdUseCase,
+    InvalidAreaError,
     ListAreaUseCase,
     UpdateAreaUseCase,
 )
@@ -86,9 +87,9 @@ def create_area_endpoint(
         use_case = CreateAreaUseCase(repo)
         result = use_case.execute(request)
         return {"id": result.id}
-    except ValueError as e:
+    except InvalidAreaError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(e),
         ) from e
 
@@ -169,9 +170,9 @@ def get_area_by_id_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
-    except ValueError as e:
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(e),
         ) from e
 
@@ -205,9 +206,9 @@ def update_area_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
-    except ValueError as e:
+    except InvalidAreaError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(e),
         ) from e
 
