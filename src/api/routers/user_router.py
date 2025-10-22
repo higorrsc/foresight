@@ -9,7 +9,10 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository, get_user_repository
 from src.api.routers._shared import PaginationMetaResponse
-from src.core.application._shared.use_cases.commands import DeleteRequestInputDTO
+from src.core.application._shared.use_cases.commands import (
+    DeleteRequestInputDTO,
+    RestoreRequestInputDTO,
+)
 from src.core.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
@@ -27,6 +30,7 @@ from src.core.application.use_cases.user.commands import (
     CreateUserInputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
+    RestoreUserUseCase,
     UpdateUserProfileUseCase,
     UserProfileRequestDTO,
 )
@@ -324,5 +328,28 @@ def update_profile_endpoint(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@protected_router.patch(
+    "/{user_id}/restore",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(allow_admin_only)],
+)
+def restore_user_endpoint(
+    user_id: UUID,
+    repo: UserRepository = Depends(get_user_repository),
+):
+    """
+    Restore an existing user.
+    """
+
+    try:
+        use_case = RestoreUserUseCase(repository=repo)
+        use_case.execute(RestoreRequestInputDTO(id=user_id))
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e

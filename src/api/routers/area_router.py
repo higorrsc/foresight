@@ -12,6 +12,7 @@ from src.api.routers._shared import PaginationMetaResponse
 from src.core.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
+    RestoreRequestInputDTO,
     UpdateDescribedEntityInputDTO,
 )
 from src.core.application._shared.use_cases.queries import (
@@ -22,6 +23,7 @@ from src.core.application.use_cases.area import AreaNotFoundError, InvalidAreaEr
 from src.core.application.use_cases.area.commands import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
+    RestoreAreaUseCase,
     UpdateAreaUseCase,
 )
 from src.core.application.use_cases.area.queries import (
@@ -234,6 +236,29 @@ def delete_area_endpoint(
     try:
         use_case = DeleteAreaUseCase(repo)
         use_case.execute(DeleteRequestInputDTO(area_id))
+    except AreaNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+
+
+@router.patch(
+    "/{area_id}/restore",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(allow_admin_only)],
+)
+def restore_area_endpoint(
+    area_id: UUID,
+    repo: AreaRepository = Depends(get_area_repository),
+):
+    """
+    Restore an existing area.
+    """
+
+    try:
+        use_case = RestoreAreaUseCase(repo)
+        use_case.execute(RestoreRequestInputDTO(area_id))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
