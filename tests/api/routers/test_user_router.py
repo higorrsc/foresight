@@ -1,7 +1,11 @@
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
+from jose import jwt
+
+from src.core.infrastructure.config.settings import settings
 
 
 class TestUserRouter:
@@ -550,3 +554,35 @@ class TestUserRouter:
         assert (
             "value is not a valid email address" in response.json()["detail"][0]["msg"]
         )
+
+    def test_access_protected_route_with_invalid_token(self, client: TestClient):
+        """
+        Test access protected route with invalid token.
+        """
+
+        invalid_token = "this-is-not-a-valid-jwt-token"
+        headers = {"Authorization": f"Bearer {invalid_token}"}
+
+        response = client.get(
+            "/users/me", headers=headers
+        )  # Use um endpoint protegido qualquer
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_access_protected_route_with_valid_token_no_sub(self, client: TestClient):
+        """
+        Test access protected route with valid token.
+        """
+
+        payload_sem_sub = {"exp": datetime.now(timezone.utc) + timedelta(minutes=15)}
+        token_sem_sub = jwt.encode(
+            payload_sem_sub,
+            settings.SECRET_KEY,
+            algorithm=settings.ALGORITHM,
+        )
+
+        headers = {"Authorization": f"Bearer {token_sem_sub}"}
+        response = client.get("/users/me", headers=headers)
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "Invalid authentication credentials" in response.json()["detail"]
