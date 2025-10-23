@@ -36,10 +36,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            # Gera uma tag com o SHA curto do commit (ex: ghcr.io/user/repo:a1b2c3d)
             type=sha,prefix=,suffix=,format=short
-            # (Opcional) Gera a tag 'latest' apenas para a branch main
-            type=raw,value=latest,enable={{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
