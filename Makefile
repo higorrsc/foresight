@@ -31,6 +31,10 @@ format:
 	@echo "🎨 Formatando o código com black..."
 	@uv run black .
 
+secret:
+	@echo "📦 Gerando secrets para o projeto..."
+	@python -c "import secrets;print(secrets.token_hex(32))"
+
 # --- Comandos de Verificação de Qualidade ---
 
 lint:
