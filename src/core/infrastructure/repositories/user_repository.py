@@ -72,6 +72,9 @@ class UserRepository(SQLAlchemyRepository[User, UserModel]):
         model.email = entity.email  # type: ignore
         model.is_active = entity.is_active  # type: ignore
 
+        if hasattr(entity, "deleted_at"):
+            model.deleted_at = entity.deleted_at  # type: ignore
+
         if entity.roles is not None:
             role_models = (
                 self._session.query(RoleModel)
