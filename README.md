@@ -1,5 +1,9 @@
 # ForeSight
 
+[![Python Version](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/higorrsc/foresight/actions/workflows/ci.yaml/badge.svg)](https://github.com/higorrsc/foresight/actions/workflows/ci.yaml)
+
 **ForeSight** é uma plataforma moderna para simulação orçamentária e projeção de custos, construída com uma arquitetura limpa e robusta em Python. O nome reflete o objetivo do projeto: *Anticipate. Plan. Achieve.*
 
 ---
