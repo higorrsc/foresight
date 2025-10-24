@@ -22,6 +22,7 @@ class User(AbstractEntity, SoftDeletableMixin):
     username: str
     hashed_password: str
     roles: Set[str] = field(default_factory=set)
+    permissions: Set[str] = field(default_factory=set)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None

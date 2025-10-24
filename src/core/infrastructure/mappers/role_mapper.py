@@ -26,6 +26,11 @@ class RoleMapper:
         """
         Converts a RoleModel instance to a Role entity.
         """
+        permission_codes = (
+            {permission.codename for permission in model.permissions}
+            if model.permissions
+            else set()
+        )
 
         return Role(
             id=model.id,  # type: ignore
@@ -33,4 +38,5 @@ class RoleMapper:
             description=model.description,  # type: ignore
             created_at=model.created_at,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
+            permissions=permission_codes,
         )

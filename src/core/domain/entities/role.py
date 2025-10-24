@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Set
 
 from src.core.domain._shared import AbstractEntity, EntityValidationError
 
@@ -12,6 +12,7 @@ class Role(AbstractEntity):
 
     name: str
     description: str
+    permissions: Set[str] = field(default_factory=set)
 
     def update_role(self, new_name: str, new_description: Optional[str] = None) -> None:
         """

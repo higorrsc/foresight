@@ -56,4 +56,14 @@ class RoleModel(Base):
         onupdate=datetime.now,
     )
 
-    users = relationship("UserModel", secondary=user_roles, back_populates="roles")
+    users = relationship(
+        "UserModel",
+        secondary=user_roles,
+        back_populates="roles",
+    )
+
+    permissions = relationship(
+        "PermissionModel",
+        secondary="role_permissions",
+        back_populates="roles",
+    )

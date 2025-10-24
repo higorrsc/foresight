@@ -28,12 +28,21 @@ class UserModel(Base):
         String,
         nullable=False,
     )
+
     roles = relationship(
         "RoleModel",
         secondary="user_roles",
         back_populates="users",
         lazy="joined",
     )
+
+    permissions = relationship(
+        "PermissionModel",
+        secondary="user_permissions",
+        back_populates="users",
+        lazy="joined",
+    )
+
     first_name = Column(
         String(100),
         nullable=True,
