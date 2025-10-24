@@ -61,7 +61,7 @@ class PermissionModel(Base):
     )
     description = Column(
         String,
-        nullable=True,
+        nullable=False,
     )
     created_at = Column(
         DateTime,
