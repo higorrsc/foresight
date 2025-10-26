@@ -37,11 +37,17 @@ class UserMapper:
         """
 
         role_names = {role.name for role in model.roles} if model.roles else set()
-        permission_codes = (
-            {permission.codename for permission in model.permissions}
-            if model.permissions
-            else set()
-        )
+        effective_permissions = set()
+
+        if model.permissions:
+            for permission in model.permissions:
+                effective_permissions.add(permission.codename)
+
+        if model.roles:
+            for role in model.roles:
+                for permission in role.permissions:
+                    effective_permissions.add(permission.codename)
+
         user = User(
             id=model.id,  # type: ignore
             username=model.username,  # type: ignore
@@ -53,7 +59,7 @@ class UserMapper:
             created_at=model.created_at,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
             roles=role_names,
-            permissions=permission_codes,
+            permissions=effective_permissions,
         )
 
         if hasattr(model, "deleted_at") and hasattr(user, "deleted_at"):
