@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
+from src.core.domain import AppPermission
 from src.core.domain.entities import hash_password
-from src.core.infrastructure.models import RoleModel, UserModel
+from src.core.infrastructure.models import PermissionModel, RoleModel, UserModel
 
 
 def seed_initial_roles(db_session: Session):
@@ -21,8 +22,6 @@ def seed_initial_roles(db_session: Session):
         )
         db_session.add(admin_role_model)
         print("Role 'admin' created.")
-    # else:
-    # print("Role 'admin' already exists.")
 
     if not guest_exists:
         guest_role_model = RoleModel(
@@ -31,8 +30,6 @@ def seed_initial_roles(db_session: Session):
         )
         db_session.add(guest_role_model)
         print("Role 'guest' created.")
-    # else:
-    # print("Role 'guest' already exists.")
 
     print("Initial roles seeding completed.")
 
@@ -68,8 +65,6 @@ def seed_initial_users(db_session: Session):
         )
         db_session.add(admin_user_model)
         print("User 'admin' created.")
-    # else:
-    # print("User 'admin' already exists.")
 
     if not guest_exists:
         data = users_to_create["guest"]
@@ -86,7 +81,35 @@ def seed_initial_users(db_session: Session):
         )
         db_session.add(guest_user_model)
         print("User 'guest' created.")
-    # else:
-    # print("User 'guest' already exists.")
 
     print("Initial users seeding completed.")
+
+
+def seed_app_permissions(db_session: Session):
+    """
+    Create application permissions if that doesn't exists, using PermissionModel for queries.
+    """
+
+    print("Checking for app permissions...")
+
+    permissions = AppPermission.get_all_permissions()
+    admin_role = db_session.query(RoleModel).filter_by(name="admin").first()
+
+    for permission in permissions:
+        permission_exists = (
+            db_session.query(PermissionModel).filter_by(codename=permission).first()
+        )
+        if not permission_exists:
+            permission_model = PermissionModel(
+                codename=permission,
+                description=f"Can {permission.split(":")[1]} {permission.split(':')[0]}",
+            )
+            db_session.add(permission_model)
+            print(f"Permission '{permission}' created.")
+
+            if admin_role:
+                admin_role.permissions.append(permission_model)
+                db_session.add(admin_role)
+                print(f"Permission '{permission}' set for role 'admin'.")
+
+    print("App permissions seeding completed.")

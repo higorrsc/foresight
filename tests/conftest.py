@@ -10,7 +10,11 @@ from sqlalchemy.pool import NullPool, StaticPool
 from src.api.dependencies.database import get_db_session
 from src.api.main import app
 from src.core.infrastructure.config.database import Base
-from src.core.infrastructure.db import seed_initial_roles, seed_initial_users
+from src.core.infrastructure.db import (
+    seed_app_permissions,
+    seed_initial_roles,
+    seed_initial_users,
+)
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.sqlite3"
 engine = create_engine(
@@ -50,6 +54,8 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
         session.execute(table.delete())
 
     seed_initial_roles(session)
+    session.flush()
+    seed_app_permissions(session)
     session.flush()
     seed_initial_users(session)
     session.flush()
