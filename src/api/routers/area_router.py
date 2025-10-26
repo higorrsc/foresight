@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.authorization import RoleChecker
+from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers._shared import PaginationMetaResponse
 from src.core.application._shared.use_cases.commands import (
@@ -32,7 +32,9 @@ from src.core.application.use_cases.area.queries import (
 )
 from src.core.infrastructure.repositories.area_repository import AreaRepository
 
-allow_admin_only = RoleChecker(["admin"])
+require_area_create_or_update = PermissionChecker(["area:create", "area:update"])
+require_area_delete = PermissionChecker(["area:delete"])
+require_area_read = PermissionChecker(["area:read"])
 
 
 class AreaResponse(BaseModel):
@@ -81,6 +83,7 @@ router = APIRouter(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_area_create_or_update)],
 )
 def create_area_endpoint(
     request: CreateDescribedEntityInputDTO,
@@ -105,6 +108,7 @@ def create_area_endpoint(
     "/",
     status_code=status.HTTP_200_OK,
     response_model=PaginatedAreaResponse,
+    dependencies=[Depends(require_area_read)],
 )
 def list_areas_endpoint(
     repo: AreaRepository = Depends(get_area_repository),
@@ -158,6 +162,7 @@ def list_areas_endpoint(
     "/{area_id}",
     status_code=status.HTTP_200_OK,
     response_model=AreaResponse,
+    dependencies=[Depends(require_area_read)],
 )
 def get_area_by_id_endpoint(
     area_id: UUID,
@@ -187,6 +192,7 @@ def get_area_by_id_endpoint(
 @router.put(
     "/{area_id}",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_area_create_or_update)],
 )
 def update_area_endpoint(
     area_id: UUID,
@@ -223,7 +229,7 @@ def update_area_endpoint(
 @router.delete(
     "/{area_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(allow_admin_only)],
+    dependencies=[Depends(require_area_delete)],
 )
 def delete_area_endpoint(
     area_id: UUID,
@@ -246,7 +252,7 @@ def delete_area_endpoint(
 @router.patch(
     "/{area_id}/restore",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(allow_admin_only)],
+    dependencies=[Depends(require_area_delete)],
 )
 def restore_area_endpoint(
     area_id: UUID,
