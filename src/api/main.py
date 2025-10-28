@@ -2,14 +2,20 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.api.routers import area_router, auth_router, role_router, user_router
-from src.core.infrastructure.config.database import Base, SessionLocal, engine
-from src.core.infrastructure.db import (
+from src.api.routers.identity_access_management import (
+    AuthRouter,
+    RoleRouter,
+    UserProtectedRouter,
+    UserPublicRouter,
+)
+from src.api.routers.shared_kernel import AreaRouter
+from src.shared_kernel.infrastructure.config import Base, SessionLocal, engine
+from src.shared_kernel.infrastructure.db import (
     seed_app_permissions,
     seed_initial_roles,
     seed_initial_users,
 )
-from src.core.infrastructure.models import AreaModel
+from src.shared_kernel.infrastructure.models import AreaModel
 
 Base.metadata.create_all(bind=engine)
 AreaModel.metadata.create_all(bind=engine)
@@ -49,11 +55,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(auth_router.router)
-app.include_router(user_router.public_router)
-app.include_router(user_router.protected_router)
-app.include_router(role_router.router)
-app.include_router(area_router.router)
+app.include_router(AuthRouter)
+app.include_router(UserPublicRouter)
+app.include_router(UserProtectedRouter)
+app.include_router(RoleRouter)
+app.include_router(AreaRouter)
 
 
 @app.get("/")

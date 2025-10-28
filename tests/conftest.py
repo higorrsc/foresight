@@ -9,8 +9,8 @@ from sqlalchemy.pool import NullPool, StaticPool
 
 from src.api.dependencies.database import get_db_session
 from src.api.main import app
-from src.core.infrastructure.config.database import Base
-from src.core.infrastructure.db import (
+from src.shared_kernel.infrastructure.config import Base
+from src.shared_kernel.infrastructure.db import (
     seed_app_permissions,
     seed_initial_roles,
     seed_initial_users,

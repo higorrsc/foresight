@@ -3,12 +3,12 @@ from typing import Generator
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from src.core.infrastructure.config.database import SessionLocal
-from src.core.infrastructure.repositories import (
-    AreaRepository,
+from src.identity_access_management.infrastructure.repositories import (
     RoleRepository,
     UserRepository,
 )
+from src.shared_kernel.infrastructure.config import SessionLocal
+from src.shared_kernel.infrastructure.repositories import AreaRepository
 
 
 def get_db_session() -> Generator:  # pragma: no cover

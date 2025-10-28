@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from jose import jwt
 
-from src.core.infrastructure.config.settings import settings
+from src.shared_kernel.infrastructure.config import settings
 
 
 def create_access_token(data: Dict, expires_delta: Optional[timedelta] = None):

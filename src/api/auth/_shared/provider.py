@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from src.core.domain.entities import User
+from src.identity_access_management.domain.entities import User
 
 
 class AbstractAuthenticationProvider(ABC):

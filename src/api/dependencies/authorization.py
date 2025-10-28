@@ -3,7 +3,7 @@ from typing import List, Set
 from fastapi import Depends, HTTPException, status
 
 from src.api.dependencies.auth import get_current_user
-from src.core.domain.entities.user import User
+from src.identity_access_management.domain.entities import User
 
 
 class RoleChecker:

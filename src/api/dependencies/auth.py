@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from src.api.auth import LocalAuthenticationProvider
 from src.api.auth._shared import AbstractAuthenticationProvider
 from src.api.dependencies.database import get_db_session
-from src.core.domain.entities import User
-from src.core.infrastructure.config.settings import settings
-from src.core.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.shared_kernel.infrastructure.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 

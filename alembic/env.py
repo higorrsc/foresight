@@ -5,7 +5,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.core.infrastructure.config.settings import settings
+from src.shared_kernel.infrastructure.config import settings
 
 project_root = os.path.realpath(
     os.path.join(
@@ -34,8 +34,10 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from src.core.infrastructure.config.database import Base
-from src.core.infrastructure import models
+from src.shared_kernel.infrastructure.config import Base
+from src.identity_access_management.infrastructure import models as IAMModels
+from src.shared_kernel.infrastructure import models as SharedKernelModels
+
 
 target_metadata = Base.metadata
 
