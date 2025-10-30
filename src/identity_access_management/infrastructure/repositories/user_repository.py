@@ -3,12 +3,16 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.repositories import IUserRepository
 from src.identity_access_management.infrastructure.mappers import UserMapper
 from src.identity_access_management.infrastructure.models import RoleModel, UserModel
 from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
-class UserRepository(SQLAlchemyRepository[User, UserModel]):
+class UserRepository(
+    SQLAlchemyRepository[User, UserModel],
+    IUserRepository,
+):
     """
     Repository for managing User entities using SQLAlchemy.
     """
