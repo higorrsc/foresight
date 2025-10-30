@@ -91,3 +91,14 @@ class UserRepository(
         self._session.refresh(model)
 
         return self._mapper.to_entity(model)
+
+    def get_by_email(self, email: str) -> Optional[User]:
+        """
+        Get a user by its email.
+
+        :param email: Email of the user.
+        :return: User entity or None if not found.
+        """
+
+        model = self._session.query(self._model_cls).filter_by(email=email).first()
+        return self._mapper.to_entity(model) if model else None
