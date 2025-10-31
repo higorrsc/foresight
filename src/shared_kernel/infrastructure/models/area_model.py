@@ -1,9 +1,9 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import UUID, Boolean, Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, String
 
-from src.shared_kernel.infrastructure.config import Base
+from src.shared_kernel.infrastructure.config import Base, GUID_Type
 
 
 class AreaModel(Base):
@@ -14,7 +14,7 @@ class AreaModel(Base):
     __tablename__ = "areas"
 
     id = Column(
-        UUID(as_uuid=True),
+        GUID_Type,
         primary_key=True,
         default=uuid4,
     )
@@ -28,10 +28,6 @@ class AreaModel(Base):
         nullable=False,
         index=True,
     )
-    deleted_at = Column(
-        DateTime,
-        nullable=True,
-    )
     created_at = Column(
         DateTime,
         default=datetime.now,
@@ -40,4 +36,8 @@ class AreaModel(Base):
         DateTime,
         default=datetime.now,
         onupdate=datetime.now,
+    )
+    deleted_at = Column(
+        DateTime,
+        nullable=True,
     )

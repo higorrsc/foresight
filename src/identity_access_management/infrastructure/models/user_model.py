@@ -1,10 +1,10 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import UUID, Boolean, Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.orm import relationship
 
-from src.shared_kernel.infrastructure.config import Base
+from src.shared_kernel.infrastructure.config import Base, GUID_Type
 
 
 class UserModel(Base):
@@ -15,7 +15,7 @@ class UserModel(Base):
     __tablename__ = "users"
 
     id = Column(
-        UUID(as_uuid=True),
+        GUID_Type,
         primary_key=True,
         default=uuid4,
     )
@@ -28,21 +28,6 @@ class UserModel(Base):
         String,
         nullable=False,
     )
-
-    roles = relationship(
-        "RoleModel",
-        secondary="user_roles",
-        back_populates="users",
-        lazy="joined",
-    )
-
-    permissions = relationship(
-        "PermissionModel",
-        secondary="user_permissions",
-        back_populates="users",
-        lazy="joined",
-    )
-
     first_name = Column(
         String(100),
         nullable=True,
@@ -63,10 +48,6 @@ class UserModel(Base):
         nullable=False,
         index=True,
     )
-    deleted_at = Column(
-        DateTime,
-        nullable=True,
-    )
     created_at = Column(
         DateTime,
         default=datetime.now,
@@ -75,4 +56,22 @@ class UserModel(Base):
         DateTime,
         default=datetime.now,
         onupdate=datetime.now,
+    )
+    deleted_at = Column(
+        DateTime,
+        nullable=True,
+    )
+
+    roles = relationship(
+        "RoleModel",
+        secondary="user_roles",
+        back_populates="users",
+        lazy="joined",
+    )
+
+    permissions = relationship(
+        "PermissionModel",
+        secondary="user_permissions",
+        back_populates="users",
+        lazy="joined",
     )

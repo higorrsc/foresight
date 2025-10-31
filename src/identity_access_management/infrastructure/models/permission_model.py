@@ -1,23 +1,23 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table
+from sqlalchemy import Column, DateTime, ForeignKey, String, Table
 from sqlalchemy.orm import relationship
 
-from src.shared_kernel.infrastructure.config import Base
+from src.shared_kernel.infrastructure.config import Base, GUID_Type
 
 user_permissions = Table(
     "user_permissions",
     Base.metadata,
     Column(
         "user_id",
-        UUID(as_uuid=True),
+        GUID_Type,
         ForeignKey("users.id"),
         primary_key=True,
     ),
     Column(
         "permission_id",
-        UUID(as_uuid=True),
+        GUID_Type,
         ForeignKey("permissions.id"),
         primary_key=True,
     ),
@@ -28,13 +28,13 @@ role_permissions = Table(
     Base.metadata,
     Column(
         "role_id",
-        UUID(as_uuid=True),
+        GUID_Type,
         ForeignKey("roles.id"),
         primary_key=True,
     ),
     Column(
         "permission_id",
-        UUID(as_uuid=True),
+        GUID_Type,
         ForeignKey("permissions.id"),
         primary_key=True,
     ),
@@ -49,7 +49,7 @@ class PermissionModel(Base):
     __tablename__ = "permissions"
 
     id = Column(
-        UUID(as_uuid=True),
+        GUID_Type,
         primary_key=True,
         default=uuid4,
     )
