@@ -2,6 +2,7 @@ import os
 from typing import Generator
 
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -16,7 +17,15 @@ from src.shared_kernel.infrastructure.db import (
     seed_initial_users,
 )
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.sqlite3"
+load_dotenv()
+
+USE_IN_MEMORY_DB = os.getenv("TEST_IN_MEMORY", "true").lower() in ("true", "1", "t")
+DB_FILE_PATH = "test.sqlite3"
+
+SQLALCHEMY_DATABASE_URL = (
+    "sqlite:///:memory:" if USE_IN_MEMORY_DB else f"sqlite:///./{DB_FILE_PATH}"
+)
+
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -37,7 +46,9 @@ def setup_database():
 
     Base.metadata.create_all(bind=engine)
     yield
-    os.remove("test.sqlite3")
+
+    if not USE_IN_MEMORY_DB:
+        os.remove("test.sqlite3")
 
 
 @pytest.fixture(scope="function")
