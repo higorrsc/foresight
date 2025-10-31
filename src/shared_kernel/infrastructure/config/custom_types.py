@@ -22,7 +22,7 @@ class GUID_Type(TypeDecorator):
         Otherwise, use CHAR(36).
         """
 
-        if dialect.name == "postgresql":
+        if dialect.name in ("postgresql", "cockroachdb"):
             return dialect.type_descriptor(PG_UUID(as_uuid=True))
         elif dialect.name == "mssql":
             return dialect.type_descriptor(MSSQL_UUID())
@@ -37,7 +37,7 @@ class GUID_Type(TypeDecorator):
         if value is None:
             return value
 
-        if dialect.name in ("postgresql", "mssql"):
+        if dialect.name in ("postgresql", "mssql", "cockroachdb"):
             return value
 
         return str(value)
@@ -50,7 +50,7 @@ class GUID_Type(TypeDecorator):
         if value is None:
             return value
 
-        if dialect.name in ("postgresql", "mssql"):
+        if dialect.name in ("postgresql", "mssql", "cockroachdb"):
             return value
 
         if not isinstance(value, uuid.UUID):

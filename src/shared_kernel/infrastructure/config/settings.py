@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     DB_PORT: Optional[int] = None
     DB_DATABASE: str = "./db.sqlite3"
 
+    DB_SSL_ROOT_CERT: Optional[str] = None
+
     DATABASE_URL: Optional[str] = None
 
     SECRET_KEY: str = "default_secret_key_if_not_in_env_file"
@@ -35,10 +37,25 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
+        driver = values.get("DB_DRIVER")
 
-        database_path = values.get("DB_DATABASE")
-        if values.get("DB_DRIVER") == "sqlite" and database_path:
-            return f"sqlite:///{database_path}"
+        if driver == "sqlite":
+            database_path = values.get("DB_DATABASE")
+            if values.get("DB_DRIVER") == "sqlite" and database_path:
+                return f"sqlite:///{database_path}"
+
+        if driver == "cockroachdb":
+            user = values.get("DB_USER")
+            password = values.get("DB_PASSWORD")
+            host = values.get("DB_HOST")
+            port = values.get("DB_PORT")
+            database = values.get("DB_DATABASE")
+            cert_path = values.get("DB_SSL_ROOT_CERT")
+
+            if not all([user, password, host, port, database, cert_path]):
+                raise ValueError("For CockroachDB, all variables DB_* must be set.")
+
+            return f"cockroachdb://{user}:{password}@{host}:{port}/{database}?sslmode=verify-full&sslrootcert={cert_path}"
 
         return str(
             URL.create(
