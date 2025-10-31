@@ -9,16 +9,12 @@ from src.api.routers.identity_access_management import (
     UserPublicRouter,
 )
 from src.api.routers.shared_kernel import AreaRouter
-from src.shared_kernel.infrastructure.config import Base, SessionLocal, engine
+from src.shared_kernel.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.db import (
     seed_app_permissions,
     seed_initial_roles,
     seed_initial_users,
 )
-from src.shared_kernel.infrastructure.models import AreaModel
-
-Base.metadata.create_all(bind=engine)
-AreaModel.metadata.create_all(bind=engine)
 
 
 @asynccontextmanager
