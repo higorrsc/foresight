@@ -34,9 +34,9 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from src.shared_kernel.infrastructure.config import Base
-from src.identity_access_management.infrastructure import models as IAMModels
+from src.shared_kernel.infrastructure.config import Base, GUID_Type
 from src.shared_kernel.infrastructure import models as SharedKernelModels
+from src.identity_access_management.infrastructure import models as IAMModels
 
 
 target_metadata = Base.metadata
@@ -92,6 +92,24 @@ def process_revision_directives(context, revision, directives):
             script.downgrade_ops.ops = new_downgrade_ops
 
 
+def render_item(type_, obj, autogen_context):
+    """
+    Renderiza o tipo GUID_Type customizado corretamente no ficheiro de migração,
+    adicionando o import necessário.
+    """
+    # Verifica se é o nosso tipo customizado
+    if type_ == "type" and isinstance(obj, GUID_Type):
+        # Adiciona o import no topo do ficheiro de migração gerado
+        autogen_context.imports.add(
+            "from src.shared_kernel.infrastructure.config.custom_types import GUID_Type"
+        )
+        # Renderiza o tipo como "GUID_Type()"
+        return "GUID_Type()"
+
+    # Deixa o Alembic lidar com todos os outros tipos
+    return False
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -111,6 +129,8 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         process_revision_directives=process_revision_directives,
+        render_as_batch=True,
+        render_item=render_item,
     )
 
     with context.begin_transaction():
@@ -135,6 +155,8 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
+            render_as_batch=True,
+            render_item=render_item,
         )
 
         with context.begin_transaction():
