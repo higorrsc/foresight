@@ -16,6 +16,8 @@ dependencies = [
     "argon2-cffi>=25.1.0",
     "python-multipart>=0.0.20",
     "email-validator>=2.3.0",
+    "psycopg2-binary>=2.9.11",
+    "sqlalchemy-cockroachdb>=2.0.3",
 ]
 
 [dependency-groups]
