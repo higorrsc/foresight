@@ -36,6 +36,12 @@ class RoleModel(Base):
         primary_key=True,
         default=uuid4,
     )
+    tenant_id = Column(
+        GUID_Type,
+        ForeignKey("tenants.id"),
+        nullable=False,
+        index=True,
+    )
     name = Column(
         String,
         unique=True,

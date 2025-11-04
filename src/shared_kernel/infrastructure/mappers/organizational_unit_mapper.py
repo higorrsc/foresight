@@ -17,6 +17,7 @@ class OrganizationalUnitMapper:
 
         model = OrganizationalUnitModel(
             id=entity.id,
+            tenant_id=entity.tenant_id,
             code=entity.code,
             description=entity.description,
             parent_id=entity.parent_id,
@@ -38,6 +39,7 @@ class OrganizationalUnitMapper:
 
         entity = OrganizationalUnit(
             id=model.id,  # type: ignore
+            tenant_id=model.tenant_id,  # type: ignore
             code=model.code,  # type: ignore
             description=model.description,  # type: ignore
             parent_id=model.parent_id,  # type: ignore

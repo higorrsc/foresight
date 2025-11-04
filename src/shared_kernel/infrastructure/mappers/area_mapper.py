@@ -15,6 +15,7 @@ class AreaMapper:
 
         model = AreaModel(
             id=entity.id,
+            tenant_id=entity.tenant_id,
             description=entity.description,
             is_active=entity.is_active,
             created_at=entity.created_at,
@@ -34,6 +35,7 @@ class AreaMapper:
 
         area = Area(
             id=model.id,  # type: ignore
+            tenant_id=model.tenant_id,  # type: ignore
             description=model.description,  # type: ignore
             is_active=model.is_active,  # type: ignore
             created_at=model.created_at,  # type: ignore

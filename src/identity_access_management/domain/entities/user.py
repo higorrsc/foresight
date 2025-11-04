@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional, Set
+from uuid import UUID
 
 from email_validator import EmailNotValidError, validate_email
 from passlib.context import CryptContext
@@ -24,6 +25,7 @@ class User(AbstractEntity, SoftDeletableMixin):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
+    tenant_id: Optional[UUID] = None
 
     def verify_password(self, plain_password: str) -> bool:
         """

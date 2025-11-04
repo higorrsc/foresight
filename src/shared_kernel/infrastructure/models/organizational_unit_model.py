@@ -19,6 +19,12 @@ class OrganizationalUnitModel(Base):
         primary_key=True,
         default=uuid4,
     )
+    tenant_id = Column(
+        GUID_Type,
+        ForeignKey("tenants.id"),
+        nullable=False,
+        index=True,
+    )
     code = Column(
         String(100),
         nullable=False,

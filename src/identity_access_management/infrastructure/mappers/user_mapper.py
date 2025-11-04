@@ -15,6 +15,7 @@ class UserMapper:
 
         model = UserModel(
             id=entity.id,
+            tenant_id=entity.tenant_id,
             username=entity.username,
             hashed_password=entity.hashed_password,
             first_name=entity.first_name,
@@ -50,6 +51,7 @@ class UserMapper:
 
         user = User(
             id=model.id,  # type: ignore
+            tenant_id=model.tenant_id,  # type: ignore
             username=model.username,  # type: ignore
             hashed_password=model.hashed_password,  # type: ignore
             first_name=model.first_name,  # type: ignore

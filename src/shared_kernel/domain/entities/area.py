@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from src.shared_kernel.domain._shared.entities import DescribedEntity
 from src.shared_kernel.domain._shared.mixins import SoftDeletableMixin
@@ -9,6 +10,8 @@ class Area(DescribedEntity, SoftDeletableMixin):
     """
     Entity representing a geographical or logical area within the system.
     """
+
+    tenant_id: UUID
 
     def __str__(self) -> str:
         """

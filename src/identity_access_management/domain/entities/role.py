@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional, Set
+from uuid import UUID
 
 from src.shared_kernel.domain._shared import EntityValidationError
 from src.shared_kernel.domain._shared.entities import AbstractEntity
@@ -14,6 +15,7 @@ class Role(AbstractEntity):
     name: str
     description: str
     permissions: Set[str] = field(default_factory=set)
+    tenant_id: UUID
 
     def update_role(self, new_name: str, new_description: Optional[str] = None) -> None:
         """

@@ -15,6 +15,7 @@ class RoleMapper:
 
         return RoleModel(
             id=entity.id,
+            tenant_id=entity.tenant_id,
             name=entity.name,
             description=entity.description,
             created_at=entity.created_at,
@@ -34,6 +35,7 @@ class RoleMapper:
 
         return Role(
             id=model.id,  # type: ignore
+            tenant_id=model.tenant_id,  # type: ignore
             name=model.name,  # type: ignore
             description=model.description,  # type: ignore
             created_at=model.created_at,  # type: ignore

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from src.shared_kernel.infrastructure.config import Base, GUID_Type
@@ -18,6 +18,12 @@ class UserModel(Base):
         GUID_Type,
         primary_key=True,
         default=uuid4,
+    )
+    tenant_id = Column(
+        GUID_Type,
+        ForeignKey("tenants.id"),
+        nullable=True,
+        index=True,
     )
     username = Column(
         String(50),
