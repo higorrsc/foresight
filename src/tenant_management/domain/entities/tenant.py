@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
 
 from src.shared_kernel.domain._shared.entities import AbstractEntity
@@ -13,7 +13,7 @@ class Tenant(AbstractEntity):
     """
 
     name: str
-    status: TenantStatus
+    status: TenantStatus = field(default=TenantStatus.TRIAL)
     plan_id: UUID
 
     def _validate(self) -> None:

@@ -27,6 +27,7 @@ class TenantModel(Base):
     status: Mapped[TenantStatus] = mapped_column(
         Enum(TenantStatus),
         nullable=False,
+        default=TenantStatus.TRIAL,
     )
     plan_id = Column(
         GUID_Type,
