@@ -37,6 +37,7 @@ if config.config_file_name is not None:
 from src.shared_kernel.infrastructure.config import Base, GUID_Type
 from src.shared_kernel.infrastructure import models as SharedKernelModels
 from src.identity_access_management.infrastructure import models as IAMModels
+from src.tenant_management.infrastructure import models as TenantManagementModels
 
 
 target_metadata = Base.metadata
