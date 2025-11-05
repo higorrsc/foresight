@@ -1,7 +1,7 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
-from sqlalchemy import asc, desc
+from sqlalchemy import asc, delete, desc, select
 from sqlalchemy.orm import Session
 
 from src.shared_kernel.domain._shared import AbstractRepository, PaginatedResult
@@ -43,25 +43,39 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         self._session.refresh(model)
         return self._mapper.to_entity(model)
 
-    def get_by_id(self, entity_id: UUID) -> Optional[T]:
+    def get_by_id(
+        self,
+        entity_id: UUID,
+        tenant_id: Optional[UUID],
+    ) -> Optional[T]:
         """
         Retrieve an entity by its ID.
 
         :param entity_id: The ID of the entity to retrieve.
+        :param tenant_id: The ID of the tenant.
         :return: The entity if found, otherwise None.
         """
 
-        model = self._session.get(self._model_cls, entity_id)
+        stmt = select(self._model_cls).filter_by(
+            id=entity_id,
+            tenant_id=tenant_id,
+        )
+        model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
 
-    def list(self) -> List[T]:
+    def list(
+        self,
+        tenant_id: Optional[UUID],
+    ) -> List[T]:
         """
         List all entities in the repository.
 
+        :param tenant_id: The ID of the tenant.
         :return: A list of all entities.
         """
 
-        models = self._session.query(self._model_cls).all()
+        stmt = select(self._model_cls).filter_by(tenant_id=tenant_id)
+        models = self._session.scalars(stmt).all()
         return [self._mapper.to_entity(m) for m in models]
 
     def update(self, entity: T) -> Optional[T]:
@@ -78,21 +92,28 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         self._session.refresh(merged_model)
         return self._mapper.to_entity(merged_model)
 
-    def delete(self, entity_id: UUID) -> None:
+    def delete(
+        self,
+        entity_id: UUID,
+        tenant_id: Optional[UUID],
+    ) -> None:
         """
         Delete an entity from the repository.
 
         :param entity_id: The ID of the entity to be deleted.
+        :param tenant_id: The ID of the tenant.
         """
 
-        model = self._session.get(self._model_cls, entity_id)
-
-        if model:
-            self._session.delete(model)
-            self._session.commit()
+        stmt = delete(self._model_cls).where(
+            self._model_cls.id == entity_id,  # type: ignore
+            self._model_cls.tenant_id == tenant_id,  # type: ignore
+        )
+        self._session.execute(stmt)
+        self._session.commit()
 
     def search(
         self,
+        tenant_id: Optional[UUID],
         filters: Optional[Dict[str, Any]] = None,
         sort_by: Optional[str] = None,
         sort_order: str = "asc",
@@ -104,30 +125,30 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        query = self._session.query(self._model_cls)
+        stmt = select(self._model_cls)
 
         if not include_inactive and hasattr(self._model_cls, "is_active"):
-            query = query.filter(getattr(self._model_cls, "is_active") == True)  # type: ignore
+            stmt = stmt.filter(getattr(self._model_cls, "is_active") == True)  # type: ignore
 
         if filters:
             for field, value in filters.items():
                 if hasattr(self._model_cls, field):
-                    query = query.filter(
+                    stmt = stmt.filter(
                         getattr(self._model_cls, field).ilike(f"%{value}%")
                     )
 
-        total = query.count()
+        total = self._session.query(stmt.with_only_columns(self._model_cls.id)).count()  # type: ignore
 
         if sort_by and hasattr(self._model_cls, sort_by):
             column = getattr(self._model_cls, sort_by)
             if sort_order.lower() == "desc":
-                query = query.order_by(desc(column))
+                stmt = stmt.order_by(desc(column))
             else:
-                query = query.order_by(asc(column))
+                stmt = stmt.order_by(asc(column))
 
-        query = query.offset(offset).limit(limit)
+        stmt = stmt.offset(offset).limit(limit)
 
-        models = query.all()
+        models = self._session.scalars(stmt).all()
         entities = [self._mapper.to_entity(m) for m in models]
 
         return PaginatedResult(

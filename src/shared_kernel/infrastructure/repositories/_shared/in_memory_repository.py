@@ -30,7 +30,11 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         self._entities.append(entity)
         return entity
 
-    def get_by_id(self, entity_id: UUID) -> Optional[T]:
+    def get_by_id(
+        self,
+        entity_id: UUID,
+        tenant_id: Optional[UUID],
+    ) -> Optional[T]:
         """
         Retrieve an entity by its ID.
 
@@ -39,17 +43,26 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         """
 
         for entity in self._entities:
-            if entity.id == entity_id:  # type: ignore
+            if entity.id == entity_id and getattr(entity, "tenant_id", None) == tenant_id:  # type: ignore
                 return entity
 
         return None
 
-    def list(self) -> List[T]:
+    def list(
+        self,
+        tenant_id: Optional[UUID],
+    ) -> List[T]:
         """
         List all entities in the repository.
 
         :return: A list of all entities.
         """
+        if tenant_id:
+            return [
+                entity
+                for entity in self._entities
+                if getattr(entity, "tenant_id", None) == tenant_id
+            ]
 
         return list(self._entities)
 
@@ -61,7 +74,11 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         :return: None
         """
 
-        old_entity = self.get_by_id(entity.id)  # type: ignore
+        tenant_id = getattr(entity, "tenant_id", None)
+        old_entity = self.get_by_id(
+            entity.id,  # type: ignore
+            tenant_id,
+        )
 
         if old_entity:
             self._entities.remove(old_entity)
@@ -70,14 +87,17 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
         return None
 
-    def delete(self, entity_id: UUID) -> None:
+    def delete(self, entity_id: UUID, tenant_id: Optional[UUID]) -> None:
         """
         Delete an entity from the repository.
 
         :param entity_id: The ID of the entity to be deleted.
         """
 
-        entity = self.get_by_id(entity_id)
+        entity = self.get_by_id(
+            entity_id,
+            tenant_id,
+        )
 
         if entity:
             self._entities.remove(entity)
@@ -126,16 +146,28 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
     def search(
         self,
+        tenant_id: Optional[UUID],
         filters: Optional[Dict[str, Any]] = None,
         sort_by: Optional[str] = None,
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 100,
+        include_inactive: bool = False,
     ) -> PaginatedResult[T]:
         """
         Search entities in the repository based on filters, sorting, and pagination.
         """
-        filtered_results = self.__apply_filters(list(self._entities), filters or {})
+
+        results = [
+            e for e in self._entities if getattr(e, "tenant_id", None) == tenant_id
+        ]
+
+        if not include_inactive:
+            results = [
+                e for e in results if hasattr(e, "is_active") and e.is_active  # type: ignore
+            ]
+
+        filtered_results = self.__apply_filters(results, filters or {})
         total = len(filtered_results)
         sorted_results = self.__apply_sorting(filtered_results, sort_by, sort_order)
         paginated_data = sorted_results[offset : offset + limit]
