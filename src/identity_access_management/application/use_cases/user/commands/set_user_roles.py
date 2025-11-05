@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
@@ -9,6 +9,9 @@ from src.identity_access_management.infrastructure.repositories import (
     UserRepository,
 )
 
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
+
 
 @dataclass
 class SetUserRolesRequestDTO:
@@ -16,6 +19,7 @@ class SetUserRolesRequestDTO:
     Data Transfer Object for input data when setting user roles.
     """
 
+    actor: "User"
     user_id: UUID
     role_names: List[str]
 
@@ -42,7 +46,10 @@ class SetUserRolesUseCase:
         Execute the use case to set user roles.
         """
 
-        user = self._user_repository.get_by_id(input_dto.user_id)
+        user = self._user_repository.get_by_id(
+            input_dto.user_id,
+            input_dto.actor.tenant_id,
+        )
         if not user:
             raise UserNotFoundError(f"User with ID '{input_dto.user_id}' not found.")
 

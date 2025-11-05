@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.user import (
@@ -8,6 +9,9 @@ from src.identity_access_management.application.use_cases.user import (
 from src.identity_access_management.domain.entities.user import hash_password
 from src.identity_access_management.infrastructure.repositories import UserRepository
 
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
+
 
 @dataclass(frozen=True)
 class ChangePasswordInputDTO:
@@ -15,6 +19,7 @@ class ChangePasswordInputDTO:
     Data Transfer Object for input data when changing a user's password.
     """
 
+    actor: "User"
     user_id: UUID
     old_password: str
     new_password: str
@@ -37,9 +42,12 @@ class ChangePasswordUseCase:
         Execute the ChangePasswordUseCase.
         """
 
-        user = self._repository.get_by_id(input_dto.user_id)
+        user = self._repository.get_by_id(
+            input_dto.user_id,
+            input_dto.actor.tenant_id,
+        )
         if not user:
-            raise UserNotFoundError("User not found.")
+            raise UserNotFoundError(f"User with ID '{input_dto.user_id}' not found.")
 
         if not user.verify_password(input_dto.old_password):
             raise InvalidPasswordError("Invalid old password.")
