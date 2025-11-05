@@ -13,10 +13,10 @@ class AbstractValueObject(ABC):
         Validate the value object after initialization.
         """
 
-        self._validate()
+        self.validate()
 
     @abstractmethod
-    def _validate(self):
+    def validate(self):
         """
         Validate the value object.
 

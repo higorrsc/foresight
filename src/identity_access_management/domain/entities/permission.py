@@ -29,9 +29,9 @@ class Permission(AbstractEntity):
         if new_description:
             self.description = new_description
 
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validates the Permission entity's attributes.
         """

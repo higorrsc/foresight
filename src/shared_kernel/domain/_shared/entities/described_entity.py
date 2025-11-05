@@ -23,9 +23,9 @@ class DescribedEntity(TenantAwareEntity):
         """
 
         self.description = new_description
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validate the entity.
         """

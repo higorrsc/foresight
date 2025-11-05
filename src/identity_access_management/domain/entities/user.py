@@ -39,7 +39,7 @@ class User(TenantAwareEntity, SoftDeletableMixin):
 
         return role_name in self.roles
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validates the User entity's attributes.
         """

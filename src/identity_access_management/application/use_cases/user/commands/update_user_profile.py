@@ -60,7 +60,7 @@ class UpdateUserProfileUseCase:
             user.is_active = input_dto.is_active
 
         try:
-            user._validate()
+            user.validate()
         except EntityValidationError as e:
             raise InvalidUserError(f"Invalid user data: {e}") from e
 

@@ -22,9 +22,9 @@ class Role(TenantAwareEntity):
 
         self.name = new_name
         self.description = new_description  # type: ignore
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validates the Role entity's attributes.
         """

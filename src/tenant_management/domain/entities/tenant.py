@@ -16,7 +16,7 @@ class Tenant(AbstractEntity):
     status: TenantStatus = field(default=TenantStatus.TRIAL)
     plan_id: UUID
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validates the Tenant entity's attributes.
         """

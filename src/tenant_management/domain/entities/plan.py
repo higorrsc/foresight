@@ -14,7 +14,7 @@ class Plan(AbstractEntity):
     name: str
     price: Decimal
 
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validates the Plan entity's attributes.
         """

@@ -40,10 +40,10 @@ class AbstractEntity(ABC):
         Validate the entity after initialization.
         """
 
-        self._validate()
+        self.validate()
 
     @abstractmethod
-    def _validate(self) -> None:
+    def validate(self) -> None:
         """
         Validate the entity.
 
