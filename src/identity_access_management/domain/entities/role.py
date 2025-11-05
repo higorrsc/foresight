@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional, Set
-from uuid import UUID
 
 from src.shared_kernel.domain._shared import EntityValidationError
-from src.shared_kernel.domain._shared.entities import AbstractEntity
+from src.shared_kernel.domain._shared.entities import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)
-class Role(AbstractEntity):
+class Role(TenantAwareEntity):
     """
     Entity representing a role in the system.
     """
@@ -15,7 +14,6 @@ class Role(AbstractEntity):
     name: str
     description: str
     permissions: Set[str] = field(default_factory=set)
-    tenant_id: UUID
 
     def update_role(self, new_name: str, new_description: Optional[str] = None) -> None:
         """
@@ -41,3 +39,17 @@ class Role(AbstractEntity):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Role entity.
+        """
+
+        return f"Role(id={self.id}, name='{self.name}')"
+
+    def __repr__(self) -> str:
+        """
+        Returns a detailed string representation of the Role entity.
+        """
+
+        return f"<Role {self.name} ({self.id})>"

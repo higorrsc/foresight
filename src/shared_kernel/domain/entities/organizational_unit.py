@@ -14,7 +14,6 @@ class OrganizationalUnit(DescribedEntity, SoftDeletableMixin):
 
     code: str
     parent_id: Optional[UUID] = field(default=None, repr=False)
-    tenant_id: UUID
 
     def __str__(self) -> str:
         """
