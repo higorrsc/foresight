@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 
 from src.shared_kernel.domain._shared import EntityValidationError
-from src.shared_kernel.domain._shared.entities import AbstractEntity
+from src.shared_kernel.domain._shared.entities import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)
-class DescribedEntity(AbstractEntity):
+class DescribedEntity(TenantAwareEntity):
     """
     Base class for entities with only description field and default validations
     """
