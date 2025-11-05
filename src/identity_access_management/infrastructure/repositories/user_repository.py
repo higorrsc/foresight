@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -37,6 +38,27 @@ class UserRepository(
         model = (
             self._session.query(self._model_cls).filter_by(username=username).first()
         )
+
+        return self._mapper.to_entity(model) if model else None
+
+    def get_by_username_and_tenant(
+        self,
+        username: str,
+        tenant_id: Optional[UUID],
+    ) -> Optional[User]:
+        """
+        Get a user by its username and tenant.
+        """
+
+        model = (
+            self._session.query(self._model_cls)
+            .filter_by(
+                username=username,
+                tenant_id=tenant_id,
+            )
+            .first()
+        )
+
         return self._mapper.to_entity(model) if model else None
 
     def save(self, entity: User) -> Optional[User]:

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Optional
+from uuid import UUID
 
 from src.identity_access_management.domain.entities.user import User
 from src.shared_kernel.domain._shared.repository import AbstractRepository
@@ -14,6 +15,18 @@ class IUserRepository(AbstractRepository[User]):
     def get_by_email(self, email: str) -> Optional[User]:
         """
         Get a user by its email.
+        """
+
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def get_by_username_and_tenant(
+        self,
+        username: str,
+        tenant_id: Optional[UUID],
+    ) -> Optional[User]:
+        """
+        Get a user by its username and tenant.
         """
 
         raise NotImplementedError  # pragma: no cover
