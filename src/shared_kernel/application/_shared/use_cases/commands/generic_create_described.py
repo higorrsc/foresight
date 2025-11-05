@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Generic, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID, uuid4
 
 from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
 from src.shared_kernel.domain._shared.entities import DescribedEntity
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 T = TypeVar("T", bound=DescribedEntity)
 
@@ -14,6 +17,7 @@ class CreateDescribedEntityInputDTO:
     Data Transfer Object for input data when creating a new entity.
     """
 
+    actor: "User"
     description: str
     id: UUID = field(default_factory=uuid4)
 
@@ -57,6 +61,7 @@ class CreateDescribedEntityUseCase(Generic[T]):
         try:
             entity = self._entity_cls(
                 id=input_dto.id,
+                tenant_id=input_dto.actor.tenant_id,
                 description=input_dto.description,
             )
         except EntityValidationError as e:

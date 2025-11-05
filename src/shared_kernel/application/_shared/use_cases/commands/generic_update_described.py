@@ -1,9 +1,12 @@
 from dataclasses import dataclass
-from typing import Generic, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID
 
 from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
 from src.shared_kernel.domain._shared.entities import DescribedEntity
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 T = TypeVar("T", bound=DescribedEntity)
 
@@ -14,6 +17,7 @@ class UpdateDescribedEntityInputDTO:
     Data Transfer Object for input data when updating a existent entity.
     """
 
+    actor: "User"
     id: UUID
     description: str
 
@@ -55,7 +59,10 @@ class UpdateDescribedEntityUseCase(Generic[T]):
         Execute the use case to update a existent entity.
         """
 
-        entity = self._repository.get_by_id(input_dto.id)
+        entity = self._repository.get_by_id(
+            input_dto.id,
+            input_dto.actor.tenant_id,
+        )
         if not entity:
             raise self._not_found_exception(f"Entity with id {input_dto.id} not found")
 

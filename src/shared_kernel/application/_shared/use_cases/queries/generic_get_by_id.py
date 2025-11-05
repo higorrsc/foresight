@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from typing import Generic, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID
 
 from src.shared_kernel.domain._shared import AbstractRepository
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 T = TypeVar("T")
 
@@ -13,6 +16,7 @@ class GetByIdRequestInputDTO:
     Data Transfer Object for get by id requests.
     """
 
+    actor: "User"
     id: UUID
 
 
@@ -47,7 +51,10 @@ class GenericGetByIdUseCase(Generic[T]):
         :return: The entity with the given ID.
         """
 
-        entity = self._repository.get_by_id(request.id)
+        entity = self._repository.get_by_id(
+            request.id,
+            request.actor.tenant_id,
+        )
         if entity is None:
             raise self._not_found_exception(
                 self._not_found_message.format(id=request.id)

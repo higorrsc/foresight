@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from typing import Generic, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID
 
 from src.shared_kernel.domain._shared import AbstractRepository, SoftDeletableMixin
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 T = TypeVar("T")
 
@@ -13,6 +16,7 @@ class DeleteRequestInputDTO:
     Data Transfer Object for delete requests.
     """
 
+    actor: "User"
     id: UUID
 
 
@@ -46,7 +50,10 @@ class GenericDeleteUseCase(Generic[T]):
         :param request: The delete request DTO containing the ID of the entity to delete.
         """
 
-        entity = self._repository.get_by_id(request.id)
+        entity = self._repository.get_by_id(
+            request.id,
+            request.actor.tenant_id,
+        )
         if entity is None:
             raise self._not_found_exception(
                 self._not_found_message.format(id=request.id)
@@ -56,4 +63,7 @@ class GenericDeleteUseCase(Generic[T]):
             entity.soft_delete()
             self._repository.update(entity)
         else:
-            self._repository.delete(request.id)
+            self._repository.delete(
+                request.id,
+                request.actor.tenant_id,
+            )

@@ -1,8 +1,11 @@
 from dataclasses import dataclass, field
 from math import ceil
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, TypeVar
 
 from src.shared_kernel.domain._shared import AbstractRepository
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 T = TypeVar("T")
 
@@ -13,6 +16,7 @@ class ListRequestInputDTO:
     Data Transfer Object for list requests.
     """
 
+    actor: "User"
     filters: Optional[Dict[str, Any]] = field(default_factory=dict)
     sort_by: Optional[str] = None
     sort_order: Optional[str] = "asc"
@@ -64,6 +68,7 @@ class GenericListUseCase(Generic[T]):
         """
 
         repo_result = self._repository.search(
+            tenant_id=input_dto.actor.tenant_id,
             filters=input_dto.filters,
             sort_by=input_dto.sort_by,
             sort_order=input_dto.sort_order,  # type: ignore
