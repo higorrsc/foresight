@@ -61,4 +61,6 @@ class GenericRestoreUseCase(Generic[T]):
 
         if isinstance(entity, SoftDeletableMixin):
             entity.restore()
+            if hasattr(entity, "updated_by"):
+                entity.updated_by = request.actor.id  # type: ignore
             self._repository.update(entity)

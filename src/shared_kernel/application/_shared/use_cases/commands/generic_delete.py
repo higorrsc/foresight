@@ -61,6 +61,8 @@ class GenericDeleteUseCase(Generic[T]):
 
         if isinstance(entity, SoftDeletableMixin):
             entity.soft_delete()
+            if hasattr(entity, "updated_by"):
+                entity.updated_by = request.actor.id  # type: ignore
             self._repository.update(entity)
         else:
             self._repository.delete(

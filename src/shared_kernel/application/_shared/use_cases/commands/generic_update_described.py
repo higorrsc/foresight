@@ -68,6 +68,9 @@ class UpdateDescribedEntityUseCase(Generic[T]):
 
         try:
             entity.update_description(input_dto.description)
+            if hasattr(entity, "updated_by"):
+                entity.updated_by = input_dto.actor.id  # type: ignore
+            entity._validate()
         except EntityValidationError as e:
             raise self._invalid_data_exception(f"Invalid input data: {e}") from e
 
