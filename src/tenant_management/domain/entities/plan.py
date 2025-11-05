@@ -33,3 +33,17 @@ class Plan(AbstractEntity):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Plan entity.
+        """
+
+        return f"Plan(id={self.id}, name='{self.name}')"
+
+    def __repr__(self) -> str:
+        """
+        Returns a detailed string representation of the Plan entity.
+        """
+
+        return f"<Plan {self.name} ({self.id})>"

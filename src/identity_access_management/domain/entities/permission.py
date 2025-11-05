@@ -54,3 +54,17 @@ class Permission(AbstractEntity):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Permission entity.
+        """
+
+        return f"Permission(id={self.id}, codename='{self.codename}')"
+
+    def __repr__(self) -> str:
+        """
+        Returns a detailed string representation of the Permission entity.
+        """
+
+        return f"<Permission {self.codename} ({self.id})>"

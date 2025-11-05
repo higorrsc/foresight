@@ -38,3 +38,17 @@ class Tenant(AbstractEntity):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Tenant entity.
+        """
+
+        return f"Tenant(id={self.id}, name='{self.name}')"
+
+    def __repr__(self) -> str:
+        """
+        Returns a detailed string representation of the Tenant entity.
+        """
+
+        return f"<Tenant {self.name} ({self.id})>"
