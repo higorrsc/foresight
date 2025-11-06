@@ -96,7 +96,7 @@ class AbstractRepository(ABC, Generic[T]):
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 10,
-        include_deleted: bool = False,
+        include_inactive: bool = False,
     ) -> PaginatedResult[T]:
         """
         Search for entities based on criteria, with sorting and pagination.
