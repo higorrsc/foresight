@@ -1,4 +1,5 @@
 from .exceptions import (
+    InsufficientPermissionError,
     InvalidPasswordError,
     InvalidUserError,
     UsernameAlreadyExistsError,
@@ -6,6 +7,7 @@ from .exceptions import (
 )
 
 __all__ = [
+    "InsufficientPermissionError",
     "InvalidPasswordError",
     "InvalidUserError",
     "UsernameAlreadyExistsError",
