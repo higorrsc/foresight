@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.user import (
+    InsufficientPermissionError,
     InvalidPasswordError,
     UserNotFoundError,
 )
@@ -20,7 +21,7 @@ class ChangePasswordInputDTO:
     """
 
     actor: "User"
-    user_id: UUID
+    user_id_to_change: UUID
     old_password: str
     new_password: str
 
@@ -42,12 +43,22 @@ class ChangePasswordUseCase:
         Execute the ChangePasswordUseCase.
         """
 
+        if (
+            not input_dto.actor.has_role("admin")
+            and input_dto.actor.id != input_dto.user_id_to_change
+        ):
+            raise InsufficientPermissionError(
+                "You do not have permission to change this user's password."
+            )
+
         user = self._repository.get_by_id(
-            input_dto.user_id,
+            input_dto.user_id_to_change,
             input_dto.actor.tenant_id,
         )
         if not user:
-            raise UserNotFoundError(f"User with ID '{input_dto.user_id}' not found.")
+            raise UserNotFoundError(
+                f"User with ID '{input_dto.user_id_to_change}' not found."
+            )
 
         if not user.verify_password(input_dto.old_password):
             raise InvalidPasswordError("Invalid old password.")
@@ -56,5 +67,6 @@ class ChangePasswordUseCase:
             raise ValueError("New password must be at least 8 characters long.")
 
         user.hashed_password = hash_password(input_dto.new_password)
+        user.updated_by = input_dto.actor.id
 
         self._repository.update(user)
