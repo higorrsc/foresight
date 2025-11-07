@@ -3,8 +3,8 @@ from decimal import Decimal
 from sqlalchemy import DECIMAL, Column, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
-from src.shared_kernel.infrastructure.models._shared.mixins import (
+from src.shared_kernel.infrastructure.config import (
+    SQLAlchemyBase,
     SQLAlchemyUserAuditFields,
 )
 

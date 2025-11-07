@@ -5,7 +5,7 @@ from src.identity_access_management.infrastructure.models import (
     role_permissions,
     user_permissions,
 )
-from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
+from src.shared_kernel.infrastructure.config import SQLAlchemyBase
 
 
 class PermissionModel(SQLAlchemyBase):

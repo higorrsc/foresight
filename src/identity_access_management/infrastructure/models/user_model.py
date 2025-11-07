@@ -5,8 +5,8 @@ from src.identity_access_management.infrastructure.models import (
     user_permissions,
     user_roles,
 )
-from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
-from src.shared_kernel.infrastructure.models._shared.mixins import (
+from src.shared_kernel.infrastructure.config import (
+    SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
 )
