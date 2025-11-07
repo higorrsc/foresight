@@ -24,10 +24,11 @@ class GUID_Type(TypeDecorator):
 
         if dialect.name in ("postgresql", "cockroachdb"):
             return dialect.type_descriptor(PG_UUID(as_uuid=True))
-        elif dialect.name == "mssql":
+
+        if dialect.name == "mssql":
             return dialect.type_descriptor(MSSQL_UUID())
-        else:
-            return dialect.type_descriptor(CHAR(36))
+
+        return dialect.type_descriptor(CHAR(36))
 
     def process_bind_param(self, value, dialect):
         """

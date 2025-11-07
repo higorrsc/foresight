@@ -10,7 +10,7 @@ class OrganizationalUnitMapper:
     """
 
     @staticmethod
-    def to_model(entity: OrganizationalUnit) -> "OrganizationalUnitModel":
+    def to_model(entity: OrganizationalUnit) -> OrganizationalUnitModel:
         """
         Convert an OrganizationalUnit entity to an OrganizationalModel instance
         """
@@ -22,7 +22,9 @@ class OrganizationalUnitMapper:
             description=entity.description,
             parent_id=entity.parent_id,
             is_active=entity.is_active,
+            created_by=entity.created_by,
             created_at=entity.created_at,
+            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
 
@@ -32,7 +34,7 @@ class OrganizationalUnitMapper:
         return model
 
     @staticmethod
-    def to_entity(model: "OrganizationalUnitModel") -> OrganizationalUnit:
+    def to_entity(model: OrganizationalUnitModel) -> OrganizationalUnit:
         """
         Converts an OrganizationalUnitModel instance to an OrganizationalUnit
         """
@@ -44,7 +46,9 @@ class OrganizationalUnitMapper:
             description=model.description,  # type: ignore
             parent_id=model.parent_id,  # type: ignore
             is_active=model.is_active,  # type: ignore
+            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
+            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )
 

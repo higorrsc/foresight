@@ -10,7 +10,7 @@ class PlanMapper:
     """
 
     @staticmethod
-    def to_model(entity: Plan) -> "PlanModel":
+    def to_model(entity: Plan) -> PlanModel:
         """
         Converts a Plan entity to a PlanModel instance.
         """
@@ -20,11 +20,13 @@ class PlanMapper:
             name=entity.name,
             price=entity.price,
             created_at=entity.created_at,
+            created_by=entity.created_by,
             updated_at=entity.updated_at,
+            updated_by=entity.updated_by,
         )
 
     @staticmethod
-    def to_entity(model: "PlanModel") -> Plan:
+    def to_entity(model: PlanModel) -> Plan:
         """
         Converts a PlanModel instance to a Plan entity.
         """
@@ -33,6 +35,8 @@ class PlanMapper:
             id=model.id,  # type: ignore
             name=model.name,  # type: ignore
             price=Decimal(model.price),  # type: ignore
+            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
+            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )

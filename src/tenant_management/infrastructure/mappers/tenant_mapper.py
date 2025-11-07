@@ -8,7 +8,7 @@ class TenantMapper:
     """
 
     @staticmethod
-    def to_model(entity: Tenant) -> "TenantModel":
+    def to_model(entity: Tenant) -> TenantModel:
         """
         Converts a Tenant entity to a TenantModel instance.
         """
@@ -18,12 +18,14 @@ class TenantMapper:
             name=entity.name,
             status=entity.status,
             plan_id=entity.plan_id,
+            created_by=entity.created_by,
             created_at=entity.created_at,
+            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
 
     @staticmethod
-    def to_entity(model: "TenantModel") -> Tenant:
+    def to_entity(model: TenantModel) -> Tenant:
         """
         Converts a TenantModel instance to a Tenant entity.
         """
@@ -33,6 +35,8 @@ class TenantMapper:
             name=model.name,  # type: ignore
             status=model.status,  # type: ignore
             plan_id=model.plan_id,  # type: ignore
+            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
+            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )

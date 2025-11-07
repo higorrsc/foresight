@@ -8,7 +8,7 @@ class RoleMapper:
     """
 
     @staticmethod
-    def to_model(entity: "Role") -> "RoleModel":
+    def to_model(entity: Role) -> RoleModel:
         """
         Converts a Role entity to a RoleModel instance.
         """
@@ -18,12 +18,14 @@ class RoleMapper:
             tenant_id=entity.tenant_id,
             name=entity.name,
             description=entity.description,
+            created_by=entity.created_by,
             created_at=entity.created_at,
+            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
 
     @staticmethod
-    def to_entity(model: "RoleModel") -> "Role":
+    def to_entity(model: RoleModel) -> Role:
         """
         Converts a RoleModel instance to a Role entity.
         """
@@ -38,7 +40,9 @@ class RoleMapper:
             tenant_id=model.tenant_id,  # type: ignore
             name=model.name,  # type: ignore
             description=model.description,  # type: ignore
+            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
+            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
-            permissions=permission_codes,
+            permissions=permission_codes,  # type: ignore
         )

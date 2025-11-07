@@ -14,6 +14,7 @@
     "mypy",
     "nonexistentuser",
     "nullable",
+    "ondelete",
     "onupdate",
     "pathsep",
     "postgresql",

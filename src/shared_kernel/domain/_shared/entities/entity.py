@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from src.shared_kernel.domain._shared import Notification
@@ -13,8 +13,10 @@ class AbstractEntity(ABC):
     """
 
     id: UUID = field(default_factory=uuid4)
-    created_at: datetime = field(default_factory=datetime.now)
-    updated_at: datetime = field(default_factory=datetime.now)
+    created_by: UUID
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_by: UUID
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notification: Notification = field(default_factory=Notification, init=False)
 
     def __eq__(self, other) -> bool:

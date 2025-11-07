@@ -1,10 +1,8 @@
-from datetime import datetime
-from uuid import uuid4
+from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Table
-from sqlalchemy.orm import relationship
-
-from src.shared_kernel.infrastructure.config import Base, GUID_Type
+from src.identity_access_management.infrastructure.models import RoleModel, UserModel
+from src.shared_kernel.infrastructure.config import Base, GUID_Type, SQLAlchemyBase
 
 user_permissions = Table(
     "user_permissions",
@@ -41,18 +39,13 @@ role_permissions = Table(
 )
 
 
-class PermissionModel(Base):
+class PermissionModel(SQLAlchemyBase):
     """
     SQLAlchemy model for the Permission entity.
     """
 
     __tablename__ = "permissions"
 
-    id = Column(
-        GUID_Type,
-        primary_key=True,
-        default=uuid4,
-    )
     codename = Column(
         String,
         unique=True,
@@ -63,24 +56,23 @@ class PermissionModel(Base):
         String,
         nullable=False,
     )
-    created_at = Column(
-        DateTime,
-        default=datetime.now,
-    )
-    updated_at = Column(
-        DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-    )
 
-    users = relationship(
+    users: Mapped[list["UserModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    users_rel = relationship(
         "UserModel",
         secondary=user_permissions,
-        back_populates="permissions",
+        back_populates="permissions_rel",
     )
 
-    roles = relationship(
+    roles: Mapped[list["RoleModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    roles_rel = relationship(
         "RoleModel",
         secondary=role_permissions,
-        back_populates="permissions",
+        back_populates="permissions_rel",
     )

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -18,7 +18,7 @@ class SoftDeletableMixin:
         """
 
         self.is_active = False
-        self.deleted_at = datetime.now()
+        self.deleted_at = datetime.now(timezone.utc)
 
     def restore(self) -> None:
         """

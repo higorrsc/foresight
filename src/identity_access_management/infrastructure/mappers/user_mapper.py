@@ -8,7 +8,7 @@ class UserMapper:
     """
 
     @staticmethod
-    def to_model(entity: User) -> "UserModel":
+    def to_model(entity: User) -> UserModel:
         """
         Converts a User entity to a UserModel instance.
         """
@@ -22,7 +22,9 @@ class UserMapper:
             last_name=entity.last_name,
             email=entity.email,
             is_active=entity.is_active,
+            created_by=entity.created_by,
             created_at=entity.created_at,
+            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
 
@@ -32,7 +34,7 @@ class UserMapper:
         return model
 
     @staticmethod
-    def to_entity(model: "UserModel") -> User:
+    def to_entity(model: UserModel) -> User:
         """
         Converts a UserModel instance to a User entity.
         """
@@ -58,10 +60,12 @@ class UserMapper:
             last_name=model.last_name,  # type: ignore
             email=model.email if model.email else None,  # type: ignore
             is_active=model.is_active,  # type: ignore
+            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
+            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
-            roles=role_names,
-            permissions=effective_permissions,
+            roles=role_names,  # type: ignore
+            permissions=effective_permissions,  # type: ignore
         )
 
         if hasattr(model, "deleted_at") and hasattr(user, "deleted_at"):

@@ -1,30 +1,30 @@
-from datetime import datetime
-from uuid import uuid4
+from typing import List
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.shared_kernel.infrastructure.config import Base, GUID_Type
+from src.identity_access_management.infrastructure.models.permission_model import (
+    PermissionModel,
+)
+from src.identity_access_management.infrastructure.models.role_model import RoleModel
+from src.shared_kernel.infrastructure.config import SQLAlchemyBase
+from src.shared_kernel.infrastructure.models._shared.mixins import (
+    SQLAlchemySoftDeletableMixin,
+    SQLAlchemyTenantMixin,
+)
 
 
-class UserModel(Base):
+class UserModel(
+    SQLAlchemyBase,
+    SQLAlchemyTenantMixin,
+    SQLAlchemySoftDeletableMixin,
+):
     """
     SQLAlchemy model for the User entity.
     """
 
     __tablename__ = "users"
 
-    id = Column(
-        GUID_Type,
-        primary_key=True,
-        default=uuid4,
-    )
-    tenant_id = Column(
-        GUID_Type,
-        ForeignKey("tenants.id"),
-        nullable=True,
-        index=True,
-    )
     username = Column(
         String(50),
         unique=True,
@@ -48,36 +48,25 @@ class UserModel(Base):
         unique=True,
         index=True,
     )
-    is_active = Column(
-        Boolean,
-        default=True,
-        nullable=False,
-        index=True,
-    )
-    created_at = Column(
-        DateTime,
-        default=datetime.now,
-    )
-    updated_at = Column(
-        DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-    )
-    deleted_at = Column(
-        DateTime,
-        nullable=True,
-    )
 
-    roles = relationship(
+    roles: Mapped[List["RoleModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    roles_rel = relationship(
         "RoleModel",
         secondary="user_roles",
-        back_populates="users",
+        back_populates="users_rel",
         lazy="joined",
     )
 
-    permissions = relationship(
+    permissions: Mapped[List["PermissionModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    permissions_rel = relationship(
         "PermissionModel",
         secondary="user_permissions",
-        back_populates="users",
+        back_populates="users_rel",
         lazy="joined",
     )

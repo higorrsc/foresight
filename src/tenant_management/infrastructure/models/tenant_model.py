@@ -1,25 +1,17 @@
-from datetime import datetime
-from uuid import uuid4
-
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, String
+from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.shared_kernel.infrastructure.config import Base, GUID_Type
+from src.shared_kernel.infrastructure.config import GUID_Type, SQLAlchemyBase
 from src.tenant_management.domain.value_objects import TenantStatus
 
 
-class TenantModel(Base):
+class TenantModel(SQLAlchemyBase):
     """
     SQLAlchemy model for the Tenant entity.
     """
 
     __tablename__ = "tenants"
 
-    id = Column(
-        GUID_Type,
-        primary_key=True,
-        default=uuid4,
-    )
     name = Column(
         String(100),
         nullable=False,
@@ -33,13 +25,4 @@ class TenantModel(Base):
         GUID_Type,
         ForeignKey("plans.id"),
         nullable=False,
-    )
-    created_at = Column(
-        DateTime,
-        default=datetime.now,
-    )
-    updated_at = Column(
-        DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
     )

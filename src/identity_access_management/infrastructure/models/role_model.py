@@ -1,10 +1,12 @@
-from datetime import datetime
-from uuid import uuid4
+from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Table
-from sqlalchemy.orm import relationship
-
-from src.shared_kernel.infrastructure.config import Base, GUID_Type
+from src.identity_access_management.infrastructure.models import (
+    PermissionModel,
+    UserModel,
+)
+from src.shared_kernel.infrastructure.config import Base, GUID_Type, SQLAlchemyBase
+from src.shared_kernel.infrastructure.models._shared.mixins import SQLAlchemyTenantMixin
 
 user_roles = Table(
     "user_roles",
@@ -24,24 +26,13 @@ user_roles = Table(
 )
 
 
-class RoleModel(Base):
+class RoleModel(SQLAlchemyBase, SQLAlchemyTenantMixin):
     """
     SQLAlchemy model for the Role entity.
     """
 
     __tablename__ = "roles"
 
-    id = Column(
-        GUID_Type,
-        primary_key=True,
-        default=uuid4,
-    )
-    tenant_id = Column(
-        GUID_Type,
-        ForeignKey("tenants.id"),
-        nullable=False,
-        index=True,
-    )
     name = Column(
         String,
         unique=True,
@@ -52,24 +43,23 @@ class RoleModel(Base):
         String,
         nullable=True,
     )
-    created_at = Column(
-        DateTime,
-        default=datetime.now,
-    )
-    updated_at = Column(
-        DateTime,
-        default=datetime.now,
-        onupdate=datetime.now,
-    )
 
-    users = relationship(
+    users: Mapped[list["UserModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    users_rel = relationship(
         "UserModel",
         secondary=user_roles,
-        back_populates="roles",
+        back_populates="roles_rel",
     )
 
-    permissions = relationship(
+    permissions: Mapped[list["PermissionModel"]] = mapped_column(
+        default_factory=list,
+        init=False,
+    )
+    permissions_rel = relationship(
         "PermissionModel",
         secondary="role_permissions",
-        back_populates="roles",
+        back_populates="roles_rel",
     )
