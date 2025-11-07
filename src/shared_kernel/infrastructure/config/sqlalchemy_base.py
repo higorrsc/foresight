@@ -1,5 +1,5 @@
-from src.shared_kernel.infrastructure.config.base import Base
-from src.shared_kernel.infrastructure.models._shared.mixins import SQLAlchemyBasicFields
+from .base import Base
+from .mixins import SQLAlchemyBasicFields
 
 
 class SQLAlchemyBase(Base, SQLAlchemyBasicFields):
