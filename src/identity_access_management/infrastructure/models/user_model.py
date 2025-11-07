@@ -1,13 +1,11 @@
-from typing import List
-
 from sqlalchemy import Column, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import relationship
 
-from src.identity_access_management.infrastructure.models.permission_model import (
-    PermissionModel,
+from src.identity_access_management.infrastructure.models import (
+    user_permissions,
+    user_roles,
 )
-from src.identity_access_management.infrastructure.models.role_model import RoleModel
-from src.shared_kernel.infrastructure.config import SQLAlchemyBase
+from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
 from src.shared_kernel.infrastructure.models._shared.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
@@ -49,24 +47,16 @@ class UserModel(
         index=True,
     )
 
-    roles: Mapped[List["RoleModel"]] = mapped_column(
-        default_factory=list,
-        init=False,
-    )
     roles_rel = relationship(
         "RoleModel",
-        secondary="user_roles",
+        secondary=user_roles,
         back_populates="users_rel",
         lazy="joined",
     )
 
-    permissions: Mapped[List["PermissionModel"]] = mapped_column(
-        default_factory=list,
-        init=False,
-    )
     permissions_rel = relationship(
         "PermissionModel",
-        secondary="user_permissions",
+        secondary=user_permissions,
         back_populates="users_rel",
         lazy="joined",
     )

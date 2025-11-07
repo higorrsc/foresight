@@ -1,7 +1,8 @@
 from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
-from src.shared_kernel.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.shared_kernel.infrastructure.config import GUID_Type
+from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
 from src.shared_kernel.infrastructure.models._shared.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,

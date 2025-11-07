@@ -5,7 +5,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.shared_kernel.infrastructure.config import Base, GUID_Type, settings
+from src.shared_kernel.infrastructure.config import GUID_Type, settings
+from src.shared_kernel.infrastructure.config.base import Base
 
 project_root = os.path.realpath(
     os.path.join(

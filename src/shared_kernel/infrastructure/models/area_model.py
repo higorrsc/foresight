@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String
 
-from src.shared_kernel.infrastructure.config import SQLAlchemyBase
+from src.shared_kernel.infrastructure.config.sqlalchemy_base import SQLAlchemyBase
 from src.shared_kernel.infrastructure.models._shared.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
