@@ -24,15 +24,24 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 ```text
 .
 ├── src/
-│   ├── core/
-│   │   ├── domain/           # Camada mais interna: Entidades, Value Objects, Contratos de Repositório.
-│   │   ├── application/      # Camada de Aplicação: Casos de Uso (Use Cases), DTOs, Abstrações.
-│   │   └── infrastructure/   # Camada de Infraestrutura: Repositórios (SQLAlchemy), Mappers, Configuração, Migrações.
-│   └── api/                  # Camada Externa: Routers da API (FastAPI), Dependências, Segurança.
+│   ├── api/                      # Camada de Apresentação (FastAPI Endpoints)
+│   │
+│   ├── identity_access_management/ # Contexto: Gestão de Identidade e Acesso
+│   │   ├── application/          # Casos de Uso, DTOs
+│   │   ├── domain/               # Entidades, Value Objects, Regras de Negócio
+│   │   └── infrastructure/       # Repositórios, Mappers, Modelos SQLAlchemy
+│   │
+│   ├── tenant_management/        # Contexto: Gestão de Tenants e Planos
+│   │   ├── application/
+│   │   ├── domain/
+│   │   └── infrastructure/
+│   │
+│   └── shared_kernel/            # Lógica compartilhada entre contextos
+│       ├── application/
+│       ├── domain/
+│       └── infrastructure/
 │
 └── tests/                    # Testes (Unidade, Integração e API), separados do código-fonte.
-    ├── core/
-    └── api/
 ```
 
 | Camada | Responsabilidade | Tecnologias |
@@ -51,6 +60,7 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 - **Autenticação JWT**: Sistema de login seguro baseado em tokens.
 - **Autorização Baseada em Papéis (RBAC)**: Endpoints protegidos que requerem papéis específicos (ex: `admin`).
 - **Sistema de Migrações**: Evolução segura do esquema da base de dados com **Alembic**.
+- **Repositório Genérico (Repository Pattern)**: Implementação de um repositório SQLAlchemy genérico que abstrai as operações de CRUD, simplificando a adição de novas entidades e garantindo a consistência da camada de dados.
 - **Configuração por Ambiente**: Gestão de configurações flexível (`.env`) para diferentes ambientes (desenvolvimento, produção).
 - **Injeção de Dependência**: Uso extensivo do `Depends` do FastAPI para gerir dependências e sessões de base de dados.
 - **Testes Abrangentes**: Cobertura de testes para todas as camadas da aplicação.
