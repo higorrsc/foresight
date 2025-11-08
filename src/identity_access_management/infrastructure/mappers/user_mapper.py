@@ -36,15 +36,17 @@ class UserMapper:
         Converts a UserModel instance to a User entity.
         """
 
-        role_names = {role.name for role in model.roles} if model.roles else set()
+        role_names = (
+            {role.name for role in model.roles_rel} if model.roles_rel else set()
+        )
         effective_permissions = set()
 
-        if model.permissions:
-            for permission in model.permissions:
+        if model.permissions_rel:
+            for permission in model.permissions_rel:
                 effective_permissions.add(permission.codename)
 
-        if model.roles:
-            for role in model.roles:
+        if model.roles_rel:
+            for role in model.roles_rel:
                 for permission in role.permissions:
                     effective_permissions.add(permission.codename)
 

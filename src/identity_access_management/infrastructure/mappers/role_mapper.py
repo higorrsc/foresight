@@ -32,8 +32,8 @@ class RoleMapper:
         Converts a RoleModel instance to a Role entity.
         """
         permission_codes = (
-            {permission.codename for permission in model.permissions}
-            if model.permissions
+            {permission.codename for permission in model.permissions_rel}
+            if model.permissions_rel
             else set()
         )
 
