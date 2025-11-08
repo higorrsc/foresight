@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import Optional
 from uuid import UUID, uuid4
 
 from src.shared_kernel.domain._shared import Notification
@@ -13,9 +14,9 @@ class AbstractEntity(ABC):
     """
 
     id: UUID = field(default_factory=uuid4)
-    created_by: UUID
+    created_by: Optional[UUID] = field(default=None, init=False)
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_by: UUID
+    updated_by: Optional[UUID] = field(default=None, init=False)
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notification: Notification = field(default_factory=Notification, init=False)
 
