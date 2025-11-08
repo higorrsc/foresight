@@ -1,7 +1,6 @@
-from src.shared_kernel.domain.entities.organizational_unit import OrganizationalUnit
-from src.shared_kernel.infrastructure.models.organizational_unit_model import (
-    OrganizationalUnitModel,
-)
+from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.infrastructure.mappers._shared import BaseMapper
+from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
 
 
 class OrganizationalUnitMapper:
@@ -26,15 +25,7 @@ class OrganizationalUnitMapper:
             updated_at=entity.updated_at,
         )
 
-        if hasattr(entity, "created_by"):
-            model.created_by = entity.created_by  # type: ignore
-
-        if hasattr(entity, "updated_by"):
-            model.updated_by = entity.updated_by  # type: ignore
-
-        if hasattr(entity, "deleted_at"):
-            model.deleted_at = entity.deleted_at  # type: ignore
-
+        BaseMapper.map_auditing_fields_to_model(entity, model)
         return model
 
     @staticmethod
@@ -54,13 +45,5 @@ class OrganizationalUnitMapper:
             updated_at=model.updated_at,  # type: ignore
         )
 
-        if hasattr(model, "created_by") and hasattr(entity, "created_by"):
-            setattr(entity, "created_by", model.created_by)
-
-        if hasattr(model, "updated_by") and hasattr(entity, "updated_by"):
-            setattr(entity, "updated_by", model.updated_by)
-
-        if hasattr(model, "deleted_at") and hasattr(entity, "deleted_at"):
-            setattr(entity, "deleted_at", model.deleted_at)
-
+        BaseMapper.map_auditing_fields_to_model(entity, model)
         return entity
