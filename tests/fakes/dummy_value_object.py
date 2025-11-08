@@ -13,7 +13,7 @@ class DummyValueObjectForMoneyType(AbstractValueObject):
     amount: Decimal
     currency: str
 
-    def _validate(self):
+    def validate(self):
         """
         Validate the value object.
 

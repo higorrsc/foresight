@@ -11,7 +11,7 @@ class DummyEntity(AbstractEntity):
 
     name: str
 
-    def _validate(self):
+    def validate(self):
         """
         Validate the entity.
 
