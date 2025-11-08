@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -26,10 +27,18 @@ class RoleRepository(
 
         super().__init__(session, RoleModel, mapper=RoleMapper)
 
-    def get_by_name(self, name: str) -> Optional[Role]:
+    def get_by_name(
+        self,
+        name: str,
+        tenant_id: Optional[UUID],
+    ) -> Optional[Role]:
         """
         Get a role by its name.
         """
 
-        model = self._session.query(self._model_cls).filter_by(name=name).first()
+        model = (
+            self._session.query(self._model_cls)
+            .filter_by(name=name, tenant_id=tenant_id)
+            .first()
+        )
         return self._mapper.to_entity(model) if model else None

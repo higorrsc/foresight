@@ -27,21 +27,7 @@ class UserRepository(
 
         super().__init__(session, UserModel, mapper=UserMapper)
 
-    def get_by_username(self, username: str) -> Optional[User]:
-        """
-        Get a user by its username.
-
-        :param username: Username of the user.
-        :return: User entity or None if not found.
-        """
-
-        model = (
-            self._session.query(self._model_cls).filter_by(username=username).first()
-        )
-
-        return self._mapper.to_entity(model) if model else None
-
-    def get_by_username_and_tenant(
+    def get_by_username(
         self,
         username: str,
         tenant_id: Optional[UUID],
@@ -114,7 +100,11 @@ class UserRepository(
 
         return self._mapper.to_entity(model)
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(
+        self,
+        email: str,
+        tenant_id: Optional[UUID],
+    ) -> Optional[User]:
         """
         Get a user by its email.
 
@@ -122,5 +112,12 @@ class UserRepository(
         :return: User entity or None if not found.
         """
 
-        model = self._session.query(self._model_cls).filter_by(email=email).first()
+        model = (
+            self._session.query(self._model_cls)
+            .filter_by(
+                email=email,
+                tenant_id=tenant_id,
+            )
+            .first()
+        )
         return self._mapper.to_entity(model) if model else None

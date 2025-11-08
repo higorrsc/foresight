@@ -12,7 +12,11 @@ class IUserRepository(AbstractRepository[User]):
     """
 
     @abstractmethod
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(
+        self,
+        email: str,
+        tenant_id: Optional[UUID],
+    ) -> Optional[User]:
         """
         Get a user by its email.
         """
@@ -20,7 +24,7 @@ class IUserRepository(AbstractRepository[User]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_username_and_tenant(
+    def get_by_username(
         self,
         username: str,
         tenant_id: Optional[UUID],
