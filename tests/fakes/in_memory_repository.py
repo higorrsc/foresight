@@ -32,6 +32,7 @@ class RoleInMemoryRepository(InMemoryRepository[Role]):
         """
         Method to get a role by its name.
         """
+
         for role in self._entities:
             if role.name == name:
                 return role

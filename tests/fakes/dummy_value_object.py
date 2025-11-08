@@ -23,11 +23,15 @@ class DummyValueObjectForMoneyType(AbstractValueObject):
 
         if not self.amount:
             raise ValueError("Amount cannot be empty")
+
         if not isinstance(self.amount, Decimal):
             raise ValueError("Amount must be a decimal")
+
         if not self.currency:
             raise ValueError("Currency cannot be empty")
+
         if not isinstance(self.currency, str):
             raise ValueError("Currency must be a string")
+
         if len(self.currency) != 3:
             raise ValueError("Currency must be exactly 3 characters long")
