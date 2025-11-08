@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from src.shared_kernel.domain._shared.entities import AbstractEntity
+from src.shared_kernel.domain._shared.entities import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)
-class DummyEntity(AbstractEntity):
+class DummyEntity(TenantAwareEntity):
     """
     A dummy entity for testing purposes.
     """
