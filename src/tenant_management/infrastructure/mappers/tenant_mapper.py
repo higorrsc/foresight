@@ -1,3 +1,4 @@
+from src.shared_kernel.infrastructure.mappers._shared import BaseMapper
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.infrastructure.models import TenantModel
 
@@ -13,16 +14,17 @@ class TenantMapper:
         Converts a Tenant entity to a TenantModel instance.
         """
 
-        return TenantModel(
+        model = TenantModel(
             id=entity.id,
             name=entity.name,
             status=entity.status,
             plan_id=entity.plan_id,
-            created_by=entity.created_by,
             created_at=entity.created_at,
-            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
+
+        BaseMapper.map_auditing_fields_to_model(entity, model)
+        return model
 
     @staticmethod
     def to_entity(model: TenantModel) -> Tenant:
@@ -30,13 +32,14 @@ class TenantMapper:
         Converts a TenantModel instance to a Tenant entity.
         """
 
-        return Tenant(
+        entity = Tenant(
             id=model.id,  # type: ignore
             name=model.name,  # type: ignore
             status=model.status,  # type: ignore
             plan_id=model.plan_id,  # type: ignore
-            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
-            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )
+
+        BaseMapper.map_auditing_fields_to_model(entity, model)
+        return entity

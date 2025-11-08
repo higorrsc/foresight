@@ -17,6 +17,8 @@
     "ondelete",
     "onupdate",
     "pathsep",
+    "poolclass",
+    "POOLCLASS",
     "postgresql",
     "psycopg",
     "pydantic",

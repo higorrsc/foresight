@@ -22,11 +22,15 @@ class OrganizationalUnitMapper:
             description=entity.description,
             parent_id=entity.parent_id,
             is_active=entity.is_active,
-            created_by=entity.created_by,
             created_at=entity.created_at,
-            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
+
+        if hasattr(entity, "created_by"):
+            model.created_by = entity.created_by  # type: ignore
+
+        if hasattr(entity, "updated_by"):
+            model.updated_by = entity.updated_by  # type: ignore
 
         if hasattr(entity, "deleted_at"):
             model.deleted_at = entity.deleted_at  # type: ignore
@@ -46,11 +50,15 @@ class OrganizationalUnitMapper:
             description=model.description,  # type: ignore
             parent_id=model.parent_id,  # type: ignore
             is_active=model.is_active,  # type: ignore
-            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
-            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
         )
+
+        if hasattr(model, "created_by") and hasattr(entity, "created_by"):
+            setattr(entity, "created_by", model.created_by)
+
+        if hasattr(model, "updated_by") and hasattr(entity, "updated_by"):
+            setattr(entity, "updated_by", model.updated_by)
 
         if hasattr(model, "deleted_at") and hasattr(entity, "deleted_at"):
             setattr(entity, "deleted_at", model.deleted_at)

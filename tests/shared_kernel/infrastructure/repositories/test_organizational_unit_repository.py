@@ -20,7 +20,7 @@ class TestOrganizationalUnitRepository:
     Test suite for OrganizationalUnitRepository.
     """
 
-    def test_get_by_parent_id(self, repository, db_session_for_test):
+    def test_get_by_parent_id(self, repository, db_session_for_test, default_tenant_id):
         """
         Test retrieving organizational units by parent_id.
         """
@@ -32,6 +32,7 @@ class TestOrganizationalUnitRepository:
             code="1",
             description="Parent Unit",
             parent_id=None,
+            tenant_id=default_tenant_id,
         )
 
         # Children ordered by code to test sorting
@@ -39,11 +40,13 @@ class TestOrganizationalUnitRepository:
             code="1.2",
             description="Child Unit 2",
             parent_id=parent_id,
+            tenant_id=default_tenant_id,
         )
         child_unit_1 = OrganizationalUnitModel(
             code="1.1",
             description="Child Unit 1",
             parent_id=parent_id,
+            tenant_id=default_tenant_id,
         )
 
         # Another top-level unit
@@ -51,6 +54,7 @@ class TestOrganizationalUnitRepository:
             code="2",
             description="Other Parent",
             parent_id=None,
+            tenant_id=default_tenant_id,
         )
 
         db_session_for_test.add_all(
@@ -61,7 +65,7 @@ class TestOrganizationalUnitRepository:
                 other_parent_unit,
             ]
         )
-        db_session_for_test.commit()
+        db_session_for_test.flush()
 
         # 2. Test fetching children of a specific parent
         children = repository.get_by_parent_id(parent_id)

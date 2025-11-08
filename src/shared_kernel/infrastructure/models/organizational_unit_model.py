@@ -6,13 +6,15 @@ from src.shared_kernel.infrastructure.config import (
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
+    SQLAlchemyUserAuditFields,
 )
 
 
 class OrganizationalUnitModel(
     SQLAlchemyBase,
-    SQLAlchemyTenantMixin,
     SQLAlchemySoftDeletableMixin,
+    SQLAlchemyTenantMixin,
+    SQLAlchemyUserAuditFields,
 ):
     """
     SQLAlchemy model for the OrganizationalUnit entity.
@@ -36,7 +38,8 @@ class OrganizationalUnitModel(
 
     parent = relationship(
         "OrganizationalUnitModel",
-        remote_side=[id],
+        foreign_keys=[parent_id],
+        remote_side="OrganizationalUnitModel.id",
         back_populates="children",
     )
 

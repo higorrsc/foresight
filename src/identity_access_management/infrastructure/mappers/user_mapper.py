@@ -1,5 +1,6 @@
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.models import UserModel
+from src.shared_kernel.infrastructure.mappers._shared.base_mapper import BaseMapper
 
 
 class UserMapper:
@@ -22,15 +23,11 @@ class UserMapper:
             last_name=entity.last_name,
             email=entity.email,
             is_active=entity.is_active,
-            created_by=entity.created_by,
             created_at=entity.created_at,
-            updated_by=entity.updated_by,
             updated_at=entity.updated_at,
         )
 
-        if hasattr(entity, "deleted_at"):
-            model.deleted_at = entity.deleted_at  # type: ignore
-
+        BaseMapper.map_auditing_fields_to_model(entity, model)
         return model
 
     @staticmethod
@@ -51,7 +48,7 @@ class UserMapper:
                 for permission in role.permissions:
                     effective_permissions.add(permission.codename)
 
-        user = User(
+        entity = User(
             id=model.id,  # type: ignore
             tenant_id=model.tenant_id,  # type: ignore
             username=model.username,  # type: ignore
@@ -60,15 +57,11 @@ class UserMapper:
             last_name=model.last_name,  # type: ignore
             email=model.email if model.email else None,  # type: ignore
             is_active=model.is_active,  # type: ignore
-            created_by=model.created_by,  # type: ignore
             created_at=model.created_at,  # type: ignore
-            updated_by=model.updated_by,  # type: ignore
             updated_at=model.updated_at,  # type: ignore
             roles=role_names,  # type: ignore
             permissions=effective_permissions,  # type: ignore
         )
 
-        if hasattr(model, "deleted_at") and hasattr(user, "deleted_at"):
-            setattr(user, "deleted_at", model.deleted_at)
-
-        return user
+        BaseMapper.map_auditing_fields_to_entity(model, entity)
+        return entity
