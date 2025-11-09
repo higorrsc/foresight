@@ -162,10 +162,9 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
             e for e in self._entities if getattr(e, "tenant_id", None) == tenant_id
         ]
 
-        if not include_inactive:
-            results = [
-                e for e in results if hasattr(e, "is_active") and e.is_active  # type: ignore
-            ]
+        # Only filter by is_active if requested and if the entity has this attribute
+        if not include_inactive and results and hasattr(results[0], "is_active"):
+            results = [e for e in results if getattr(e, "is_active")]
 
         filtered_results = self.__apply_filters(results, filters or {})
         total = len(filtered_results)
