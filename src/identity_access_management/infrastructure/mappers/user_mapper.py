@@ -47,7 +47,7 @@ class UserMapper:
 
         if model.roles_rel:
             for role in model.roles_rel:
-                for permission in role.permissions:
+                for permission in role.permissions_rel:
                     effective_permissions.add(permission.codename)
 
         entity = User(
