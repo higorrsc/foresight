@@ -43,26 +43,35 @@ class TestGenericDeleteUseCase:
     Test suite for the GenericDeleteUseCase.
     """
 
-    def test_delete_existing_entity(self, repository, delete_use_case):
+    def test_delete_existing_entity(self, repository, delete_use_case, admin_actor):
         """
         Test deleting an existing entity.
         """
 
-        entity = DummyEntity(name="Test Entity")
+        entity = DummyEntity(
+            name="Test Entity",
+            tenant_id=admin_actor.tenant_id,
+        )
         repository.save(entity)
 
-        entity_id = DeleteRequestInputDTO(id=entity.id)
+        entity_id = DeleteRequestInputDTO(
+            actor=admin_actor,
+            id=entity.id,
+        )
         delete_use_case.execute(request=entity_id)
 
-        assert repository.get_by_id(entity_id) is None
+        assert repository.get_by_id(entity_id, admin_actor.tenant_id) is None
 
-    def test_delete_non_existing_entity_raises_exception(self, delete_use_case):
+    def test_delete_non_existing_entity_raises_exception(
+        self, delete_use_case, admin_actor
+    ):
         """
         Test deleting a non-existing entity raises the appropriate exception.
         """
 
         invalid_entity = DeleteRequestInputDTO(
-            id=UUID("c1c4d4d7-f545-5f27-b366-1546b022e622")
+            actor=admin_actor,
+            id=UUID("c1c4d4d7-f545-5f27-b366-1546b022e622"),
         )
 
         with pytest.raises(EntityNotFoundException) as exc_info:
