@@ -59,7 +59,6 @@
   "python.analysis.typeCheckingMode": "standard",
   "python.testing.pytestArgs": [
     ".",
-    "-ra",
     "-p",
     "no:warnings",
     "--import-mode=importlib"
