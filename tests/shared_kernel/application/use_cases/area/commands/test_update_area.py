@@ -15,7 +15,7 @@ class TestUpdateArea:
     Test suite for the UpdateAreaUseCase use case.
     """
 
-    def test_update_area_with_valid_data(self):
+    def test_update_area_with_valid_data(self, admin_actor):
         """
         Test updating an area with valid data.
         """
@@ -23,20 +23,24 @@ class TestUpdateArea:
         repository = InMemoryRepository[Area]()
         use_case = UpdateAreaUseCase(repository)
 
-        area = Area(description="Initial Description")
+        area = Area(
+            description="Initial Description",
+            tenant_id=admin_actor.tenant_id,
+        )
         repository.save(area)
 
         output: UpdateDescribedEntityOutputDTO = use_case.execute(
             UpdateDescribedEntityInputDTO(
                 id=area.id,
                 description="Updated Description",
+                actor=admin_actor,
             )
         )
 
         assert output.id == area.id
         assert output.description == "Updated Description"
 
-    def test_update_area_with_invalid_data_empty_description(self):
+    def test_update_area_with_invalid_data_empty_description(self, admin_actor):
         """
         Test updating an area with invalid data.
         """
@@ -44,7 +48,10 @@ class TestUpdateArea:
         repository = InMemoryRepository[Area]()
         use_case = UpdateAreaUseCase(repository)
 
-        area = Area(description="Initial Description")
+        area = Area(
+            description="Initial Description",
+            tenant_id=admin_actor.tenant_id,
+        )
         repository.save(area)
 
         with pytest.raises(
@@ -55,10 +62,11 @@ class TestUpdateArea:
                 UpdateDescribedEntityInputDTO(
                     id=area.id,
                     description="",  # Invalid description
+                    actor=admin_actor,
                 )
             )
 
-    def test_update_area_with_invalid_data_long_description(self):
+    def test_update_area_with_invalid_data_long_description(self, admin_actor):
         """
         Test updating an area with invalid data.
         """
@@ -66,7 +74,10 @@ class TestUpdateArea:
         repository = InMemoryRepository[Area]()
         use_case = UpdateAreaUseCase(repository)
 
-        area = Area(description="Initial Description")
+        area = Area(
+            description="Initial Description",
+            tenant_id=admin_actor.tenant_id,
+        )
         repository.save(area)
 
         with pytest.raises(
@@ -77,5 +88,6 @@ class TestUpdateArea:
                 UpdateDescribedEntityInputDTO(
                     id=area.id,
                     description="a" * 200,  # Invalid description
+                    actor=admin_actor,
                 )
             )

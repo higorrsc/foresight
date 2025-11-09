@@ -12,7 +12,7 @@ class TestListArea:
     Test the ListArea use case.
     """
 
-    def test_list_areas(self):
+    def test_list_areas(self, admin_actor):
         """
         Test listing areas.
         """
@@ -20,13 +20,21 @@ class TestListArea:
         repository = InMemoryRepository[Area]()
         use_case = ListAreaUseCase(repository)
 
-        area1 = Area(description="Area 1")
-        area2 = Area(description="Area 2")
+        area1 = Area(
+            description="Area 1",
+            tenant_id=admin_actor.tenant_id,
+        )
+        area2 = Area(
+            description="Area 2",
+            tenant_id=admin_actor.tenant_id,
+        )
 
         repository.save(area1)
         repository.save(area2)
 
-        areas: ListResponseOutputDTO[Area] = use_case.execute(ListRequestInputDTO())
+        areas: ListResponseOutputDTO[Area] = use_case.execute(
+            ListRequestInputDTO(actor=admin_actor)
+        )
 
         assert len(areas.data) == 2
         assert areas.data[0].id is not None
@@ -34,7 +42,7 @@ class TestListArea:
         assert areas.data[1].id is not None
         assert areas.data[1].description == "Area 2"
 
-    def test_empty_list_area(self):
+    def test_empty_list_area(self, admin_actor):
         """
         Test listing areas when there are no areas.
         """
@@ -42,6 +50,8 @@ class TestListArea:
         repository = InMemoryRepository[Area]()
         use_case = ListAreaUseCase(repository)
 
-        areas: ListResponseOutputDTO[Area] = use_case.execute(ListRequestInputDTO())
+        areas: ListResponseOutputDTO[Area] = use_case.execute(
+            ListRequestInputDTO(actor=admin_actor)
+        )
 
         assert len(areas.data) == 0
