@@ -22,7 +22,7 @@ class ListRequestInputDTO:
     sort_order: Optional[str] = "asc"
     offset: int = 0
     limit: int = 10
-    include_deleted: bool = False
+    include_inactive: bool = False
 
 
 @dataclass
@@ -75,7 +75,7 @@ class GenericListUseCase(Generic[T]):
             sort_order=input_dto.sort_order,  # type: ignore
             offset=input_dto.offset,
             limit=input_dto.limit,
-            include_deleted=input_dto.include_deleted,
+            include_inactive=input_dto.include_inactive,
         )
 
         total_items = repo_result.total
