@@ -12,7 +12,11 @@ class IOrganizationalUnitRepository(AbstractRepository[OrganizationalUnit]):
     """
 
     @abstractmethod
-    def get_by_parent_id(self, parent_id: Optional[UUID]) -> List[OrganizationalUnit]:
+    def get_by_parent_id(
+        self,
+        parent_id: Optional[UUID],
+        tenant_id: Optional[UUID],
+    ) -> List[OrganizationalUnit]:
         """
         Get organizational units by parent ID.
         """
