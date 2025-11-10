@@ -4,10 +4,16 @@ from src.shared_kernel.infrastructure.config import (
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
+    SQLAlchemyUserAuditFields,
 )
 
 
-class AreaModel(SQLAlchemyBase, SQLAlchemySoftDeletableMixin, SQLAlchemyTenantMixin):
+class AreaModel(
+    SQLAlchemyBase,
+    SQLAlchemySoftDeletableMixin,
+    SQLAlchemyTenantMixin,
+    SQLAlchemyUserAuditFields,
+):
     """
     SQLAlchemy model for the Area entity.
     """
