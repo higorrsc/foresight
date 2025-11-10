@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from typing import List
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
+
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
 
 
 @dataclass(frozen=True)
@@ -11,6 +14,7 @@ class GetOrganizationalUnitByParentIdInputDTO:
     Data Transfer Object for get by id requests.
     """
 
+    actor: "User"
     parent_id: UUID
 
 
@@ -46,7 +50,10 @@ class GetOrganizationalUnitByParentIdUseCase:
         Execute the get by parent id use case.
         """
 
-        entities = self._repository.get_by_parent_id(request.parent_id)
+        entities = self._repository.get_by_parent_id(
+            parent_id=request.parent_id,
+            tenant_id=request.actor.tenant_id,
+        )
         return (
             [
                 GetOrganizationalUnitByParentIdOutputDTO(

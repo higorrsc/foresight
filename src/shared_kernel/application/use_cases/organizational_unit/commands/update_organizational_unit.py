@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from src.shared_kernel.application.use_cases.organizational_unit import (
@@ -11,6 +11,9 @@ from src.shared_kernel.domain._shared.exceptions import (
 )
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
+
 
 @dataclass(frozen=True)
 class CreateOrganizationalUnitInputDTO:
@@ -18,6 +21,7 @@ class CreateOrganizationalUnitInputDTO:
     Data Transfer Object for input data when creating a new Organizational Unit.
     """
 
+    actor: "User"
     id: UUID
     description: str
     code: str
@@ -48,7 +52,10 @@ class UpdateOrganizationalUnitUseCase:
         Execute the use case to update an existing Organizational Unit.
         """
 
-        entity = self._repository.get_by_id(input_dto.id)
+        entity = self._repository.get_by_id(
+            entity_id=input_dto.id,
+            tenant_id=input_dto.actor.tenant_id,
+        )
         if not entity:
             raise EntityNotFoundException("Organizational Unit with given ID not found")
 
