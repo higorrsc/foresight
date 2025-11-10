@@ -1,11 +1,8 @@
 import pytest
-from sqlalchemy.orm import declarative_base
 
 from src.shared_kernel.infrastructure.mappers import AreaMapper
 from src.shared_kernel.infrastructure.models import AreaModel
 from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
-
-Base = declarative_base()
 
 
 @pytest.fixture
