@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.role import (
@@ -9,6 +9,9 @@ from src.identity_access_management.application.use_cases.role import (
 from src.identity_access_management.domain.entities import Role
 from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
 
+if TYPE_CHECKING:
+    from src.identity_access_management.domain.entities import User
+
 
 @dataclass
 class UpdateRoleRequestDTO:
@@ -16,6 +19,7 @@ class UpdateRoleRequestDTO:
     Data Transfer Object for input data when updating a role.
     """
 
+    actor: "User"
     id: UUID
     name: str
     description: Optional[str] = None
@@ -49,7 +53,10 @@ class UpdateRoleUseCase:
         Execute the use case to update a role.
         """
 
-        role = self._repository.get_by_id(input_dto.id)
+        role = self._repository.get_by_id(
+            input_dto.id,
+            input_dto.actor.tenant_id,
+        )
         if role is None:
             raise RoleNotFoundError(f"Role with id {input_dto.id} not found.")
 
