@@ -26,17 +26,21 @@ class TestGetRoleByIdUseCase:
 
         return InMemoryRepository[Role]()
 
-    def test_get_role_by_id(self, role_in_memory_repository):
+    def test_get_role_by_id(self, role_in_memory_repository, admin_actor):
         """
         Test get role by id.
         """
 
-        new_role = Role(name="Test Role", description="Test Description")
+        new_role = Role(
+            name="Test Role",
+            description="Test Description",
+            tenant_id=admin_actor.tenant_id,
+        )
 
         repo = role_in_memory_repository
         repo.save(new_role)
 
-        input_dto = GetByIdRequestInputDTO(new_role.id)
+        input_dto = GetByIdRequestInputDTO(id=new_role.id, actor=admin_actor)
         use_case = GetRoleByIdUseCase(repository=repo)
         output = use_case.execute(input_dto)
 
@@ -45,17 +49,23 @@ class TestGetRoleByIdUseCase:
         assert output.name == new_role.name
         assert output.description == new_role.description
 
-    def test_get_role_by_id_with_invalid_id(self, role_in_memory_repository):
+    def test_get_role_by_id_with_invalid_id(
+        self, role_in_memory_repository, admin_actor
+    ):
         """
         Test get role by id with invalid id.
         """
 
-        new_role = Role(name="Test Role", description="Test Description")
+        new_role = Role(
+            name="Test Role",
+            description="Test Description",
+            tenant_id=admin_actor.tenant_id,
+        )
 
         repo = role_in_memory_repository
         repo.save(new_role)
 
-        input_dto = GetByIdRequestInputDTO(uuid.uuid4())
+        input_dto = GetByIdRequestInputDTO(id=uuid.uuid4(), actor=admin_actor)
         use_case = GetRoleByIdUseCase(repository=repo)
 
         with pytest.raises(

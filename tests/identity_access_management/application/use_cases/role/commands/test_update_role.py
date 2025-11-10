@@ -27,7 +27,7 @@ class TestUpdateRoleUseCase:
 
         return InMemoryRepository[Role]()
 
-    def test_update_role(self, role_in_memory_repository):
+    def test_update_role(self, role_in_memory_repository, admin_actor):
         """
         Test update role.
         """
@@ -35,13 +35,18 @@ class TestUpdateRoleUseCase:
         repo = role_in_memory_repository
         use_case = UpdateRoleUseCase(repository=repo)
 
-        role = Role(name="Test", description="Test role")
+        role = Role(
+            name="Test",
+            description="Test role",
+            tenant_id=admin_actor.tenant_id,
+        )
         repo.save(role)
 
         input_dto = UpdateRoleRequestDTO(
             id=role.id,
             name="Updated",
             description="Updated role",
+            actor=admin_actor,
         )
 
         output = use_case.execute(input_dto)
@@ -49,7 +54,11 @@ class TestUpdateRoleUseCase:
         assert output.name == "Updated"
         assert output.description == "Updated role"
 
-    def test_update_role_with_invalid_name(self, role_in_memory_repository):
+    def test_update_role_with_invalid_name(
+        self,
+        role_in_memory_repository,
+        admin_actor,
+    ):
         """
         Test update role with invalid name.
         """
@@ -57,13 +66,18 @@ class TestUpdateRoleUseCase:
         repo = role_in_memory_repository
         use_case = UpdateRoleUseCase(repository=repo)
 
-        role = Role(name="Test", description="Test role")
+        role = Role(
+            name="Test",
+            description="Test role",
+            tenant_id=admin_actor.tenant_id,
+        )
         repo.save(role)
 
         input_dto = UpdateRoleRequestDTO(
             id=role.id,
             name="a" * 101,
             description="Updated role",
+            actor=admin_actor,
         )
 
         with pytest.raises(
@@ -72,7 +86,7 @@ class TestUpdateRoleUseCase:
         ):
             use_case.execute(input_dto)
 
-    def test_update_role_with_invalid_id(self, role_in_memory_repository):
+    def test_update_role_with_invalid_id(self, role_in_memory_repository, admin_actor):
         """ ""
         Test update role with invalid id.
         """
@@ -89,6 +103,7 @@ class TestUpdateRoleUseCase:
             id=invalid_id,
             name="Updated",
             description="Updated role",
+            actor=admin_actor,
         )
 
         with pytest.raises(

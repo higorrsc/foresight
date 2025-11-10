@@ -26,7 +26,7 @@ class TestDeleteRoleUseCase:
 
         return InMemoryRepository[Role]()
 
-    def test_delete_existing_role(self, role_in_memory_repository):
+    def test_delete_existing_role(self, role_in_memory_repository, admin_actor):
         """
         Test deleting an existing role.
         """
@@ -34,15 +34,28 @@ class TestDeleteRoleUseCase:
         repo = role_in_memory_repository
         use_case = DeleteRoleUseCase(repository=repo)
 
-        role_to_delete = Role(name="Role to Delete", description="Description")
+        role_to_delete = Role(
+            name="Role to Delete",
+            description="Description",
+            tenant_id=admin_actor.tenant_id,
+        )
         repo.save(role_to_delete)
 
-        input_dto = DeleteRequestInputDTO(id=role_to_delete.id)
+        input_dto = DeleteRequestInputDTO(
+            id=role_to_delete.id,
+            actor=admin_actor,
+        )
         use_case.execute(input_dto)
 
-        assert repo.get_by_id(role_to_delete.id) is None
+        found_role = repo.get_by_id(
+            role_to_delete.id,
+            admin_actor.tenant_id,
+        )
+        assert found_role is None
 
-    def test_delete_non_existent_role_raises_error(self, role_in_memory_repository):
+    def test_delete_non_existent_role_raises_error(
+        self, role_in_memory_repository, admin_actor
+    ):
         """
         Test deleting a non-existent role raises RoleNotFoundError.
         """
@@ -51,7 +64,10 @@ class TestDeleteRoleUseCase:
         use_case = DeleteRoleUseCase(repository=repo)
 
         non_existent_id = uuid4()
-        input_dto = DeleteRequestInputDTO(id=non_existent_id)
+        input_dto = DeleteRequestInputDTO(
+            id=non_existent_id,
+            actor=admin_actor,
+        )
 
         with pytest.raises(
             RoleNotFoundError,
