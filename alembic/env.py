@@ -35,9 +35,9 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from src.identity_access_management.infrastructure.models import *
-from src.shared_kernel.infrastructure.models import *
-from src.tenant_management.infrastructure.models import *
+from src.identity_access_management.infrastructure.models import *  # noqa: E402, F403
+from src.shared_kernel.infrastructure.models import *  # noqa: E402, F403
+from src.tenant_management.infrastructure.models import *  # noqa: E402, F403
 
 target_metadata = Base.metadata
 
@@ -72,7 +72,7 @@ def process_revision_directives(context, revision, directives):
                     and "UUID" in str(getattr(op.ops[0], "modify_type", ""))
                 )
                 if is_alter_uuid:
-                    print(f"INFO: Ignorando operação de UPGRADE para UUID no SQLite.")
+                    print("INFO: Ignoring UUID upgrade operation in SQLite.")
                     continue
                 new_upgrade_ops.append(op)
             script.upgrade_ops.ops = new_upgrade_ops
@@ -86,7 +86,7 @@ def process_revision_directives(context, revision, directives):
                     and "UUID" in str(getattr(op.ops[0], "existing_type", ""))
                 )
                 if is_alter_uuid:
-                    print(f"INFO: Ignorando operação de DOWNGRADE para UUID no SQLite.")
+                    print("INFO: Ignoring UUID downgrade operation in SQLite..")
                     continue
                 new_downgrade_ops.append(op)
             script.downgrade_ops.ops = new_downgrade_ops
