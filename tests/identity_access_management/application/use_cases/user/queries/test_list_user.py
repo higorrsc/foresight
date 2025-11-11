@@ -1,11 +1,36 @@
+from copy import deepcopy
+from uuid import uuid4
+
 import pytest
 
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+)
 from src.identity_access_management.application.use_cases.user.queries import (
     ListUserUseCase,
 )
-from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.entities.user import User
 from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from tests.fakes import UserInMemoryRepository
+
+
+@pytest.fixture
+def user_repo():
+    """
+    Fixture that represents an in-memory repository for testing purposes.
+    """
+
+    return UserInMemoryRepository()
+
+
+@pytest.fixture
+def list_user_use_case(user_repo):
+    """
+    Fixture that represents a ListUserUseCase for testing purposes.
+    """
+
+    return ListUserUseCase(repository=user_repo)
 
 
 class TestListUserUseCase:
@@ -13,52 +38,47 @@ class TestListUserUseCase:
     Test suite for the ListUserUseCase.
     """
 
-    @pytest.fixture
-    def user_in_memory_repository(self):
+    def test_list_users_with_permission(
+        self,
+        list_user_use_case,
+        user_repo,
+        admin_actor: User,
+        guest_actor: User,
+    ):
         """
-        Fixture that represents an in-memory repository for testing purposes.
+        Test list users with permission.
         """
+        admin_actor.permissions.add(AppPermission.USER_READ)
 
-        return UserInMemoryRepository()
+        user_repo.save(deepcopy(admin_actor))
+        user_repo.save(deepcopy(guest_actor))
 
-    def test_list_existing_user(self, user_in_memory_repository):
-        """
-        Test list existing user.
-        """
-
-        repo = user_in_memory_repository
-
-        user_to_list = User(
-            username="tobelisted",
-            hashed_password="anyhash",
+        other_tenant_user = User(
+            username="other_tenant_user",
+            hashed_password="pw",
+            tenant_id=uuid4(),
         )
-        repo.save(user_to_list)
+        user_repo.save(other_tenant_user)
 
-        another_user_to_list = User(
-            username="tobelisted",
-            hashed_password="anyhash",
-        )
-        repo.save(another_user_to_list)
+        input_dto = ListRequestInputDTO(actor=admin_actor)
+        result = list_user_use_case.execute(input_dto)
 
-        use_case = ListUserUseCase(repository=repo)
+        assert result.total == 2
+        assert result.data[0].username == admin_actor.username
+        assert result.data[1].username == guest_actor.username
 
-        input_dto = ListRequestInputDTO()
-
-        output = use_case.execute(input_dto)
-
-        assert output is not None
-        assert len(output.data) == 2
-
-    def test_list_non_existent_user_raises_error(self, user_in_memory_repository):
+    def test_list_users_without_permission_raises_error(
+        self,
+        list_user_use_case,
+        guest_actor: User,
+    ):
         """
-        Test list non-existent user.
+        Test list users without permission raises error.
         """
+        input_dto = ListRequestInputDTO(actor=guest_actor)
 
-        repo = user_in_memory_repository
-        use_case = ListUserUseCase(repository=repo)
-
-        input_dto = ListRequestInputDTO()
-
-        output = use_case.execute(input_dto)
-        assert output is not None
-        assert len(output.data) == 0
+        with pytest.raises(
+            InsufficientPermissionError,
+            match="User does not have permission",
+        ):
+            list_user_use_case.execute(input_dto)
