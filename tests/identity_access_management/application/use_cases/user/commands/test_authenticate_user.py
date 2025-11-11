@@ -26,21 +26,22 @@ class TestAuthenticateUserUseCase:
 
         return UserInMemoryRepository()
 
-    def test_authenticate_user_successfully(self, user_in_memory_repository):
+    def test_authenticate_user_successfully(
+        self,
+        user_in_memory_repository,
+    ):
         """
         Test authenticate user successfully.
         """
-
-        repo = user_in_memory_repository
 
         plain_password = "StrongPassword123"
         user = User(
             username="testuser",
             hashed_password=hash_password(plain_password),
         )
-        repo.save(user)
+        user_in_memory_repository.save(user)
 
-        use_case = AuthenticateUserUseCase(repository=repo)
+        use_case = AuthenticateUserUseCase(repository=user_in_memory_repository)
 
         input_dto = AuthenticateUserInputDTO(
             username="testuser",
@@ -53,14 +54,14 @@ class TestAuthenticateUserUseCase:
         assert authenticated_user.username == "testuser"
 
     def test_authenticate_user_with_invalid_username_raises_error(
-        self, user_in_memory_repository
+        self,
+        user_in_memory_repository,
     ):
         """
         Test authenticate user with invalid username.
         """
 
-        repo = user_in_memory_repository
-        use_case = AuthenticateUserUseCase(repository=repo)
+        use_case = AuthenticateUserUseCase(repository=user_in_memory_repository)
 
         input_dto = AuthenticateUserInputDTO(
             username="nonexistentuser",
@@ -74,22 +75,21 @@ class TestAuthenticateUserUseCase:
             use_case.execute(input_dto)
 
     def test_authenticate_user_with_invalid_password_raises_error(
-        self, user_in_memory_repository
+        self,
+        user_in_memory_repository,
     ):
         """
         Test authenticate user with invalid password.
         """
-
-        repo = user_in_memory_repository
 
         plain_password = "StrongPassword123"
         user = User(
             username="testuser",
             hashed_password=hash_password(plain_password),
         )
-        repo.save(user)
+        user_in_memory_repository.save(user)
 
-        use_case = AuthenticateUserUseCase(repository=repo)
+        use_case = AuthenticateUserUseCase(repository=user_in_memory_repository)
 
         input_dto = AuthenticateUserInputDTO(
             username="testuser",
@@ -99,5 +99,33 @@ class TestAuthenticateUserUseCase:
         with pytest.raises(
             InvalidPasswordError,
             match="Invalid username or password",
+        ):
+            use_case.execute(input_dto)
+
+    def test_authenticate_inactive_user_raises_error(
+        self,
+        user_in_memory_repository,
+    ):
+        """
+        Test authenticate inactive user.
+        """
+
+        user = User(
+            username="inactive_user",
+            hashed_password=hash_password("password123"),
+            is_active=False,
+        )
+        user_in_memory_repository.save(user)
+
+        input_dto = AuthenticateUserInputDTO(
+            username="inactive_user",
+            password="password123",
+        )
+
+        use_case = AuthenticateUserUseCase(repository=user_in_memory_repository)
+
+        with pytest.raises(
+            UserNotFoundError,
+            match="User account is inactive.",
         ):
             use_case.execute(input_dto)

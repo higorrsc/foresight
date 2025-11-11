@@ -5,7 +5,7 @@ from src.identity_access_management.application.use_cases.user import (
     UserNotFoundError,
 )
 from src.identity_access_management.domain.entities import User
-from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.repositories import IUserRepository
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class AuthenticateUserUseCase:
     Use case for authenticating a user.
     """
 
-    def __init__(self, repository: UserRepository):
+    def __init__(self, repository: IUserRepository):
         """
         Initialize the AuthenticateUserUseCase.
         """
@@ -35,9 +35,12 @@ class AuthenticateUserUseCase:
         Execute the AuthenticateUserUseCase.
         """
 
-        user = self._repository.get_by_username(input_dto.username)
+        user = self._repository.get_by_username_global(input_dto.username)
         if not user:
             raise UserNotFoundError("Invalid username or password")
+
+        if not user.is_active:
+            raise UserNotFoundError("User account is inactive.")
 
         if not user.verify_password(input_dto.password):
             raise InvalidPasswordError("Invalid username or password")
