@@ -1,3 +1,4 @@
+from copy import deepcopy
 from uuid import uuid4
 
 import pytest
@@ -6,11 +7,34 @@ from src.identity_access_management.application.use_cases.user import UserNotFou
 from src.identity_access_management.application.use_cases.user.commands import (
     DeleteUserUseCase,
 )
-from src.identity_access_management.domain.entities import User
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+    InvalidUserError,
+)
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.entities.user import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
 )
 from tests.fakes.in_memory_repository import UserInMemoryRepository
+
+
+@pytest.fixture
+def user_repo():
+    """
+    Fixture that represents an in-memory repository for testing purposes.
+    """
+
+    return UserInMemoryRepository()
+
+
+@pytest.fixture
+def delete_user_use_case(user_repo):
+    """
+    Fixture that represents a DeleteUserUseCase for testing purposes.
+    """
+
+    return DeleteUserUseCase(repository=user_repo)
 
 
 class TestDeleteUserUseCase:
@@ -18,51 +42,88 @@ class TestDeleteUserUseCase:
     Test suite for the DeleteUserUseCase.
     """
 
-    @pytest.fixture
-    def user_in_memory_repository(self):
+    def test_admin_can_delete_other_user(
+        self,
+        delete_user_use_case,
+        user_repo,
+        admin_actor: User,
+        guest_actor: User,
+    ):
         """
-        Fixture that represents an in-memory repository for testing purposes.
-        """
-
-        return UserInMemoryRepository()
-
-    def test_delete_existing_user(self, user_in_memory_repository):
-        """
-        Test delete existing user.
+        Test if an admin can delete another user.
         """
 
-        repo = user_in_memory_repository
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+        user_repo.save(deepcopy(guest_actor))
 
-        user_to_delete = User(
-            username="tobedeleted",
-            hashed_password="anyhash",
-        )
-        repo.save(user_to_delete)
+        input_dto = DeleteRequestInputDTO(actor=admin_actor, id=guest_actor.id)
 
-        use_case = DeleteUserUseCase(repository=repo)
+        delete_user_use_case.execute(input_dto)
 
-        input_dto = DeleteRequestInputDTO(id=user_to_delete.id)
+        deleted_user = user_repo.get_by_id(guest_actor.id, admin_actor.tenant_id)
+        assert deleted_user is not None
+        assert deleted_user.is_active is False
+        assert deleted_user.deleted_at is not None
+        assert deleted_user.updated_by == admin_actor.id
 
-        use_case.execute(input_dto)
-
-        found_user = repo.get_by_id(user_to_delete.id)
-        assert found_user is not None
-        assert found_user.deleted_at is not None
-        assert found_user.is_active is False
-
-    def test_delete_non_existent_user_raises_error(self, user_in_memory_repository):
+    def test_user_cannot_delete_without_permission(
+        self,
+        delete_user_use_case,
+        user_repo,
+        guest_actor: User,
+        admin_actor: User,
+    ):
         """
-        Test delete non-existent user.
+        Test if a user without permission cannot delete another user.
         """
+        user_repo.save(deepcopy(admin_actor))
+        user_repo.save(deepcopy(guest_actor))
 
-        repo = user_in_memory_repository
-        use_case = DeleteUserUseCase(repository=repo)
+        input_dto = DeleteRequestInputDTO(actor=guest_actor, id=admin_actor.id)
 
-        non_existent_id = uuid4()
-        input_dto = DeleteRequestInputDTO(id=non_existent_id)
+        with pytest.raises(
+            InsufficientPermissionError,
+            match="User does not have permission",
+        ):
+            delete_user_use_case.execute(input_dto)
+
+    def test_user_cannot_delete_self(
+        self,
+        delete_user_use_case,
+        user_repo,
+        admin_actor: User,
+    ):
+        """
+        Test if a user cannot delete themselves.
+        """
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+
+        input_dto = DeleteRequestInputDTO(actor=admin_actor, id=admin_actor.id)
+
+        with pytest.raises(
+            InvalidUserError,
+            match="User cannot delete their own account",
+        ):
+            delete_user_use_case.execute(input_dto)
+
+    def test_delete_non_existent_user_raises_error(
+        self,
+        delete_user_use_case,
+        user_repo,
+        admin_actor: User,
+    ):
+        """
+        Test if deleting a non-existent user raises an error.
+        """
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+
+        input_dto = DeleteRequestInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(
             UserNotFoundError,
-            match="User with given ID not found.",
+            match="User to delete not found",
         ):
-            use_case.execute(input_dto)
+            delete_user_use_case.execute(input_dto)

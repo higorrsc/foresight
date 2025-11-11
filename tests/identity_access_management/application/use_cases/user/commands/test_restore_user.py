@@ -1,4 +1,5 @@
-from datetime import datetime
+from copy import deepcopy
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -7,11 +8,34 @@ from src.identity_access_management.application.use_cases.user import UserNotFou
 from src.identity_access_management.application.use_cases.user.commands import (
     RestoreUserUseCase,
 )
-from src.identity_access_management.domain.entities import User
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+    InvalidUserError,
+)
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.entities.user import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     RestoreRequestInputDTO,
 )
 from tests.fakes.in_memory_repository import UserInMemoryRepository
+
+
+@pytest.fixture
+def user_repo():
+    """
+    Fixture that represents an in-memory repository for testing purposes.
+    """
+
+    return UserInMemoryRepository()
+
+
+@pytest.fixture
+def restore_user_use_case(user_repo):
+    """
+    Fixture that represents a RestoreUserUseCase for testing purposes.
+    """
+
+    return RestoreUserUseCase(repository=user_repo)
 
 
 class TestRestoreUserUseCase:
@@ -19,53 +43,93 @@ class TestRestoreUserUseCase:
     Test suite for the RestoreUserUseCase.
     """
 
-    @pytest.fixture
-    def user_in_memory_repository(self):
+    def test_admin_can_restore_other_user(
+        self,
+        restore_user_use_case,
+        user_repo,
+        admin_actor: User,
+        guest_actor: User,
+    ):
         """
-        Fixture that represents an in-memory repository for testing purposes.
-        """
-
-        return UserInMemoryRepository()
-
-    def test_restore_existing_user(self, user_in_memory_repository):
-        """
-        Test restore existing user.
+        Test if an admin can restore another user.
         """
 
-        repo = user_in_memory_repository
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+        guest_actor.is_active = False
+        guest_actor.deleted_at = datetime.now(timezone.utc)
+        user_repo.save(deepcopy(guest_actor))
 
-        user_to_restore = User(
-            username="toberestored",
-            hashed_password="anyhash",
-        )
-        user_to_restore.is_active = False
-        user_to_restore.deleted_at = datetime.now()
-        repo.save(user_to_restore)
+        input_dto = RestoreRequestInputDTO(actor=admin_actor, id=guest_actor.id)
 
-        use_case = RestoreUserUseCase(repository=repo)
+        restore_user_use_case.execute(input_dto)
 
-        input_dto = RestoreRequestInputDTO(id=user_to_restore.id)
+        restored_user = user_repo.get_by_id(guest_actor.id, admin_actor.tenant_id)
+        assert restored_user is not None
+        assert restored_user.is_active is True
+        assert restored_user.deleted_at is None
+        assert restored_user.updated_by == admin_actor.id
 
-        use_case.execute(input_dto)
-
-        found_user = repo.get_by_id(user_to_restore.id)
-        assert found_user is not None
-        assert found_user.deleted_at is None
-        assert found_user.is_active is True
-
-    def test_restore_non_existent_user_raises_error(self, user_in_memory_repository):
+    def test_user_cannot_restore_without_permission(
+        self,
+        restore_user_use_case,
+        user_repo,
+        guest_actor: User,
+        admin_actor: User,
+    ):
         """
-        Test restore non-existent user.
+        Test if a user without permission cannot restore another user.
         """
 
-        repo = user_in_memory_repository
-        use_case = RestoreUserUseCase(repository=repo)
+        admin_actor.is_active = False
+        admin_actor.deleted_at = datetime.now(timezone.utc)
+        user_repo.save(deepcopy(admin_actor))
+        user_repo.save(deepcopy(guest_actor))
 
-        non_existent_id = uuid4()
-        input_dto = RestoreRequestInputDTO(id=non_existent_id)
+        input_dto = RestoreRequestInputDTO(actor=guest_actor, id=admin_actor.id)
+
+        with pytest.raises(
+            InsufficientPermissionError,
+            match="User does not have permission",
+        ):
+            restore_user_use_case.execute(input_dto)
+
+    def test_user_cannot_restore_self(
+        self,
+        restore_user_use_case,
+        user_repo,
+        admin_actor: User,
+    ):
+        """
+        Test if a user cannot restore themselves.
+        """
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+
+        input_dto = RestoreRequestInputDTO(actor=admin_actor, id=admin_actor.id)
+
+        with pytest.raises(
+            InvalidUserError,
+            match="User cannot restore their own account",
+        ):
+            restore_user_use_case.execute(input_dto)
+
+    def test_restore_non_existent_user_raises_error(
+        self,
+        restore_user_use_case,
+        user_repo,
+        admin_actor: User,
+    ):
+        """
+        Test if deleting a non-existent user raises an error.
+        """
+        admin_actor.permissions.add(AppPermission.USER_DELETE)
+        user_repo.save(deepcopy(admin_actor))
+
+        input_dto = RestoreRequestInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(
             UserNotFoundError,
-            match="User with given ID not found.",
+            match="User to restore not found",
         ):
-            use_case.execute(input_dto)
+            restore_user_use_case.execute(input_dto)
