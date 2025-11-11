@@ -9,12 +9,9 @@ from src.api.routers.identity_access_management import (
     UserPublicRouter,
 )
 from src.api.routers.shared_kernel import AreaRouter
+from src.api.routers.tenant_management import TenantRouter
 from src.shared_kernel.infrastructure.config import SessionLocal
-from src.shared_kernel.infrastructure.db import (
-    seed_app_permissions,
-    seed_initial_roles,
-    seed_initial_users,
-)
+from src.shared_kernel.infrastructure.db import seed_initial_data
 
 
 @asynccontextmanager
@@ -26,11 +23,7 @@ async def lifespan(app: FastAPI):  # pragma: no cover
     print("Starting the application...")
     db_session = SessionLocal()
     try:
-        seed_initial_roles(db_session)
-        db_session.flush()
-        seed_app_permissions(db_session)
-        db_session.flush()
-        seed_initial_users(db_session)
+        seed_initial_data(db_session)
         db_session.commit()
     except Exception as e:
         db_session.rollback()
@@ -51,6 +44,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(TenantRouter)
 app.include_router(AuthRouter)
 app.include_router(UserPublicRouter)
 app.include_router(UserProtectedRouter)
