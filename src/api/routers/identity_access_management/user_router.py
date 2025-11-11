@@ -19,9 +19,9 @@ from src.identity_access_management.application.use_cases.user import (
 from src.identity_access_management.application.use_cases.user.commands import (
     ChangePasswordInputDTO,
     ChangePasswordUseCase,
-    CreateUserInputDTO,
-    CreateUserUseCase,
     DeleteUserUseCase,
+    OnboardingInputDTO,
+    OnboardingUseCase,
     RestoreUserUseCase,
     UpdateUserProfileUseCase,
     UserProfileRequestDTO,
@@ -130,7 +130,7 @@ protected_router = APIRouter(
     response_model=UserSummaryResponse,
 )
 def create_user_endpoint(
-    request: CreateUserInputDTO,
+    request: OnboardingInputDTO,
     user_repo: UserRepository = Depends(get_user_repository),
     role_repo: RoleRepository = Depends(get_role_repository),
 ):
@@ -139,7 +139,7 @@ def create_user_endpoint(
     """
 
     try:
-        use_case = CreateUserUseCase(
+        use_case = OnboardingUseCase(
             user_repo,
             role_repo,
         )
