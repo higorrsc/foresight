@@ -9,6 +9,7 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers._shared import PaginationMetaResponse
+from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
@@ -40,6 +41,22 @@ require_area_delete = PermissionChecker(["area:delete"])
 require_area_read = PermissionChecker(["area:read"])
 
 
+class AreaCreateBody(BaseModel):
+    """
+    Model to create a new area.
+    """
+
+    description: str = Field(..., min_length=3, max_length=100)
+
+
+class AreaUpdateBody(BaseModel):
+    """
+    Model to update an existing area.
+    """
+
+    description: str = Field(..., min_length=3, max_length=100)
+
+
 class AreaResponse(BaseModel):
     """
     Response model for API.
@@ -51,18 +68,6 @@ class AreaResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
-
-
-class AreaUpdateBody(BaseModel):
-    """
-    Request model for update area.
-    """
-
-    description: str = Field(
-        ...,
-        min_length=3,
-        max_length=100,
-    )
 
 
 class PaginatedAreaResponse(BaseModel):
@@ -89,8 +94,9 @@ router = APIRouter(
     dependencies=[Depends(require_area_create_or_update)],
 )
 def create_area_endpoint(
-    request: CreateDescribedEntityInputDTO,
+    request: AreaCreateBody,
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Create a new area.
@@ -98,7 +104,13 @@ def create_area_endpoint(
 
     try:
         use_case = CreateAreaUseCase(repo)
-        result = use_case.execute(request)
+
+        input_dto = CreateDescribedEntityInputDTO(
+            actor=actor,
+            description=request.description,
+        )
+
+        result = use_case.execute(input_dto)
         return {"id": result.id}
     except InvalidAreaError as e:
         raise HTTPException(
@@ -115,6 +127,7 @@ def create_area_endpoint(
 )
 def list_areas_endpoint(
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
     description: Optional[str] = Query(
         None,
         description="Filtrar por parte da descrição",
@@ -149,6 +162,7 @@ def list_areas_endpoint(
         filters["description"] = description
 
     input_dto = ListRequestInputDTO(
+        actor=actor,
         filters=filters,
         sort_by=sort_by,
         sort_order=sort_order,
@@ -170,6 +184,7 @@ def list_areas_endpoint(
 def get_area_by_id_endpoint(
     area_id: UUID,
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Getting an area by its ID.
@@ -177,7 +192,7 @@ def get_area_by_id_endpoint(
 
     try:
         use_case = GetAreaByIdUseCase(repo)
-        input_dto = GetByIdRequestInputDTO(id=area_id)
+        input_dto = GetByIdRequestInputDTO(actor=actor, id=area_id)
         area = use_case.execute(input_dto)
         return area
     except AreaNotFoundError as e:
@@ -201,6 +216,7 @@ def update_area_endpoint(
     area_id: UUID,
     request_body: AreaUpdateBody,
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Update an existing area.
@@ -209,6 +225,7 @@ def update_area_endpoint(
     try:
         use_case = UpdateAreaUseCase(repo)
         input_dto = UpdateDescribedEntityInputDTO(
+            actor=actor,
             id=area_id,
             description=request_body.description,
         )
@@ -237,6 +254,7 @@ def update_area_endpoint(
 def delete_area_endpoint(
     area_id: UUID,
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Delete an existing area.
@@ -244,7 +262,7 @@ def delete_area_endpoint(
 
     try:
         use_case = DeleteAreaUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(area_id))
+        use_case.execute(DeleteRequestInputDTO(actor=actor, id=area_id))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -260,6 +278,7 @@ def delete_area_endpoint(
 def restore_area_endpoint(
     area_id: UUID,
     repo: AreaRepository = Depends(get_area_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Restore an existing area.
@@ -267,7 +286,7 @@ def restore_area_endpoint(
 
     try:
         use_case = RestoreAreaUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(area_id))
+        use_case.execute(RestoreRequestInputDTO(actor=actor, id=area_id))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
