@@ -29,6 +29,6 @@ class PlanRepository(SQLAlchemyRepository[Plan, PlanModel], IPlanRepository):
         Finds a plan by its name.
         """
 
-        stmt = select(self._model_cls).filter_by(name=name)
+        stmt = select(self._model_cls).filter_by(name=name)  # type: ignore
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
