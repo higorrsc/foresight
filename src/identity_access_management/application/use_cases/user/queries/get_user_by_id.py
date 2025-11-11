@@ -1,23 +1,50 @@
-from src.identity_access_management.application.use_cases.user import UserNotFoundError
-from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GenericGetByIdUseCase,
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+    UserNotFoundError,
 )
-from src.shared_kernel.domain._shared import AbstractRepository
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.repositories import IUserRepository
+from src.shared_kernel.application._shared.use_cases.queries import (
+    GetByIdRequestInputDTO,
+)
 
 
-class GetUserByIdUseCase(GenericGetByIdUseCase[User]):
+class GetUserByIdUseCase:
     """
-    Use case for getting a user by its ID.
+    Use case to get a user by id.
     """
 
-    def __init__(self, repository: AbstractRepository[User]) -> None:
+    def __init__(self, repository: IUserRepository):
         """
-        Initialize the get by id use case.
+        Initialize the GetUserByIdUseCase.
+
+        :param user_repository: The repository to use for getting users.
         """
 
-        super().__init__(
-            repository,
-            UserNotFoundError,
-            "User with given ID not found.",
+        self._repository = repository
+
+    def execute(self, input_dto: GetByIdRequestInputDTO) -> User:
+        """
+        Execute the GetUserByIdUseCase.
+
+        :param input_dto: The input data transfer object.
+        :return: The user
+        """
+
+        if AppPermission.USER_READ not in input_dto.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to read user data."
+            )
+
+        user = self._repository.get_by_id(
+            input_dto.id,
+            tenant_id=input_dto.actor.tenant_id,
         )
+
+        if not user:
+            raise UserNotFoundError(
+                f"User with id={input_dto.id} not found in this tenant."
+            )
+
+        return user
