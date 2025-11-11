@@ -17,6 +17,7 @@ class AppPermission(str, Enum):
     USER_DELETE = "user:delete"
     USER_SET_ROLES = "user:set_roles"
     USER_SET_PERMISSIONS = "user:set_permissions"
+    USER_CHANGE_PASSWORD = "user:change_password"
     USER_ME = "user:me"
 
     AREA_CREATE = "area:create"
