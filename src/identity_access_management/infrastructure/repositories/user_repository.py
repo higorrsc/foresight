@@ -1,6 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.identity_access_management.domain.entities import User
@@ -120,4 +121,16 @@ class UserRepository(
             )
             .first()
         )
+        return self._mapper.to_entity(model) if model else None
+
+    def get_by_username_global(self, username: str) -> Optional[User]:
+        """
+        Get a user by its username at any tenant.
+
+        :param username: Username of the user.
+        :return: User entity or None if not found.
+        """
+
+        stmt = select(self._model_cls).filter_by(username=username)
+        model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None

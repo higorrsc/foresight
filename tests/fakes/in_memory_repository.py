@@ -26,6 +26,17 @@ class UserInMemoryRepository(InMemoryRepository[User]):
 
         return None
 
+    def get_by_username_global(self, username: str) -> Optional[User]:
+        """
+        Method to get a user by its username globally.
+        """
+
+        for entity in self._entities:
+            if entity.username == username:
+                return entity
+
+        return None
+
 
 class RoleInMemoryRepository(InMemoryRepository[Role]):
     """

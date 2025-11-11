@@ -34,3 +34,11 @@ class IUserRepository(AbstractRepository[User]):
         """
 
         raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def get_by_username_global(self, username: str) -> Optional[User]:
+        """
+        Get a user by its username at any tenant.
+        """
+
+        raise NotImplementedError  # pragma: no cover
