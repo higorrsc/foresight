@@ -1,12 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.role import InvalidRoleError
-from src.identity_access_management.application.use_cases.user import UserNotFoundError
-from src.identity_access_management.infrastructure.repositories import (
-    RoleRepository,
-    UserRepository,
+from src.identity_access_management.application.use_cases.role import RoleNotFoundError
+from src.identity_access_management.application.use_cases.user import (
+    InsufficientPermissionError,
+    UserNotFoundError,
+)
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.repositories import (
+    IRoleRepository,
+    IUserRepository,
 )
 
 if TYPE_CHECKING:
@@ -20,8 +24,8 @@ class SetUserRolesRequestDTO:
     """
 
     actor: "User"
-    user_id: UUID
-    role_names: List[str]
+    user_id_to_update: UUID
+    role_names: List[str] = field(default_factory=list)
 
 
 class SetUserRolesUseCase:
@@ -31,8 +35,8 @@ class SetUserRolesUseCase:
 
     def __init__(
         self,
-        user_repository: UserRepository,
-        role_repository: RoleRepository,
+        user_repository: IUserRepository,
+        role_repository: IRoleRepository,
     ):
         """
         Constructor Initialize the SetUserRolesUseCase.
@@ -45,18 +49,34 @@ class SetUserRolesUseCase:
         """
         Execute the use case to set user roles.
         """
+        if AppPermission.USER_SET_ROLES not in input_dto.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to set roles."
+            )
 
-        user = self._user_repository.get_by_id(
-            input_dto.user_id,
+        user_to_update = self._user_repository.get_by_id(
+            input_dto.user_id_to_update,
             input_dto.actor.tenant_id,
         )
-        if not user:
-            raise UserNotFoundError(f"User with ID '{input_dto.user_id}' not found.")
+        if not user_to_update:
+            raise UserNotFoundError(
+                f"User with ID '{input_dto.user_id_to_update}' not found."
+            )
 
+        valid_roles = []
         role_names_set = set(input_dto.role_names)
-        for role_name in role_names_set:
-            if not self._role_repository.get_by_name(role_name):
-                raise InvalidRoleError(f"Role '{role_name}' does not exist.")
 
-        user.roles = role_names_set
-        self._user_repository.update(user)
+        if role_names_set:
+            for role_name in role_names_set:
+                role = self._role_repository.get_by_name(
+                    role_name,
+                    input_dto.actor.tenant_id,
+                )
+                if not role:
+                    raise RoleNotFoundError(f"Role '{role_name}' does not exist.")
+
+                valid_roles.append(role)
+
+        user_to_update.roles = {role.name for role in valid_roles}
+        user_to_update.updated_by = input_dto.actor.id
+        self._user_repository.update(user_to_update)

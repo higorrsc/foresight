@@ -1,18 +1,51 @@
-# src/core/tests/application/use_cases/user/test_set_user_roles.py
-from uuid import uuid4
+from copy import deepcopy
 
 import pytest
 
-from src.identity_access_management.application.use_cases.role.exceptions import (
-    InvalidRoleError,
-)
-from src.identity_access_management.application.use_cases.user import UserNotFoundError
+from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.user.commands import (
     SetUserRolesRequestDTO,
     SetUserRolesUseCase,
 )
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role, User
-from tests.fakes import RoleInMemoryRepository, UserInMemoryRepository
+from tests.fakes.in_memory_repository import (
+    RoleInMemoryRepository,
+    UserInMemoryRepository,
+)
+
+
+@pytest.fixture
+def user_repo():
+    """
+    Fixture that represents a user repository.
+    """
+
+    return UserInMemoryRepository()
+
+
+@pytest.fixture
+def role_repo():
+    """
+    Fixture that represents a role repository.
+    """
+
+    return RoleInMemoryRepository()
+
+
+@pytest.fixture
+def set_user_roles_use_case(user_repo, role_repo):
+    """
+    Fixture that represents a SetUserRolesUseCase.
+    """
+
+    return SetUserRolesUseCase(
+        user_repository=user_repo,
+        role_repository=role_repo,
+    )
 
 
 class TestSetUserRolesUseCase:
@@ -20,115 +53,84 @@ class TestSetUserRolesUseCase:
     Test suite for the SetUserRolesUseCase.
     """
 
-    @pytest.fixture
-    def user_repo(self):
+    def test_admin_can_set_roles_for_user(
+        self,
+        set_user_roles_use_case,
+        user_repo,
+        role_repo,
+        admin_actor: User,
+        guest_actor: User,
+    ):
         """
-        Fixture that represents a user repository.
+        Test if an admin can set roles for a user.
         """
-        return UserInMemoryRepository()
+        admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
 
-    @pytest.fixture
-    def role_repo(self):
-        """
-        Fixture that represents a role repository.
-        """
-        repo = RoleInMemoryRepository()
-        repo.save(Role(name="admin", description=""))
-        repo.save(Role(name="guest", description=""))
-        repo.save(Role(name="editor", description=""))
-
-        return repo
-
-    def test_set_roles_for_existing_user(self, user_repo, role_repo):
-        """
-        Test setting roles for an existing user.
-        """
-
-        user = User(username="testuser", hashed_password="pw", roles={"guest"})
-        user_repo.save(user)
-
-        use_case = SetUserRolesUseCase(
-            user_repository=user_repo,
-            role_repository=role_repo,
+        role_repo.save(
+            Role(
+                name="editor",
+                description="Editor role",
+                tenant_id=admin_actor.tenant_id,
+            )
         )
+
+        user_repo.save(deepcopy(admin_actor))
+        user_repo.save(deepcopy(guest_actor))
 
         input_dto = SetUserRolesRequestDTO(
-            user_id=user.id,
-            role_names=["admin", "editor"],
+            actor=admin_actor,
+            user_id_to_update=guest_actor.id,
+            role_names=["editor"],
         )
-        use_case.execute(input_dto)
 
-        updated_user = user_repo.get_by_id(user.id)
-        assert updated_user.roles == {"admin", "editor"}
+        set_user_roles_use_case.execute(input_dto)
 
-    def test_clear_roles_from_user(self, user_repo, role_repo):
+        updated_guest = user_repo.get_by_id(guest_actor.id, admin_actor.tenant_id)
+        assert updated_guest.roles == {"editor"}
+        assert updated_guest.updated_by == admin_actor.id
+
+    def test_guest_cannot_set_roles(
+        self,
+        set_user_roles_use_case,
+        user_repo,
+        guest_actor: User,
+    ):
         """
-        Test clearing roles from a user.
+        Test if a guest user cannot set roles.
         """
-
-        user = User(
-            username="testuser",
-            hashed_password="pw",
-            roles={"admin", "guest"},
-        )
-        user_repo.save(user)
-
-        use_case = SetUserRolesUseCase(
-            user_repository=user_repo,
-            role_repository=role_repo,
-        )
+        user_repo.save(deepcopy(guest_actor))  # Não tem a permissão
 
         input_dto = SetUserRolesRequestDTO(
-            user_id=user.id,
-            role_names=[],
-        )
-        use_case.execute(input_dto)
-
-        updated_user = user_repo.get_by_id(user.id)
-        assert updated_user.roles == set()
-
-    def test_set_roles_for_non_existent_user_raises_error(self, user_repo, role_repo):
-        """
-        Test setting roles for a non-existent user.
-        """
-        use_case = SetUserRolesUseCase(
-            user_repository=user_repo, role_repository=role_repo
-        )
-
-        input_dto = SetUserRolesRequestDTO(
-            user_id=uuid4(),
-            role_names=["admin"],
+            actor=guest_actor, user_id_to_update=guest_actor.id, role_names=["admin"]
         )
 
         with pytest.raises(
-            UserNotFoundError,
-            match=f"User with ID '{input_dto.user_id}' not found.",
+            InsufficientPermissionError,
+            match="User does not have permission",
         ):
-            use_case.execute(input_dto)
+            set_user_roles_use_case.execute(input_dto)
 
-    def test_set_non_existent_role_raises_error(self, user_repo, role_repo):
+    def test_set_non_existent_role_raises_error(
+        self,
+        set_user_roles_use_case,
+        user_repo,
+        admin_actor: User,
+    ):
         """
-        Test setting a non-existent role.
+        Test if setting a non-existent role raises an error.
         """
 
-        user = User(username="testuser", hashed_password="pw")
-        user_repo.save(user)
-
-        use_case = SetUserRolesUseCase(
-            user_repository=user_repo,
-            role_repository=role_repo,
-        )
+        admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
+        user_repo.save(deepcopy(admin_actor))
 
         input_dto = SetUserRolesRequestDTO(
-            user_id=user.id,
-            role_names=[
-                "admin",
-                "non_existent_role",
-            ],
+            actor=admin_actor,
+            user_id_to_update=admin_actor.id,
+            role_names=["fake_role"],
         )
 
         with pytest.raises(
-            InvalidRoleError,
-            match="Role 'non_existent_role' does not exist.",
+            RoleNotFoundError,
+            match="Role 'fake_role' does not exist.",
         ):
-            use_case.execute(input_dto)
+            set_user_roles_use_case.execute(input_dto)
