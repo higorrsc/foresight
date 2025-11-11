@@ -22,13 +22,13 @@ class Plan(AbstractEntity):
         if not self.name or not self.name.strip():
             self.notification.add_error("Plan name is required.")
 
-        if len(self.name) > 100:
+        if self.name and len(self.name) > 100:
             self.notification.add_error("Plan must be at most 100 characters long.")
 
         if not self.price or not isinstance(self.price, Decimal):
             self.notification.add_error("Plan price must be a valid Decimal.")
 
-        if self.price <= 0:
+        if isinstance(self.price, Decimal) and self.price <= 0:
             self.notification.add_error("Plan price must be greater than zero.")
 
         if self.notification.has_errors:

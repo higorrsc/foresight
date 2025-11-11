@@ -24,7 +24,7 @@ class Tenant(AbstractEntity):
         if not self.name or not self.name.strip():
             self.notification.add_error("Tenant name is required.")
 
-        if len(self.name) > 100:
+        if self.name and len(self.name) > 100:
             self.notification.add_error("Tenant must be at most 100 characters long.")
 
         if not self.plan_id or not isinstance(self.plan_id, UUID):
