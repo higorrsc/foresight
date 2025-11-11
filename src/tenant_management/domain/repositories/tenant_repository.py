@@ -6,5 +6,3 @@ class ITenantRepository(AbstractRepository[Tenant]):
     """
     Interface (contract) for the Tenant repository.
     """
-
-    pass
