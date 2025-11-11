@@ -7,6 +7,7 @@ from src.identity_access_management.application.use_cases.user import (
     InvalidPasswordError,
     UserNotFoundError,
 )
+from src.identity_access_management.domain.constants.permissions import AppPermission
 from src.identity_access_management.domain.entities.user import hash_password
 from src.identity_access_management.infrastructure.repositories import UserRepository
 
@@ -43,30 +44,32 @@ class ChangePasswordUseCase:
         Execute the ChangePasswordUseCase.
         """
 
-        if (
-            not input_dto.actor.has_role("admin")
-            and input_dto.actor.id != input_dto.user_id_to_change
-        ):
+        is_self_change = input_dto.actor.id == input_dto.user_id_to_change
+        can_change_others = (
+            AppPermission.USER_CHANGE_PASSWORD in input_dto.actor.permissions
+        )
+
+        if not is_self_change and not can_change_others:
             raise InsufficientPermissionError(
-                "You do not have permission to change this user's password."
+                "User does not have permission to change another user's password."
             )
 
-        user = self._repository.get_by_id(
+        user_to_update = self._repository.get_by_id(
             input_dto.user_id_to_change,
             input_dto.actor.tenant_id,
         )
-        if not user:
+        if not user_to_update:
             raise UserNotFoundError(
                 f"User with ID '{input_dto.user_id_to_change}' not found."
             )
-
-        if not user.verify_password(input_dto.old_password):
-            raise InvalidPasswordError("Invalid old password.")
+        if is_self_change:
+            if not user_to_update.verify_password(input_dto.old_password):
+                raise InvalidPasswordError("Invalid old password.")
 
         if len(input_dto.new_password) < 8:
             raise ValueError("New password must be at least 8 characters long.")
 
-        user.hashed_password = hash_password(input_dto.new_password)
-        user.updated_by = input_dto.actor.id
+        user_to_update.hashed_password = hash_password(input_dto.new_password)
+        user_to_update.updated_by = input_dto.actor.id
 
-        self._repository.update(user)
+        self._repository.update(user_to_update)
