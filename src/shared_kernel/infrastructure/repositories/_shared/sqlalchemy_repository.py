@@ -125,7 +125,7 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        stmt = select(self._model_cls)
+        stmt = select(self._model_cls).filter_by(tenant_id=tenant_id)
 
         if not include_inactive and hasattr(self._model_cls, "is_active"):
             stmt = stmt.filter(getattr(self._model_cls, "is_active") == True)  # type: ignore  # noqa: E712
@@ -137,10 +137,6 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
                         getattr(self._model_cls, field).ilike(f"%{value}%")
                     )
 
-        count_stmt = select(self._model_cls.id).select_from(stmt.subquery())  # type: ignore
-        total_result = self._session.execute(count_stmt)
-        total = len(total_result.all())
-
         if sort_by and hasattr(self._model_cls, sort_by):
             column = getattr(self._model_cls, sort_by)
             if sort_order.lower() == "desc":
@@ -149,9 +145,18 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
                 stmt = stmt.order_by(asc(column))
 
         stmt = stmt.offset(offset).limit(limit)
-
-        models = self._session.scalars(stmt).all()
-        entities = [self._mapper.to_entity(m) for m in models]
+        result = self._session.execute(stmt)
+        unique_results = result.unique()
+        models = unique_results.scalars().all()
+        entities = [self._mapper.to_entity(model) for model in models]
+        total = len(
+            self._session.execute(
+                select(self._model_cls).filter_by(tenant_id=tenant_id)
+            )
+            .unique()
+            .scalars()
+            .all()
+        )
 
         return PaginatedResult(
             data=entities,
