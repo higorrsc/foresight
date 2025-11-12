@@ -32,13 +32,12 @@ class TestAreaRouter:
         response = client.post("/areas/", json={"description": "Test Area"})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_create_and_list_areas(self, client: TestClient):
+    def test_create_and_list_areas(self, client: TestClient, admin_token: str):
         """
         Test create and list areas.
         """
 
-        token = self.get_admin_auth_token(client)
-        headers = {"Authorization": f"Bearer {token}"}
+        headers = {"Authorization": f"Bearer {admin_token}"}
 
         area_data = {"description": "My Test Area"}
         response = client.post(
