@@ -5,7 +5,7 @@ from jose import JWTError, jwt
 
 from src.api.auth._shared import AbstractAuthenticationProvider
 from src.identity_access_management.domain.entities import User
-from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.repositories import IUserRepository
 from src.shared_kernel.infrastructure.config import settings
 
 
@@ -14,7 +14,7 @@ class LocalAuthenticationProvider(AbstractAuthenticationProvider):
     Local authentication provider.
     """
 
-    def __init__(self, repository: UserRepository):
+    def __init__(self, repository: IUserRepository):
         """
         Initialize the local authentication provider.
         """
@@ -38,7 +38,7 @@ class LocalAuthenticationProvider(AbstractAuthenticationProvider):
         except JWTError:
             return None
 
-        user = self._repository.get_by_username_and_tenant(
+        user = self._repository.get_by_username(
             username=username,
             tenant_id=tenant_id,
         )
