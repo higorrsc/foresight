@@ -15,7 +15,7 @@ class TestCreateRoleUseCase:
     Test the CreateRoleUseCase.
     """
 
-    def test_create_role_with_valid_data(self):
+    def test_create_role_with_valid_data(self, admin_actor):
         """
         Test the creation of a role with valid data.
         """
@@ -24,15 +24,16 @@ class TestCreateRoleUseCase:
         use_case = CreateRoleUseCase(repository)
         output = use_case.execute(
             CreateRoleInputDTO(
-                "Test Role",
-                "Test Description",
+                actor=admin_actor,
+                name="Test Role",
+                description="Test Description",
             )
         )
 
         assert output.id is not None
         assert isinstance(output, CreateRoleOutputDTO)
 
-    def test_create_role_with_empty_name(self):
+    def test_create_role_with_empty_name(self, admin_actor):
         """
         Test the creation of a role with invalid data.
         """
@@ -45,12 +46,13 @@ class TestCreateRoleUseCase:
         ):
             use_case.execute(
                 CreateRoleInputDTO(
-                    "",
-                    "Test Description",
+                    actor=admin_actor,
+                    name="",
+                    description="Test Description",
                 )
             )
 
-    def test_create_role_with_long_name(self):
+    def test_create_role_with_long_name(self, admin_actor):
         """
         Test the creation of a role with invalid data.
         """
@@ -63,19 +65,25 @@ class TestCreateRoleUseCase:
         ):
             use_case.execute(
                 CreateRoleInputDTO(
-                    "A" * 101,
-                    "Test Description",
+                    actor=admin_actor,
+                    name="A" * 101,
+                    description="Test Description",
                 )
             )
 
-    def test_create_role_without_description(self):
+    def test_create_role_without_description(self, admin_actor):
         """
         Test the creation of a role without description.
         """
 
         repository = InMemoryRepository[Role]()
         use_case = CreateRoleUseCase(repository)
-        output = use_case.execute(CreateRoleInputDTO("Test Role"))
+        output = use_case.execute(
+            CreateRoleInputDTO(
+                actor=admin_actor,
+                name="Test Role",
+            )
+        )
 
         assert output.id is not None
         assert isinstance(output, CreateRoleOutputDTO)
