@@ -55,5 +55,8 @@ class PermissionChecker:
         if not common_permissions:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Operation not permitted. Required permissions: {', '.join(self._required_permissions)}",
+                detail=(
+                    f"Operation not permitted. Required permissions: "
+                    f"{', '.join(self._required_permissions)}"
+                ),
             )

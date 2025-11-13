@@ -47,7 +47,8 @@ class GenericDeleteUseCase(Generic[T]):
         """
         Execute the delete use case.
 
-        :param request: The delete request DTO containing the ID of the entity to delete.
+        :param request: The delete request DTO containing the ID
+                        of the entity to delete.
         """
 
         entity = self._repository.get_by_id(

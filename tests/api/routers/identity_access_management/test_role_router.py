@@ -5,13 +5,15 @@ from fastapi.testclient import TestClient
 class TestRolesRouter:
     """
     Integration tests for the RoleRouter.
-    Verifies that role management respects permissions and tenant isolation via the actor.
+    Verifies that role management respects permissions and tenant isolation
+    via the actor.
     """
 
     def test_list_roles_with_valid_token(self, client: TestClient, admin_token: str):
         """
         Admin should be able to list roles.
-        The list should contain the roles created by the seeding process for this tenant.
+        The list should contain the roles created by the seeding process
+        for this tenant.
         """
         response = client.get(
             "/roles/",
@@ -53,7 +55,8 @@ class TestRolesRouter:
 
     def test_guest_cannot_create_role(self, client: TestClient, guest_token: str):
         """
-        A guest user (valid actor but insufficient permissions) cannot create roles (403).
+        A guest user (valid actor but insufficient permissions)
+        cannot create roles (403).
         """
         response = client.post(
             "/roles/",

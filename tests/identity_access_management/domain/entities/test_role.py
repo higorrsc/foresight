@@ -101,7 +101,8 @@ class TestUpdateRole:
 
     def test_update_role_with_empty_description(self):
         """
-        Test that updating the Role with an empty description raises a EntityValidationError.
+        Test that updating the Role with an empty description
+        raises a EntityValidationError.
         """
 
         role = Role(name="test_role", description="Test Role")

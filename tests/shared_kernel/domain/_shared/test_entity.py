@@ -80,7 +80,8 @@ class TestAbstractEntity:
         try:
             DummyEntity(name=[])  # type: ignore
         except ValueError as e:
-            assert (
-                str(e)
-                == "Name cannot be empty,Name must be a string,Name must be at least 3 characters long"
+            assert str(e) == (
+                "Name cannot be empty,"
+                "Name must be a string,"
+                "Name must be at least 3 characters long"
             )

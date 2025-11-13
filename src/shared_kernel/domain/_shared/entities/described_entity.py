@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 
 from src.shared_kernel.domain._shared import EntityValidationError
-from src.shared_kernel.domain._shared.entities import TenantAwareEntity
+
+from .tenant_aware_entity import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)
@@ -12,7 +13,7 @@ class DescribedEntity(TenantAwareEntity):
 
     description: str
 
-    _max_description_length: int = field(default=100, init=False, repr=False)
+    _max_length: int = field(default=100, init=False, repr=False)
 
     def update_description(self, new_description: str) -> None:
         """
@@ -33,9 +34,9 @@ class DescribedEntity(TenantAwareEntity):
         if not self.description or not self.description.strip():
             self.notification.add_error("Description must be a non-empty string.")
 
-        if len(self.description) > self._max_description_length:
+        if len(self.description) > self._max_length:
             self.notification.add_error(
-                f"Description must be at most {self._max_description_length} characters long."
+                f"Description must be at most {self._max_length} characters long."
             )
 
         if self.notification.has_errors:

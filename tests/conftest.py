@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import NullPool, StaticPool
+from sqlalchemy.pool import NullPool, Pool, StaticPool
 
 from src.api.dependencies.database import get_db_session
 from src.api.main import app
@@ -29,7 +29,7 @@ USE_IN_MEMORY_DB = os.getenv("TEST_IN_MEMORY", "true").lower() in ("true", "1", 
 
 DB_FILE_PATH = "test.sqlite3"  # Name of the physical test file
 CONNECT_ARGS = {"check_same_thread": False}
-POOLCLASS = NullPool  # Default pool for files
+POOLCLASS: type[Pool] = NullPool  # Default pool for files
 
 if USE_IN_MEMORY_DB:
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -80,7 +80,7 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
     session = TestingSessionLocal(bind=connection)
 
     # Use nested transactions (savepoints) for isolation
-    nested_transaction = session.begin_nested()
+    # nested_transaction = session.begin_nested()
 
     @event.listens_for(session, "after_transaction_end")
     def restart_savepoint(session, transaction):
@@ -100,9 +100,9 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
     yield session  # The test runs here, seeing the seeded data
 
     # Rollback everything at the end
-    session.close()
-    nested_transaction.rollback()
     transaction.rollback()
+    session.close()
+    # nested_transaction.rollback()
     connection.close()
 
 

@@ -47,7 +47,8 @@ class GenericGetByIdUseCase(Generic[T]):
         """
         Execute the get by id use case.
 
-        :param request: The get by id request DTO containing the ID of the entity to get.
+        :param request: The get by id request DTO containing the ID
+                        of the entity to get.
         :return: The entity with the given ID.
         """
 

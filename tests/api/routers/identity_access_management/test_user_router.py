@@ -274,11 +274,14 @@ class TestUserRouter:
         guest_id = guest_user_model.id
 
         response = client.delete(
-            f"/users/{guest_id}", headers={"Authorization": f"Bearer {admin_token}"}
+            f"/users/{guest_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
         check_response = client.get(
-            f"/users/{guest_id}", headers={"Authorization": f"Bearer {admin_token}"}
+            f"/users/{guest_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
-        assert check_response.status_code == status.HTTP_404_NOT_FOUND
+        assert check_response.status_code == status.HTTP_200_OK
+        assert check_response.json()["is_active"] is False

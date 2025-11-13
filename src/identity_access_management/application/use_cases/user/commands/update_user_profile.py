@@ -60,7 +60,7 @@ class UpdateUserProfileUseCase:
         user_to_update = self._repository.get_by_id(
             entity_id=input_dto.user_id_to_update,
             tenant_id=input_dto.actor.tenant_id,
-        )  # type: ignore
+        )
         if not user_to_update:
             raise UserNotFoundError(
                 f"User with id '{input_dto.user_id_to_update}' not found."

@@ -30,5 +30,6 @@ class UsernameAlreadyExistsError(UserUseCaseError):
 
 class InsufficientPermissionError(UserUseCaseError):
     """
-    Exception raised when the actor does not have sufficient permissions to perform an action.
+    Exception raised when the actor does not have sufficient
+    permissions to perform an action.
     """

@@ -68,7 +68,10 @@ class TestOrganizationalUnitRepository:
         db_session_for_test.flush()
 
         # 2. Test fetching children of a specific parent
-        children = repository.get_by_parent_id(parent_id)
+        children = repository.get_by_parent_id(
+            parent_id,
+            tenant_id=default_tenant_id,
+        )
 
         assert len(children) == 2
         assert children[0].code == "1.1"
@@ -77,12 +80,15 @@ class TestOrganizationalUnitRepository:
         assert children[1].description == "Child Unit 2"
 
         # 3. Test fetching top-level units (parent_id is None)
-        top_level_units = repository.get_by_parent_id(None)
+        top_level_units = repository.get_by_parent_id(None, default_tenant_id)
 
         assert len(top_level_units) == 2
         assert top_level_units[0].code == "1"
         assert top_level_units[1].code == "2"
 
         # 4. Test fetching for a parent with no children
-        no_children = repository.get_by_parent_id(other_parent_unit.id)
+        no_children = repository.get_by_parent_id(
+            other_parent_unit.id,
+            tenant_id=default_tenant_id,
+        )
         assert len(no_children) == 0

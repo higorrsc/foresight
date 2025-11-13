@@ -117,7 +117,8 @@ class TestUpdatePermission:
 
     def test_update_permission_with_long_codename_raises_value_error(self):
         """
-        Test that updating the Permission with a long codename raises a EntityValidationError
+        Test that updating the Permission with a long codename
+        raises a EntityValidationError
         """
 
         permission = Permission(

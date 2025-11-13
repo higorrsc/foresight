@@ -21,8 +21,8 @@ class AbstractValueObject(ABC):
         Validate the value object.
 
         This method should be implemented in the concrete subclasses to validate
-        the value object's state. It should raise a ValueError if the value object is in an
-        invalid state.
+        the value object's state. It should raise a ValueError if the value
+        object is in an invalid state.
 
         Raises:
             ValueError: If the value object is in an invalid state.

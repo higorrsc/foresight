@@ -82,7 +82,9 @@ class TestUpdateArea:
 
         with pytest.raises(
             InvalidAreaError,
-            match="Invalid input data: Description must be at most 100 characters long.",
+            match=(
+                "Invalid input data: Description must be at most 100 characters long."
+            ),
         ):
             use_case.execute(
                 UpdateDescribedEntityInputDTO(

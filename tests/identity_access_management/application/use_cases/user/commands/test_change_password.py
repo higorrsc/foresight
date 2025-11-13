@@ -75,7 +75,8 @@ class TestChangePasswordUseCase:
         guest_actor: User,
     ):
         """
-        Test if an admin can change the password of another user without providing the old password.
+        Test if an admin can change the password of another user without providing
+        the old password.
         """
 
         admin_actor.permissions.add(AppPermission.USER_CHANGE_PASSWORD)
@@ -136,7 +137,7 @@ class TestChangePasswordUseCase:
             actor=guest_actor,
             user_id_to_change=admin_actor.id,
             old_password="---",
-            new_password="hacked",
+            new_password="hacked_asdf",
         )
 
         with pytest.raises(

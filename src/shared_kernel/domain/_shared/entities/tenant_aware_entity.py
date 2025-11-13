@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 from uuid import UUID
 
-from src.shared_kernel.domain._shared.entities.entity import AbstractEntity
+from .entity import AbstractEntity
 
 
 @dataclass(kw_only=True, eq=False)

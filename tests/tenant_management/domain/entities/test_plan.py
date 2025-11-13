@@ -80,7 +80,10 @@ class TestPlan:
 
         with pytest.raises(
             EntityValidationError,
-            match="Plan must be at most 100 characters long.,Plan price must be greater than zero.",
+            match=(
+                "Plan must be at most 100 characters long.,"
+                "Plan price must be greater than zero."
+            ),
         ):
             Plan(name=invalid_name, price=invalid_price)
 

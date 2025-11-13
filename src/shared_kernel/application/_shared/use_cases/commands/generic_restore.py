@@ -47,7 +47,8 @@ class GenericRestoreUseCase(Generic[T]):
         """
         Execute the restore use case.
 
-        :param request: The restore request DTO containing the ID of the entity to restore.
+        :param request: The restore request DTO containing the ID
+                        of the entity to restore.
         """
 
         entity = self._repository.get_by_id(

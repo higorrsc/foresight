@@ -5,7 +5,8 @@ from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
 
 class OrganizationalUnitMapper:
     """
-    Mapper class to convert between OrganizationalUnit entity and OrganizationalUnitModel
+    Mapper class to convert between OrganizationalUnit entity
+    and OrganizationalUnitModel
     """
 
     @staticmethod

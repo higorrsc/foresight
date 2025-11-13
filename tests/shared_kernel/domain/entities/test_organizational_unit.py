@@ -31,7 +31,8 @@ class TestOrganizationalUnitEntity:
 
     def test_organizational_units_with_different_ids_are_not_equal(self):
         """
-        Test that two OrganizationalUnit entities with different IDs are not considered equal.
+        Test that two OrganizationalUnit entities with different IDs
+        are not considered equal.
         """
 
         org_unit1 = OrganizationalUnit(
@@ -47,7 +48,8 @@ class TestOrganizationalUnitEntity:
 
     def test_organizational_unit_not_equal_to_different_type(self):
         """
-        Test that an OrganizationalUnit entity is not equal to an object of a different type.
+        Test that an OrganizationalUnit entity is not equal to an object
+        of a different type.
         """
 
         org_unit = OrganizationalUnit(

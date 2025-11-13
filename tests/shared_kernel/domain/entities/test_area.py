@@ -100,7 +100,8 @@ class TestUpdateAreaEntity:
 
     def test_update_area_with_empty_description_raises_value_error(self):
         """
-        Test that updating the Area with an empty description raises a EntityValidationError.
+        Test that updating the Area with an empty description
+        raises a EntityValidationError.
         """
 
         area = Area(description="Initial Description")
