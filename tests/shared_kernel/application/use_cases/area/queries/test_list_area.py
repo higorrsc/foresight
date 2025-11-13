@@ -1,7 +1,5 @@
-from src.shared_kernel.application._shared.use_cases.queries import (
-    ListRequestInputDTO,
-    ListResponseOutputDTO,
-)
+from src.shared_kernel.application._shared.dto import PaginatedResponseDTO
+from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from src.shared_kernel.application.use_cases.area.queries import ListAreaUseCase
 from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
@@ -32,7 +30,7 @@ class TestListArea:
         repository.save(area1)
         repository.save(area2)
 
-        areas: ListResponseOutputDTO[Area] = use_case.execute(
+        areas: PaginatedResponseDTO[Area] = use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 
@@ -50,7 +48,7 @@ class TestListArea:
         repository = InMemoryRepository[Area]()
         use_case = ListAreaUseCase(repository)
 
-        areas: ListResponseOutputDTO[Area] = use_case.execute(
+        areas: PaginatedResponseDTO[Area] = use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 
