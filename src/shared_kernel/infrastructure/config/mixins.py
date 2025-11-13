@@ -93,7 +93,7 @@ class SQLAlchemyUserAuditFields:
 
         return relationship(
             "UserModel",
-            foreign_keys=f"{cls.__name__}.created_by",
+            foreign_keys=f"{cls.__name__}.created_by",  # type: ignore
             lazy="joined",
         )
 
@@ -105,7 +105,7 @@ class SQLAlchemyUserAuditFields:
 
         return relationship(
             "UserModel",
-            foreign_keys=f"{cls.__name__}.updated_by",
+            foreign_keys=f"{cls.__name__}.updated_by",  # type: ignore
             lazy="joined",
         )
 
