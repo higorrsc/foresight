@@ -7,7 +7,13 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
-from src.api.dependencies.database import get_role_repository, get_user_repository
+from src.api.dependencies.database import (
+    get_permission_repository,
+    get_plan_repository,
+    get_role_repository,
+    get_tenant_repository,
+    get_user_repository,
+)
 from src.api.routers._shared import PaginationMetaResponse
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.application.use_cases.user import (
@@ -31,10 +37,9 @@ from src.identity_access_management.application.use_cases.user.queries import (
     ListUserUseCase,
 )
 from src.identity_access_management.domain.entities.user import User
-from src.identity_access_management.infrastructure.repositories.role_repository import (
+from src.identity_access_management.infrastructure.repositories import (
+    PermissionRepository,
     RoleRepository,
-)
-from src.identity_access_management.infrastructure.repositories.user_repository import (
     UserRepository,
 )
 from src.shared_kernel.application._shared.use_cases.commands import (
@@ -44,6 +49,10 @@ from src.shared_kernel.application._shared.use_cases.commands import (
 from src.shared_kernel.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
+)
+from src.tenant_management.infrastructure.repositories import (
+    PlanRepository,
+    TenantRepository,
 )
 
 allow_admin_only = RoleChecker(["admin"])
@@ -131,8 +140,11 @@ protected_router = APIRouter(
 )
 def create_user_endpoint(
     request: OnboardingInputDTO,
-    user_repo: UserRepository = Depends(get_user_repository),
+    plan_repo: PlanRepository = Depends(get_plan_repository),
+    tenant_repo: TenantRepository = Depends(get_tenant_repository),
     role_repo: RoleRepository = Depends(get_role_repository),
+    permission_repo: PermissionRepository = Depends(get_permission_repository),
+    user_repo: UserRepository = Depends(get_user_repository),
 ):
     """
     Create a new user.
@@ -140,8 +152,11 @@ def create_user_endpoint(
 
     try:
         use_case = OnboardingUseCase(
-            user_repo,
-            role_repo,
+            plan_repository=plan_repo,
+            tenant_repository=tenant_repo,
+            role_repository=role_repo,
+            user_repository=user_repo,
+            permission_repository=permission_repo,
         )
         result = use_case.execute(request)
         return result
@@ -169,6 +184,7 @@ def create_user_endpoint(
 )
 def list_users_endpoint(
     repo: UserRepository = Depends(get_user_repository),
+    actor: User = Depends(get_current_user),
     username: str = Query(None, description="Filtrar por parte do username"),
     sort_by: str = Query("username", description="Campo para ordenação"),
     sort_order: str = Query("asc", enum=["asc", "desc"]),
@@ -181,6 +197,7 @@ def list_users_endpoint(
 
     filters = {"username": username} if username else {}
     input_dto = ListRequestInputDTO(
+        actor=actor,
         filters=filters,
         sort_by=sort_by,
         sort_order=sort_order,
@@ -201,6 +218,7 @@ def list_users_endpoint(
 def get_user_by_id_endpoint(
     user_id: UUID,
     repo: UserRepository = Depends(get_user_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Getting an user by its ID.
@@ -208,7 +226,7 @@ def get_user_by_id_endpoint(
 
     try:
         use_case = GetUserByIdUseCase(repo)
-        input_dto = GetByIdRequestInputDTO(id=user_id)
+        input_dto = GetByIdRequestInputDTO(actor=actor, id=user_id)
         user = use_case.execute(input_dto)
         return user
     except UserNotFoundError as e:
@@ -231,6 +249,7 @@ def get_user_by_id_endpoint(
 def delete_user_endpoint(
     user_id: UUID,
     repo: UserRepository = Depends(get_user_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Delete an existing user.
@@ -238,7 +257,7 @@ def delete_user_endpoint(
 
     try:
         use_case = DeleteUserUseCase(repository=repo)
-        use_case.execute(DeleteRequestInputDTO(id=user_id))
+        use_case.execute(DeleteRequestInputDTO(actor=actor, id=user_id))
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -269,7 +288,8 @@ def change_password_endpoint(
     try:
         use_case = ChangePasswordUseCase(repository=repo)
         input_dto = ChangePasswordInputDTO(
-            user_id=user_id,
+            actor=current_user,
+            user_id_to_change=user_id,
             old_password=request_body.old_password,
             new_password=request_body.new_password,
         )
@@ -313,7 +333,8 @@ def update_profile_endpoint(
 
     updated_data = request_body.model_dump(exclude_unset=True)
     input_dto = UserProfileRequestDTO(
-        user_id=user_id,
+        actor=current_user,
+        user_id_to_update=user_id,
         **updated_data,
     )
 
@@ -345,6 +366,7 @@ def update_profile_endpoint(
 def restore_user_endpoint(
     user_id: UUID,
     repo: UserRepository = Depends(get_user_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Restore an existing user.
@@ -352,7 +374,7 @@ def restore_user_endpoint(
 
     try:
         use_case = RestoreUserUseCase(repository=repo)
-        use_case.execute(RestoreRequestInputDTO(id=user_id))
+        use_case.execute(RestoreRequestInputDTO(actor=actor, id=user_id))
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
