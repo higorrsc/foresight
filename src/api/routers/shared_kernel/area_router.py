@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_area_repository
-from src.api.routers._shared import PaginationMetaResponse
+from src.api.routers._shared.dto import PaginatedApiResponse
 from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
@@ -70,13 +70,10 @@ class AreaResponse(BaseModel):
     deleted_at: Optional[datetime] = None
 
 
-class PaginatedAreaResponse(BaseModel):
+class PaginatedAreaResponse(PaginatedApiResponse[AreaResponse]):
     """
     Response model for API.
     """
-
-    data: List[AreaResponse]
-    meta: PaginationMetaResponse
 
 
 router = APIRouter(

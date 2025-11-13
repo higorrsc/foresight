@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from math import ceil
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
 
+from src.shared_kernel.application._shared import PaginatedResponseDTO, PaginationMeta
 from src.shared_kernel.domain._shared import AbstractRepository
 
 if TYPE_CHECKING:
@@ -25,28 +26,6 @@ class ListRequestInputDTO:
     include_inactive: bool = False
 
 
-@dataclass
-class PaginationMeta:
-    """
-    Metadata for pagination.
-    """
-
-    total_items: int
-    current_page: int
-    page_size: int
-    total_pages: int
-
-
-@dataclass(frozen=True)
-class ListResponseOutputDTO(Generic[T]):
-    """
-    Data Transfer Object for list requests.
-    """
-
-    data: List[T]
-    meta: PaginationMeta
-
-
 class GenericListUseCase(Generic[T]):
     """
     Use case for listing entities of type T.
@@ -61,7 +40,7 @@ class GenericListUseCase(Generic[T]):
 
         self._repository = repository
 
-    def execute(self, input_dto: ListRequestInputDTO) -> ListResponseOutputDTO[T]:
+    def execute(self, input_dto: ListRequestInputDTO) -> PaginatedResponseDTO[T]:
         """
         Execute the list use case.
 
@@ -91,4 +70,4 @@ class GenericListUseCase(Generic[T]):
             total_pages=total_pages,
         )
 
-        return ListResponseOutputDTO(data=repo_result.data, meta=meta)
+        return PaginatedResponseDTO(data=repo_result.data, meta=meta)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
 from src.api.dependencies.database import get_role_repository
-from src.api.routers._shared import PaginationMetaResponse
+from src.api.routers._shared.dto import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.role import (
     InvalidRoleError,
     RoleNotFoundError,
@@ -67,13 +67,10 @@ class RoleUpdateBody(BaseModel):
     description: Optional[str] = None
 
 
-class PaginatedRoleResponse(BaseModel):
+class PaginatedRoleResponse(PaginatedApiResponse[RoleResponse]):
     """
     Response model for API.
     """
-
-    data: List[RoleResponse]
-    meta: PaginationMetaResponse
 
 
 router = APIRouter(
