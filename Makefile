@@ -28,8 +28,9 @@ check: lint type-check test
 	@echo "✅ Todas as verificações passaram com sucesso!"
 
 format:
-	@echo "🎨 Formatando o código com black..."
-	@uv run black .
+	@echo "🎨 Formatando o código com ruff..."
+	@uv run ruff format .
+	@uv run ruff check --fix .
 
 secret:
 	@echo "📦 Gerando secrets para o projeto..."
@@ -38,8 +39,9 @@ secret:
 # --- Comandos de Verificação de Qualidade ---
 
 lint:
-	@echo "🔍 Verificando a formatação do código com black..."
-	@uv run black --check .
+	@echo "🔍 Verificando a formatação do código com ruff..."
+	@uv run ruff check .
+	@uv run ruff format --check .
 
 type-check:
 	@echo " typing: Verificando os tipos com mypy..."
