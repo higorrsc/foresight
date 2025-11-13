@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import RoleChecker
@@ -24,6 +24,7 @@ from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
     ListRoleUseCase,
 )
+from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.repositories import RoleRepository
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
@@ -46,6 +47,15 @@ class RoleResponse(BaseModel):
     description: str
     created_at: datetime
     updated_at: datetime
+
+
+class RoleCreateBody(BaseModel):
+    """
+    Request model for creating a role.
+    """
+
+    name: str = Field(..., min_length=3, max_length=100)
+    description: Optional[str] = Field(None, max_length=255)
 
 
 class RoleUpdateBody(BaseModel):
@@ -81,8 +91,9 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
 )
 def create_role_endpoint(
-    request: CreateRoleInputDTO,
+    request: RoleCreateBody,
     repo: RoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Create a new role.
@@ -90,7 +101,12 @@ def create_role_endpoint(
 
     try:
         use_case = CreateRoleUseCase(repository=repo)
-        result = use_case.execute(request)
+        input_dto = CreateRoleInputDTO(
+            actor=actor,
+            name=request.name,
+            description=request.description,
+        )
+        result = use_case.execute(input_dto)
         return {"id": result.id}
     except (ValueError, InvalidRoleError) as e:
         raise HTTPException(
@@ -106,6 +122,7 @@ def create_role_endpoint(
 )
 def list_routes_endpoint(
     repo: RoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
     description: Optional[str] = Query(
         None,
         description="Filtrar por parte da descrição",
@@ -140,6 +157,7 @@ def list_routes_endpoint(
         filters["description"] = description
 
     input_dto = ListRequestInputDTO(
+        actor=actor,
         filters=filters,
         sort_by=sort_by,
         sort_order=sort_order,
@@ -160,6 +178,7 @@ def list_routes_endpoint(
 def get_role_by_id_endpoint(
     role_id: UUID,
     repo: RoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Getting a role by its ID.
@@ -167,7 +186,7 @@ def get_role_by_id_endpoint(
 
     try:
         use_case = GetRoleByIdUseCase(repo)
-        input_dto = GetByIdRequestInputDTO(id=role_id)
+        input_dto = GetByIdRequestInputDTO(actor=actor, id=role_id)
         role = use_case.execute(input_dto)
         return role
     except RoleNotFoundError as e:
@@ -190,6 +209,7 @@ def update_role_endpoint(
     role_id: UUID,
     request_body: RoleUpdateBody,
     repo: RoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Update an existing role.
@@ -198,6 +218,7 @@ def update_role_endpoint(
     try:
         use_case = UpdateRoleUseCase(repo)
         input_dto = UpdateRoleRequestDTO(
+            actor=actor,
             id=role_id,
             name=request_body.name,  # type: ignore
             description=request_body.description,
@@ -227,6 +248,7 @@ def update_role_endpoint(
 def delete_role_endpoint(
     role_id: UUID,
     repo: RoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
 ):
     """
     Delete an existing role.
@@ -234,7 +256,7 @@ def delete_role_endpoint(
 
     try:
         use_case = DeleteRoleUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(role_id))
+        use_case.execute(DeleteRequestInputDTO(actor=actor, id=role_id))
     except RoleNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

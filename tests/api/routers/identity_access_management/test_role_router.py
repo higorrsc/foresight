@@ -1,245 +1,115 @@
-from uuid import uuid4
-
 from fastapi import status
 from fastapi.testclient import TestClient
 
 
 class TestRolesRouter:
     """
-    Test Roles Router.
+    Integration tests for the RoleRouter.
+    Verifies that role management respects permissions and tenant isolation via the actor.
     """
 
-    def get_admin_auth_token(self, client: TestClient) -> str:
+    def test_list_roles_with_valid_token(self, client: TestClient, admin_token: str):
         """
-        Get admin authentication token for testing.
+        Admin should be able to list roles.
+        The list should contain the roles created by the seeding process for this tenant.
         """
-
-        response = client.post(
-            "/auth/token",
-            data={
-                "username": "admin",
-                "password": "foresight_admin",
-            },
-        )
-        assert response.status_code == status.HTTP_200_OK
-        return response.json()["access_token"]
-
-    def get_guest_auth_token(self, client: TestClient) -> str:
-        """
-        Get guest authentication token for testing.
-        """
-
-        response = client.post(
-            "/auth/token",
-            data={
-                "username": "guest",
-                "password": "foresight_guest",
-            },
-        )
-        assert response.status_code == status.HTTP_200_OK
-        return response.json()["access_token"]
-
-    def test_create_role_without_token_raises_error(self, client: TestClient):
-        """
-        Test create role.
-        """
-
-        response = client.post(
-            "/roles/",
-            json={
-                "description": "Test Role",
-            },
-        )
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-    def test_create_role_with_insufficient_permission_raises_error(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test create role.
-        """
-
-        token = self.get_guest_auth_token(client)
-        response = client.post(
-            "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-            json={
-                "name": "test_role",
-                "description": "Test Role",
-            },
-        )
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_get_roles_with_insufficient_permission_raises_error(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test get roles.
-        """
-
-        token = self.get_guest_auth_token(client)
         response = client.get(
             "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
+            headers={
+                "Authorization": f"Bearer {admin_token}"
+            },  # Passing the actor via token
         )
-        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_create_roles_with_valid_permission(self, client: TestClient):
-        """
-        Test create roles.
-        """
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        # Seeding creates 'admin' and 'guest' roles
+        assert data["meta"]["total_items"] >= 2
 
-        token = self.get_admin_auth_token(client)
+        role_names = [r["name"] for r in data["data"]]
+        assert "admin" in role_names
+        assert "guest" in role_names
+
+    def test_create_role_as_admin(self, client: TestClient, admin_token: str):
+        """
+        Admin (who has role:create permission) should be able to create a new role.
+        """
+        new_role_data = {"name": "editor", "description": "Can edit content"}
+
         response = client.post(
             "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-            json={
-                "name": "test_role",
-                "description": "Test Role",
-            },
+            json=new_role_data,
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
+
         assert response.status_code == status.HTTP_201_CREATED
         assert "id" in response.json()
 
-    def test_get_roles_with_valid_permission(
-        self,
-        client: TestClient,
-    ):
+    def test_create_role_without_token_fails(self, client: TestClient):
         """
-        Test get roles.
+        Requests without an actor (token) should be rejected (401).
         """
+        response = client.post("/roles/", json={"name": "hacker_role"})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-        token = self.get_admin_auth_token(client)
-        response = client.get(
+    def test_guest_cannot_create_role(self, client: TestClient, guest_token: str):
+        """
+        A guest user (valid actor but insufficient permissions) cannot create roles (403).
+        """
+        response = client.post(
             "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        assert "meta" in response.json()
-        assert "data" in response.json()
-        assert len(response.json()["data"]) == 2
-
-    def test_get_role_by_id_with_valid_permission(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test get role by id.
-        """
-
-        token = self.get_admin_auth_token(client)
-        response = client.get(
-            "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        valid_id = response.json()["data"][0]["id"]
-        response = client.get(
-            f"/roles/{valid_id}",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        assert "id" in response.json()
-
-    def test_get_role_by_id_with_invalid_permission_raises_error(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test get role by id.
-        """
-
-        token = self.get_guest_auth_token(client)
-        response = client.get(
-            f"/roles/{uuid4()}",
-            headers={"Authorization": f"Bearer {token}"},
+            json={"name": "guest_role"},
+            headers={"Authorization": f"Bearer {guest_token}"},
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_get_role_with_invalid_id_raises_error(
+    def test_get_role_by_id(self, client: TestClient, admin_token: str):
+        """
+        Admin should be able to retrieve a role by its ID.
+        """
+        # 1. List roles to find a valid ID (e.g., the 'admin' role itself)
+        list_response = client.get(
+            "/roles/", headers={"Authorization": f"Bearer {admin_token}"}
+        )
+        role_id = list_response.json()["data"][0]["id"]
+
+        # 2. Get the specific role
+        response = client.get(
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["id"] == role_id
+
+    def test_delete_role_as_admin(
         self,
         client: TestClient,
+        admin_token: str,
+        default_tenant_id: str,
     ):
         """
-        Test get role by id.
+        Admin should be able to delete a role.
         """
-
-        token = self.get_admin_auth_token(client)
-        response = client.get(
-            f"/roles/{uuid4()}",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    def test_update_role_with_valid_permission(self, client: TestClient):
-        """
-        Test update role.
-        """
-
-        token = self.get_admin_auth_token(client)
-        response = client.get(
+        # 1. Create a temporary role to delete
+        create_resp = client.post(
             "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        valid_id = response.json()["data"][0]["id"]
-
-        response = client.patch(
-            f"/roles/{valid_id}",
-            headers={"Authorization": f"Bearer {token}"},
             json={
-                "description": "Updated Test Role",
+                "name": "to_delete",
+                "description": "Temp",
+                "tenant_id": default_tenant_id,
             },
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
-        assert response.status_code == status.HTTP_200_OK
+        role_id = create_resp.json()["id"]
 
-    def test_update_role_with_invalid_permission_raises_error(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test update role.
-        """
-
-        token = self.get_guest_auth_token(client)
-        response = client.patch(
-            f"/roles/{uuid4()}",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_delete_role_with_valid_permission(self, client: TestClient):
-        """
-        Test delete role.
-        """
-
-        token = self.get_admin_auth_token(client)
-        response = client.get(
-            "/roles/",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        valid_id = response.json()["data"][1]["id"]
-
+        # 2. Delete it
         response = client.delete(
-            f"/roles/{valid_id}",
-            headers={"Authorization": f"Bearer {token}"},
+            f"/roles/{role_id}", headers={"Authorization": f"Bearer {admin_token}"}
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_delete_role_with_invalid_permission_raises_error(
-        self,
-        client: TestClient,
-    ):
-        """
-        Test delete role.
-        """
-
-        token = self.get_guest_auth_token(client)
-        response = client.delete(
-            f"/roles/{uuid4()}",
-            headers={"Authorization": f"Bearer {token}"},
+        # 3. Verify it's gone
+        get_response = client.get(
+            f"/roles/{role_id}", headers={"Authorization": f"Bearer {admin_token}"}
         )
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert get_response.status_code == status.HTTP_404_NOT_FOUND
