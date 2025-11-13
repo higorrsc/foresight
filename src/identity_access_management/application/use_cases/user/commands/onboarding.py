@@ -1,4 +1,3 @@
-# src/identity_access_management/application/use_cases/user/onboarding.py
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
