@@ -26,6 +26,9 @@ from src.identity_access_management.application.use_cases.user.commands import (
     UpdateUserProfileUseCase,
     UserProfileRequestDTO,
 )
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+)
 from src.identity_access_management.application.use_cases.user.queries import (
     GetUserByIdUseCase,
     ListUserUseCase,
@@ -43,13 +46,14 @@ from src.shared_kernel.application._shared.use_cases.queries import (
     ListRequestInputDTO,
 )
 
-require_user_create = PermissionChecker(["user:create"])
-require_user_read = PermissionChecker(["user:read"])
-require_user_update_profile = PermissionChecker(["user:update_profile"])
 require_user_change_password = PermissionChecker(["user:change_password"])
-require_user_set_roles = PermissionChecker(["user:set_roles"])
+require_user_create = PermissionChecker(["user:create"])
 require_user_delete = PermissionChecker(["user:delete"])
 require_user_me = PermissionChecker(["user:me"])
+require_user_read = PermissionChecker(["user:read"])
+require_user_set_roles = PermissionChecker(["user:set_roles"])
+require_user_update = PermissionChecker(["user:update"])
+require_user_update_profile = PermissionChecker(["user:update_profile"])
 
 
 class UserSummaryResponse(BaseModel):
@@ -173,7 +177,7 @@ def create_user_endpoint(
             else status.HTTP_400_BAD_REQUEST
         )
         raise HTTPException(status_code=status_code, detail=str(e)) from e
-    except PermissionError as e:
+    except InsufficientPermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
     except ValueError as e:
         raise HTTPException(
@@ -279,7 +283,7 @@ def delete_user_endpoint(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
-    except PermissionError as e:
+    except InsufficientPermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
 
 
@@ -314,10 +318,10 @@ def change_password_endpoint(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
-    except (ValueError, PermissionError) as e:
+    except (ValueError, InsufficientPermissionError) as e:
         status_code = (
             status.HTTP_403_FORBIDDEN
-            if isinstance(e, PermissionError)
+            if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
         raise HTTPException(status_code=status_code, detail=str(e)) from e
@@ -357,10 +361,10 @@ def update_user_profile_endpoint(
         use_case.execute(input_dto)
     except UserNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
-    except (ValueError, PermissionError) as e:
+    except (ValueError, InsufficientPermissionError) as e:
         status_code = (
             status.HTTP_403_FORBIDDEN
-            if isinstance(e, PermissionError)
+            if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
         raise HTTPException(status_code=status_code, detail=str(e)) from e
@@ -394,13 +398,16 @@ def set_user_roles_endpoint(
         )
         use_case.execute(input_dto)
     except UserNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
-    except (ValueError, PermissionError) as e:
-        # PermissionError (business rule) -> 403
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except (ValueError, InsufficientPermissionError) as e:
+        # InsufficientPermissionError (business rule) -> 403
         # ValueError (role not found) -> 400
         status_code = (
             status.HTTP_403_FORBIDDEN
-            if isinstance(e, PermissionError)
+            if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
         raise HTTPException(status_code=status_code, detail=str(e)) from e

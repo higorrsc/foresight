@@ -45,9 +45,7 @@ class ChangePasswordUseCase:
         """
 
         is_self_change = input_dto.actor.id == input_dto.user_id_to_change
-        can_change_others = (
-            AppPermission.USER_CHANGE_PASSWORD in input_dto.actor.permissions
-        )
+        can_change_others = AppPermission.USER_UPDATE in input_dto.actor.permissions
 
         if not is_self_change and not can_change_others:
             raise InsufficientPermissionError(
@@ -58,10 +56,12 @@ class ChangePasswordUseCase:
             input_dto.user_id_to_change,
             input_dto.actor.tenant_id,
         )
+
         if not user_to_update:
             raise UserNotFoundError(
                 f"User with ID '{input_dto.user_id_to_change}' not found."
             )
+
         if is_self_change:
             if not user_to_update.verify_password(input_dto.old_password):
                 raise InvalidPasswordError("Invalid old password.")
