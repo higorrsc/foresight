@@ -1,5 +1,6 @@
-from .dto import PaginationMetaResponse
+from .dto import PaginatedApiResponse, PaginationMetaResponse
 
 __all__ = [
+    "PaginatedApiResponse",
     "PaginationMetaResponse",
 ]
