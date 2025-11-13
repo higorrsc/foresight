@@ -5,8 +5,7 @@ from fastapi import FastAPI
 from src.api.routers.identity_access_management import (
     AuthRouter,
     RoleRouter,
-    UserProtectedRouter,
-    UserPublicRouter,
+    UserRouter,
 )
 from src.api.routers.shared_kernel import AreaRouter
 from src.api.routers.tenant_management import TenantRouter
@@ -46,8 +45,7 @@ app = FastAPI(
 
 app.include_router(TenantRouter)
 app.include_router(AuthRouter)
-app.include_router(UserPublicRouter)
-app.include_router(UserProtectedRouter)
+app.include_router(UserRouter)
 app.include_router(RoleRouter)
 app.include_router(AreaRouter)
 
