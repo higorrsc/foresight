@@ -63,7 +63,7 @@ class TestListUserUseCase:
         input_dto = ListRequestInputDTO(actor=admin_actor)
         result = list_user_use_case.execute(input_dto)
 
-        assert result.total == 2
+        assert result.meta.total_items == 2
         assert result.data[0].username == admin_actor.username
         assert result.data[1].username == guest_actor.username
 
