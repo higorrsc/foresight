@@ -2,6 +2,10 @@ from dataclasses import dataclass, field
 from math import ceil
 from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
 
+from src.identity_access_management.application.use_cases.user import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.constants import AppPermission
 from src.shared_kernel.application._shared import PaginatedResponseDTO, PaginationMeta
 from src.shared_kernel.domain._shared import AbstractRepository
 
@@ -46,6 +50,11 @@ class GenericListUseCase(Generic[T]):
 
         :return: A list of entities.
         """
+
+        if AppPermission.USER_READ not in input_dto.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to list data."
+            )
 
         repo_result = self._repository.search(
             tenant_id=input_dto.actor.tenant_id,
