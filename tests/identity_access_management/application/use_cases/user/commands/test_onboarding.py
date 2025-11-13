@@ -116,7 +116,7 @@ class TestOnboardingUseCase:
         assert output.tenant_id is not None
         assert output.user_id is not None
 
-        tenant = tenant_repo.get_by_id(output.tenant_id)
+        tenant = tenant_repo.get_by_id(output.tenant_id, None)
         assert tenant is not None
         assert tenant.name == "Empresa Acme"
 

@@ -98,7 +98,11 @@ class TenantInMemoryRepository(InMemoryRepository[Tenant]):
     this implements get_by_name method.
     """
 
-    def get_by_id(self, id: UUID) -> Optional[Tenant]:
+    def get_by_id(
+        self,
+        id: UUID,
+        tenant_id: Optional[UUID],
+    ) -> Optional[Tenant]:
         """
         Method to get a tenant by its id.
         """

@@ -33,12 +33,19 @@ class OrganizationalUnitRepository(
             mapper=OrganizationalUnitMapper,
         )
 
-    def get_by_parent_id(self, parent_id: Optional[UUID]) -> List[OrganizationalUnit]:
+    def get_by_parent_id(
+        self,
+        parent_id: Optional[UUID],
+        tenant_id: Optional[UUID],
+    ) -> List[OrganizationalUnit]:
         """
         Get OrganizationalUnits by parent_id using SQLAlchemy
         """
 
-        query = self._session.query(self._model_cls).filter_by(parent_id=parent_id)
+        query = self._session.query(self._model_cls).filter_by(
+            parent_id=parent_id,
+            tenant_id=tenant_id,
+        )
         query = query.order_by(self._model_cls.code)
 
         models = query.all()

@@ -3,8 +3,9 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
 
 from src.shared_kernel.domain._shared import AbstractRepository, PaginatedResult
+from src.shared_kernel.domain._shared.entities import AbstractEntity
 
-T = TypeVar("T")
+T = TypeVar("T", bound=AbstractEntity)
 
 
 class InMemoryRepository(AbstractRepository[T], Generic[T]):
@@ -43,7 +44,10 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         """
 
         for entity in self._entities:
-            if entity.id == entity_id and getattr(entity, "tenant_id", None) == tenant_id:  # type: ignore
+            if (
+                entity.id == entity_id
+                and getattr(entity, "tenant_id", None) == tenant_id
+            ):  # type: ignore
                 return entity
 
         return None
