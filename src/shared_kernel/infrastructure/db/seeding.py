@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from src.identity_access_management.domain.constants import AppPermission
@@ -96,28 +98,38 @@ def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleMod
     return roles
 
 
-def seed_app_permissions(db_session: Session, admin_role: RoleModel):
+def seed_app_permissions(
+    db_session: Session,
+    admin_role: RoleModel,
+    guest_role: Optional[RoleModel] = None,
+):
     """
-    Create application permissions if they don't exist, using PermissionModel for queries.
-    Assigns all permissions to the admin role.
+    Create application permissions if they don't exist, using PermissionModel
+    for queries. Assigns all permissions to the admin role.
     """
     print("Checking for app permissions...")
     permissions = AppPermission.get_all_permissions()
     admin_role_permissions = {p.codename for p in admin_role.permissions_rel}
+    guest_role_permissions = (
+        {p.codename for p in guest_role.permissions_rel} if guest_role else set()
+    )
+
+    guest_allowed_codenames = AppPermission.get_guest_permissions()
 
     for permission_codename in permissions:
-        # --- CORREÇÃO AQUI: Query using PermissionModel ---
         permission_model = (
             db_session.query(PermissionModel)
             .filter_by(codename=permission_codename)
             .first()
         )
-        # --- FIM DA CORREÇÃO ---
 
         if not permission_model:
             permission_model = PermissionModel(
                 codename=permission_codename,
-                description=f"Can {permission_codename.split(':')[1]} {permission_codename.split(':')[0]}",
+                description=(
+                    f"Can {permission_codename.split(':')[1]}"
+                    f"{permission_codename.split(':')[0]}"
+                ),
             )
             db_session.add(permission_model)
             print(f"Permission '{permission_codename}' created.")
@@ -126,7 +138,15 @@ def seed_app_permissions(db_session: Session, admin_role: RoleModel):
             admin_role.permissions_rel.append(permission_model)
             print(f"Permission '{permission_codename}' set for role 'admin'.")
 
+        if guest_role and permission_codename in guest_allowed_codenames:
+            if permission_codename not in guest_role_permissions:
+                guest_role.permissions_rel.append(permission_model)
+                print(f"Permission '{permission_codename}' set for role 'guest'.")
+
     db_session.add(admin_role)
+    if guest_role:
+        db_session.add(guest_role)
+
     print("App permissions seeding completed.")
 
 
@@ -199,7 +219,12 @@ def seed_initial_data(db_session: Session):
     roles = seed_initial_roles(db_session, default_tenant.id)  # type: ignore
 
     if "admin" in roles:
-        seed_app_permissions(db_session, roles["admin"])
+        guest_role = roles.get("guest")
+        seed_app_permissions(
+            db_session,
+            roles["admin"],
+            guest_role,
+        )
 
     seed_initial_users(db_session, default_tenant.id, roles)  # type: ignore
 
