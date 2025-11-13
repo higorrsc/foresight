@@ -33,6 +33,9 @@ def update_user_profile_use_case(user_repo):
 
 
 class TestUpdateUserProfileUseCase:
+    """
+    Test suite for the UpdateUserProfileUseCase.
+    """
 
     def test_user_can_update_own_profile(
         self,
