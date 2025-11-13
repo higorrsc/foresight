@@ -14,9 +14,9 @@ class AbstractEntity(ABC):
     """
 
     id: UUID = field(default_factory=uuid4)
-    created_by: Optional[UUID] = field(default=None, init=False)
+    created_by: Optional[UUID] = field(default=None)
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_by: Optional[UUID] = field(default=None, init=False)
+    updated_by: Optional[UUID] = field(default=None)
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     notification: Notification = field(default_factory=Notification, init=False)
 
