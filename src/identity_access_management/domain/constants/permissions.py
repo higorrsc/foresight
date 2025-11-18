@@ -27,6 +27,14 @@ class AppPermission(str, Enum):
     AREA_UPDATE = "area:update"
     AREA_DELETE = "area:delete"
 
+    PLAN_CREATE = "plan:create"
+    PLAN_READ = "plan:read"
+    PLAN_UPDATE = "plan:update"
+    PLAN_DELETE = "plan:delete"
+
+    TENANT_READ = "tenant:read"
+    TENANT_UPDATE = "tenant:update"
+
     @classmethod
     def get_all_permissions(cls) -> Set[str]:
         """
