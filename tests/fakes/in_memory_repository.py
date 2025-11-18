@@ -98,21 +98,6 @@ class TenantInMemoryRepository(InMemoryRepository[Tenant]):
     this implements get_by_name method.
     """
 
-    def get_by_id(
-        self,
-        id: UUID,
-        tenant_id: Optional[UUID],
-    ) -> Optional[Tenant]:
-        """
-        Method to get a tenant by its id.
-        """
-
-        for tenant in self._entities:
-            if tenant.id == id:
-                return tenant
-
-        return None
-
     def get_by_name(self, name: str) -> Optional[Tenant]:
         """
         Method to get a tenant by its name.
@@ -120,6 +105,17 @@ class TenantInMemoryRepository(InMemoryRepository[Tenant]):
 
         for tenant in self._entities:
             if tenant.name == name:
+                return tenant
+
+        return None
+
+    def get_by_id_global(self, tenant_id: UUID) -> Optional[Tenant]:
+        """
+        Finds a tenant by its unique id.
+        """
+
+        for tenant in self._entities:
+            if tenant.id == tenant_id:
                 return tenant
 
         return None
