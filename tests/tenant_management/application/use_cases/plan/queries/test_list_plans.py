@@ -57,9 +57,9 @@ class TestListPlansUseCase:
 
         result = list_plans_use_case.execute(input_dto)
 
-        assert len(result) == 2
-        assert plan1 in result
-        assert plan2 in result
+        assert len(result.data) == 2
+        assert plan1 in result.data
+        assert plan2 in result.data
 
     def test_user_without_permission_cannot_list_plans(
         self,
@@ -90,4 +90,4 @@ class TestListPlansUseCase:
         admin_actor.permissions.add(AppPermission.PLAN_READ)
         input_dto = ListPlansInputDTO(actor=admin_actor)
         result = list_plans_use_case.execute(input_dto)
-        assert result == []
+        assert result.data == []

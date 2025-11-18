@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from math import ceil
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from src.identity_access_management.application.use_cases.user import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission
+from src.shared_kernel.application._shared import PaginatedResponseDTO, PaginationMeta
 from src.tenant_management.domain.entities import Plan
 from src.tenant_management.domain.repositories import IPlanRepository
 
@@ -19,6 +21,11 @@ class ListPlansInputDTO:
     """
 
     actor: "User"
+    filters: Optional[Dict[str, Any]] = None
+    sort_by: Optional[str] = None
+    sort_order: str = "asc"
+    offset: int = 0
+    limit: int = 10
 
 
 class ListPlansUseCase:
@@ -33,7 +40,7 @@ class ListPlansUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: ListPlansInputDTO) -> List[Plan]:
+    def execute(self, input_dto: ListPlansInputDTO) -> PaginatedResponseDTO[Plan]:
         """
         Execute the use case to list plans.
         """
@@ -43,4 +50,31 @@ class ListPlansUseCase:
                 "User does not have permission to list plans."
             )
 
-        return self._repository.search(tenant_id=None).data
+        paginated_result = self._repository.search(
+            tenant_id=None,  # <-- Força None porque Plan é global
+            filters=input_dto.filters,
+            sort_by=input_dto.sort_by,
+            sort_order=input_dto.sort_order,
+            offset=input_dto.offset,
+            limit=input_dto.limit,
+        )
+
+        total_items = paginated_result.total
+        page_size = input_dto.limit
+
+        if page_size > 0:
+            total_pages = ceil(total_items / page_size)
+            current_page = (input_dto.offset // page_size) + 1
+        else:
+            total_pages = 0
+            current_page = 1
+
+        return PaginatedResponseDTO(
+            data=paginated_result.data,
+            meta=PaginationMeta(
+                total_items=total_items,
+                current_page=current_page,
+                page_size=page_size,
+                total_pages=total_pages,
+            ),
+        )

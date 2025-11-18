@@ -91,9 +91,9 @@ class TestListTenantsUseCase:
 
         result = list_tenants_use_case.execute(input_dto)
 
-        assert len(result) == 2
-        assert tenant1 in result
-        assert tenant2 in result
+        assert len(result.data) == 2
+        assert tenant1 in result.data
+        assert tenant2 in result.data
 
     def test_user_without_permission_cannot_list_tenants(
         self,
@@ -123,4 +123,4 @@ class TestListTenantsUseCase:
         admin_actor.permissions.add(AppPermission.TENANT_READ)
         input_dto = ListTenantsInputDTO(actor=admin_actor)
         result = list_tenants_use_case.execute(input_dto)
-        assert result == []
+        assert result.data == []
