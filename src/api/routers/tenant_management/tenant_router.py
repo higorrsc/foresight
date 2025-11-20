@@ -2,8 +2,10 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from src.api.dependencies.auth import get_current_user
+from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import (
     get_permission_repository,
     get_plan_repository,
@@ -11,6 +13,7 @@ from src.api.dependencies.database import (
     get_tenant_repository,
     get_user_repository,
 )
+from src.api.routers._shared.dto import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.user import (
     UsernameAlreadyExistsError,
 )
@@ -18,11 +21,27 @@ from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
 )
+from src.identity_access_management.application.use_cases.user.exceptions import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.entities.user import User
 from src.identity_access_management.infrastructure.repositories import (
     PermissionRepository,
     RoleRepository,
     UserRepository,
 )
+from src.tenant_management.application.use_cases.tenant.commands import (
+    UpdateTenantStatusInputDTO,
+    UpdateTenantStatusUseCase,
+)
+from src.tenant_management.application.use_cases.tenant.exceptions import (
+    TenantNotFoundError,
+)
+from src.tenant_management.application.use_cases.tenant.queries import (
+    ListTenantsInputDTO,
+    ListTenantsUseCase,
+)
+from src.tenant_management.domain.value_objects import TenantStatus
 from src.tenant_management.infrastructure.repositories import (
     PlanRepository,
     TenantRepository,
@@ -51,6 +70,36 @@ class SignupResponse(BaseModel):
     user_id: UUID
     message: str
 
+
+class TenantResponse(BaseModel):
+    """
+    Response model for API.
+    """
+
+    id: UUID
+    name: str
+    status: TenantStatus
+    plan_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TenantStatusUpdateBody(BaseModel):
+    """
+    Request model for API.
+    """
+
+    status: TenantStatus
+
+
+class PaginatedTenantResponse(PaginatedApiResponse[TenantResponse]):
+    """
+    Paginated response model for Tenants.
+    """
+
+
+require_tenant_read = PermissionChecker(["tenant:read"])
+require_tenant_update = PermissionChecker(["tenant:update"])
 
 router = APIRouter(prefix="/tenants", tags=["Tenant Management"])
 
@@ -106,5 +155,64 @@ def signup_endpoint(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedTenantResponse,
+    dependencies=[Depends(require_tenant_read)],
+)
+def list_tenants_endpoint(
+    repo: TenantRepository = Depends(get_tenant_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    List all tenants (Super Admin only).
+    """
+    try:
+        use_case = ListTenantsUseCase(repo)
+        input_dto = ListTenantsInputDTO(actor=actor)
+        tenants = use_case.execute(input_dto)
+        return tenants
+    except InsufficientPermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        ) from e
+
+
+@router.patch(
+    "/{tenant_id}/status",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_tenant_update)],
+)
+def update_tenant_status_endpoint(
+    tenant_id: UUID,
+    body: TenantStatusUpdateBody,
+    repo: TenantRepository = Depends(get_tenant_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    Update a tenant's status (e.g., suspend/activate) (Super Admin only).
+    """
+    try:
+        use_case = UpdateTenantStatusUseCase(repo)
+        input_dto = UpdateTenantStatusInputDTO(
+            actor=actor,
+            tenant_id_to_update=tenant_id,
+            new_status=body.status,
+        )
+        use_case.execute(input_dto)
+    except TenantNotFoundError as e:  # Tenant not found
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except InsufficientPermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
         ) from e
