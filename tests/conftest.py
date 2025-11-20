@@ -4,7 +4,7 @@ from typing import Any, Generator
 import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, Pool, StaticPool
 
@@ -79,30 +79,17 @@ def db_session_for_test(setup_database) -> Generator[Session, None, None]:
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
 
-    # Use nested transactions (savepoints) for isolation
-    # nested_transaction = session.begin_nested()
-
-    @event.listens_for(session, "after_transaction_end")
-    def restart_savepoint(session, transaction):
-        if transaction.nested and not transaction._parent.nested:
-            session.begin_nested()
-
-    # Clear data from previous tests WITHIN the transaction
     for table in reversed(Base.metadata.sorted_tables):
         session.execute(table.delete())
 
-    # Run the unified seeding WITHIN the transaction
     seed_initial_data(session)
 
-    # Flush INSERTS to the DB (within the transaction)
     session.flush()
 
-    yield session  # The test runs here, seeing the seeded data
+    yield session
 
-    # Rollback everything at the end
-    transaction.rollback()
     session.close()
-    # nested_transaction.rollback()
+    transaction.rollback()
     connection.close()
 
 
