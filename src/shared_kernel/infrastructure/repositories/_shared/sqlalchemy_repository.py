@@ -1,7 +1,7 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
-from sqlalchemy import asc, delete, desc, select
+from sqlalchemy import asc, delete, desc, func, inspect, select  # Adicionado func
 from sqlalchemy.orm import Session
 
 from src.shared_kernel.domain._shared import AbstractRepository, PaginatedResult
@@ -28,6 +28,14 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         self._session = session
         self._model_cls = model_cls
         self._mapper = mapper
+
+    def _has_column(self, column_name: str) -> bool:
+        """
+        Check if a column exists in the model.
+        """
+
+        mapper = inspect(self._model_cls)
+        return column_name in mapper.columns  # type: ignore
 
     def save(self, entity: T) -> Optional[T]:
         """
@@ -56,10 +64,11 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         :return: The entity if found, otherwise None.
         """
 
-        stmt = select(self._model_cls).filter_by(
-            id=entity_id,
-            tenant_id=tenant_id,
-        )
+        stmt = select(self._model_cls).where(self._model_cls.id == entity_id)  # type: ignore
+
+        if self._has_column("tenant_id"):
+            stmt = stmt.where(getattr(self._model_cls, "tenant_id") == tenant_id)
+
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
 
@@ -74,7 +83,11 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         :return: A list of all entities.
         """
 
-        stmt = select(self._model_cls).filter_by(tenant_id=tenant_id)
+        stmt = select(self._model_cls)
+
+        if self._has_column("tenant_id"):
+            stmt = stmt.filter_by(tenant_id=tenant_id)
+
         result = self._session.execute(stmt)
         return [self._mapper.to_entity(m) for m in result.unique().scalars().all()]
 
@@ -104,10 +117,11 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         :param tenant_id: The ID of the tenant.
         """
 
-        stmt = delete(self._model_cls).where(
-            self._model_cls.id == entity_id,  # type: ignore
-            self._model_cls.tenant_id == tenant_id,  # type: ignore
-        )
+        stmt = delete(self._model_cls).where(self._model_cls.id == entity_id)  # type: ignore
+
+        if self._has_column("tenant_id"):
+            stmt = stmt.where(getattr(self._model_cls, "tenant_id") == tenant_id)
+
         self._session.execute(stmt)  # type: ignore
         self._session.commit()
 
@@ -125,10 +139,13 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        stmt = select(self._model_cls).filter_by(tenant_id=tenant_id)
+        stmt = select(self._model_cls)
 
-        if not include_inactive and hasattr(self._model_cls, "is_active"):
-            stmt = stmt.filter(getattr(self._model_cls, "is_active") == True)  # type: ignore  # noqa: E712
+        if self._has_column("tenant_id"):
+            stmt = stmt.filter_by(tenant_id=tenant_id)
+
+        if not include_inactive and self._has_column("is_active"):
+            stmt = stmt.filter_by(is_active=True)  # type: ignore  # noqa: E712
 
         if filters:
             for field, value in filters.items():
@@ -136,6 +153,9 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
                     stmt = stmt.filter(
                         getattr(self._model_cls, field).ilike(f"%{value}%")
                     )
+
+        count_stmt = stmt.with_only_columns(func.count()).order_by(None)
+        total = self._session.scalar(count_stmt) or 0
 
         if sort_by and hasattr(self._model_cls, sort_by):
             column = getattr(self._model_cls, sort_by)
@@ -145,18 +165,11 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
                 stmt = stmt.order_by(asc(column))
 
         stmt = stmt.offset(offset).limit(limit)
+
         result = self._session.execute(stmt)
         unique_results = result.unique()
         models = unique_results.scalars().all()
         entities = [self._mapper.to_entity(model) for model in models]
-        total = len(
-            self._session.execute(
-                select(self._model_cls).filter_by(tenant_id=tenant_id)
-            )
-            .unique()
-            .scalars()
-            .all()
-        )
 
         return PaginatedResult(
             data=entities,
