@@ -1,6 +1,6 @@
-from select import select
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
@@ -29,6 +29,6 @@ class PlanRepository(SQLAlchemyRepository[Plan, PlanModel], IPlanRepository):
         Finds a plan by its name.
         """
 
-        stmt = select(self._model_cls).filter_by(name=name)  # type: ignore
+        stmt = select(self._model_cls).filter_by(name=name)
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
