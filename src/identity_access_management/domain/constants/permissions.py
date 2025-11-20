@@ -53,6 +53,7 @@ class AppPermission(str, Enum):
             cls.USER_ME.value,
             cls.USER_UPDATE_PROFILE.value,
             cls.USER_CHANGE_PASSWORD.value,
+            cls.PLAN_READ,
         }
 
     @classmethod
