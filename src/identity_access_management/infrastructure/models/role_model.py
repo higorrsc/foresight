@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from src.identity_access_management.infrastructure.models import user_roles
@@ -17,7 +17,6 @@ class RoleModel(SQLAlchemyBase, SQLAlchemyTenantMixin):
 
     name = Column(
         String,
-        unique=True,
         index=True,
         nullable=False,
     )
@@ -36,4 +35,12 @@ class RoleModel(SQLAlchemyBase, SQLAlchemyTenantMixin):
         "PermissionModel",
         secondary="role_permissions",
         back_populates="roles_rel",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "name",
+            "tenant_id",
+            name="uq_role_name_tenant",
+        ),
     )
