@@ -3,6 +3,7 @@
     "anotheruser",
     "anypassword",
     "autoflush",
+    "cffi",
     "cockroachdb",
     "dbname",
     "descomentar",
