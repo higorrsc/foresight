@@ -8,7 +8,7 @@ from src.api.routers.identity_access_management import (
     UserRouter,
 )
 from src.api.routers.shared_kernel import AreaRouter
-from src.api.routers.tenant_management import TenantRouter
+from src.api.routers.tenant_management import PlanRouter, TenantRouter
 from src.shared_kernel.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.db import seed_initial_data
 
@@ -43,6 +43,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(PlanRouter)
 app.include_router(TenantRouter)
 app.include_router(AuthRouter)
 app.include_router(UserRouter)
