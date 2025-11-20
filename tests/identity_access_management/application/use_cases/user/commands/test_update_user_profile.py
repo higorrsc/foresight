@@ -7,7 +7,7 @@ from src.identity_access_management.application.use_cases.user import (
 )
 from src.identity_access_management.application.use_cases.user.commands import (
     UpdateUserProfileUseCase,
-    UserProfileRequestDTO,
+    UserProfileInputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities.user import User
@@ -49,7 +49,7 @@ class TestUpdateUserProfileUseCase:
 
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = UserProfileRequestDTO(
+        input_dto = UserProfileInputDTO(
             actor=guest_actor,
             user_id_to_update=guest_actor.id,
             first_name="Guesty",
@@ -77,7 +77,7 @@ class TestUpdateUserProfileUseCase:
         user_repo.save(deepcopy(admin_actor))
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = UserProfileRequestDTO(
+        input_dto = UserProfileInputDTO(
             actor=admin_actor,
             user_id_to_update=guest_actor.id,
             last_name="McGuest",
@@ -103,7 +103,7 @@ class TestUpdateUserProfileUseCase:
         user_repo.save(deepcopy(admin_actor))
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = UserProfileRequestDTO(
+        input_dto = UserProfileInputDTO(
             actor=guest_actor,
             user_id_to_update=admin_actor.id,
             first_name="Hacker",
@@ -127,7 +127,7 @@ class TestUpdateUserProfileUseCase:
 
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = UserProfileRequestDTO(
+        input_dto = UserProfileInputDTO(
             actor=guest_actor,
             user_id_to_update=guest_actor.id,
             is_active=False,
@@ -154,7 +154,7 @@ class TestUpdateUserProfileUseCase:
         user_repo.save(deepcopy(admin_actor))
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = UserProfileRequestDTO(
+        input_dto = UserProfileInputDTO(
             actor=admin_actor,
             user_id_to_update=guest_actor.id,
             is_active=False,

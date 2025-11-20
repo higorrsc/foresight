@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class UserProfileRequestDTO:
+class UserProfileInputDTO:
     """
     Data Transfer Object for input data when getting a user's profile.
     """
@@ -43,7 +43,7 @@ class UpdateUserProfileUseCase:
 
     def execute(
         self,
-        input_dto: UserProfileRequestDTO,
+        input_dto: UserProfileInputDTO,
     ) -> None:
         """
         Execute the UpdateUserProfileUseCase.

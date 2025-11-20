@@ -7,7 +7,7 @@ from src.identity_access_management.application.use_cases.role import (
     RoleNotFoundError,
 )
 from src.identity_access_management.application.use_cases.role.commands import (
-    UpdateRoleRequestDTO,
+    UpdateRoleInputDTO,
     UpdateRoleUseCase,
 )
 from src.identity_access_management.domain.entities import Role
@@ -42,7 +42,7 @@ class TestUpdateRoleUseCase:
         )
         repo.save(role)
 
-        input_dto = UpdateRoleRequestDTO(
+        input_dto = UpdateRoleInputDTO(
             id=role.id,
             name="Updated",
             description="Updated role",
@@ -73,7 +73,7 @@ class TestUpdateRoleUseCase:
         )
         repo.save(role)
 
-        input_dto = UpdateRoleRequestDTO(
+        input_dto = UpdateRoleInputDTO(
             id=role.id,
             name="a" * 101,
             description="Updated role",
@@ -99,7 +99,7 @@ class TestUpdateRoleUseCase:
 
         invalid_id = uuid4()
 
-        input_dto = UpdateRoleRequestDTO(
+        input_dto = UpdateRoleInputDTO(
             id=invalid_id,
             name="Updated",
             description="Updated role",

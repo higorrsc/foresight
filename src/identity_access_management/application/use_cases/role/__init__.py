@@ -1,6 +1,7 @@
-from .exceptions import InvalidRoleError, RoleNotFoundError
+from .exceptions import InvalidRoleError, RoleAlreadyExistsError, RoleNotFoundError
 
 __all__ = [
     "InvalidRoleError",
+    "RoleAlreadyExistsError",
     "RoleNotFoundError",
 ]

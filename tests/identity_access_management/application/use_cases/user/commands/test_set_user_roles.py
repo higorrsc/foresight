@@ -4,7 +4,7 @@ import pytest
 
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.user.commands import (
-    SetUserRolesRequestDTO,
+    SetUserRolesInputDTO,
     SetUserRolesUseCase,
 )
 from src.identity_access_management.application.use_cases.user.exceptions import (
@@ -77,7 +77,7 @@ class TestSetUserRolesUseCase:
         user_repo.save(deepcopy(admin_actor))
         user_repo.save(deepcopy(guest_actor))
 
-        input_dto = SetUserRolesRequestDTO(
+        input_dto = SetUserRolesInputDTO(
             actor=admin_actor,
             user_id_to_update=guest_actor.id,
             role_names=["editor"],
@@ -100,7 +100,7 @@ class TestSetUserRolesUseCase:
         """
         user_repo.save(deepcopy(guest_actor))  # Não tem a permissão
 
-        input_dto = SetUserRolesRequestDTO(
+        input_dto = SetUserRolesInputDTO(
             actor=guest_actor, user_id_to_update=guest_actor.id, role_names=["admin"]
         )
 
@@ -123,7 +123,7 @@ class TestSetUserRolesUseCase:
         admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
         user_repo.save(deepcopy(admin_actor))
 
-        input_dto = SetUserRolesRequestDTO(
+        input_dto = SetUserRolesInputDTO(
             actor=admin_actor,
             user_id_to_update=admin_actor.id,
             role_names=["fake_role"],

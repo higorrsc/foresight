@@ -21,10 +21,10 @@ from src.identity_access_management.application.use_cases.user.commands import (
     CreateUserInputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
-    SetUserRolesRequestDTO,
+    SetUserRolesInputDTO,
     SetUserRolesUseCase,
     UpdateUserProfileUseCase,
-    UserProfileRequestDTO,
+    UserProfileInputDTO,
 )
 from src.identity_access_management.application.use_cases.user.exceptions import (
     InsufficientPermissionError,
@@ -350,7 +350,7 @@ def update_user_profile_endpoint(
             detail="No valid fields provided for update.",
         )
 
-    input_dto = UserProfileRequestDTO(
+    input_dto = UserProfileInputDTO(
         user_id_to_update=user_id,
         actor=actor,
         **update_data,
@@ -391,7 +391,7 @@ def set_user_roles_endpoint(
             user_repository=user_repo,
             role_repository=role_repo,
         )
-        input_dto = SetUserRolesRequestDTO(
+        input_dto = SetUserRolesInputDTO(
             actor=actor,
             user_id_to_update=user_id,
             role_names=request_body.role_names,

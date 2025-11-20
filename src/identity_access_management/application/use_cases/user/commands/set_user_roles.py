@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SetUserRolesRequestDTO:
+class SetUserRolesInputDTO:
     """
     Data Transfer Object for input data when setting user roles.
     """
@@ -45,7 +45,7 @@ class SetUserRolesUseCase:
         self._user_repository = user_repository
         self._role_repository = role_repository
 
-    def execute(self, input_dto: SetUserRolesRequestDTO) -> None:
+    def execute(self, input_dto: SetUserRolesInputDTO) -> None:
         """
         Execute the use case to set user roles.
         """

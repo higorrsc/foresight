@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class UpdateRoleRequestDTO:
+class UpdateRoleInputDTO:
     """
     Data Transfer Object for input data when updating a role.
     """
@@ -48,7 +48,7 @@ class UpdateRoleUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: UpdateRoleRequestDTO) -> UpdateRoleResponseDTO:
+    def execute(self, input_dto: UpdateRoleInputDTO) -> UpdateRoleResponseDTO:
         """
         Execute the use case to update a role.
         """
