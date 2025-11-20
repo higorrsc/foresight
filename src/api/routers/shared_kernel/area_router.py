@@ -3,13 +3,13 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_area_repository
-from src.api.routers._shared.dto import PaginatedApiResponse
-from src.identity_access_management.domain.entities import User
+from src.api.routers._shared import PaginatedApiResponse
+from src.identity_access_management.domain.entities.user import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
@@ -34,32 +34,18 @@ from src.shared_kernel.application.use_cases.area.queries import (
     GetAreaByIdUseCase,
     ListAreaUseCase,
 )
-from src.shared_kernel.infrastructure.repositories import AreaRepository
+from src.shared_kernel.infrastructure.repositories.area_repository import AreaRepository
 
+# --- Permissions ---
 require_area_create_or_update = PermissionChecker(["area:create", "area:update"])
 require_area_delete = PermissionChecker(["area:delete"])
 require_area_read = PermissionChecker(["area:read"])
 
 
-class AreaCreateBody(BaseModel):
-    """
-    Model to create a new area.
-    """
-
-    description: str = Field(..., min_length=3, max_length=100)
-
-
-class AreaUpdateBody(BaseModel):
-    """
-    Model to update an existing area.
-    """
-
-    description: str = Field(..., min_length=3, max_length=100)
-
-
+# --- Response Models ---
 class AreaResponse(BaseModel):
     """
-    Response model for API.
+    Response model for Area API.
     """
 
     id: UUID
@@ -69,13 +55,33 @@ class AreaResponse(BaseModel):
     updated_at: datetime
     deleted_at: Optional[datetime] = None
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PaginatedAreaResponse(PaginatedApiResponse[AreaResponse]):
     """
-    Response model for API.
+    Paginated response model for Area.
     """
 
 
+# --- Request Body Models ---
+class AreaCreateBody(BaseModel):
+    """
+    Request model for creating an area.
+    """
+
+    description: str = Field(..., min_length=3, max_length=100)
+
+
+class AreaUpdateBody(BaseModel):
+    """
+    Request model for updating an area.
+    """
+
+    description: str = Field(..., min_length=3, max_length=100)
+
+
+# --- Router ---
 router = APIRouter(
     prefix="/areas",
     tags=["Areas"],
@@ -85,13 +91,14 @@ router = APIRouter(
 )
 
 
+# --- Endpoints ---
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_area_create_or_update)],
 )
 def create_area_endpoint(
-    request: AreaCreateBody,
+    request_body: AreaCreateBody,
     repo: AreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
@@ -103,8 +110,7 @@ def create_area_endpoint(
         use_case = CreateAreaUseCase(repo)
 
         input_dto = CreateDescribedEntityInputDTO(
-            actor=actor,
-            description=request.description,
+            actor=actor, description=request_body.description
         )
 
         result = use_case.execute(input_dto)
@@ -125,30 +131,11 @@ def create_area_endpoint(
 def list_areas_endpoint(
     repo: AreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
-    description: Optional[str] = Query(
-        None,
-        description="Filtrar por parte da descrição",
-    ),
-    sort_by: Optional[str] = Query(
-        "description",
-        description="Campo para ordenação",
-    ),
-    sort_order: str = Query(
-        "asc",
-        enum=["asc", "desc"],
-        description="Ordem da ordenação",
-    ),
-    offset: int = Query(
-        0,
-        ge=0,
-        description="Offset para paginação",
-    ),
-    limit: int = Query(
-        10,
-        ge=1,
-        le=100,
-        description="Limite de registos por página",
-    ),
+    description: Optional[str] = Query(None, description="Filter by description"),
+    sort_by: Optional[str] = Query("description", description="Sort field"),
+    sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
+    offset: int = Query(0, ge=0, description="Offset"),
+    limit: int = Query(10, ge=1, le=100, description="Limit"),
 ):
     """
     List areas with filters, order and pagination.
@@ -184,12 +171,12 @@ def get_area_by_id_endpoint(
     actor: User = Depends(get_current_user),
 ):
     """
-    Getting an area by its ID.
+    Get an area by its ID.
     """
 
     try:
         use_case = GetAreaByIdUseCase(repo)
-        input_dto = GetByIdRequestInputDTO(actor=actor, id=area_id)
+        input_dto = GetByIdRequestInputDTO(id=area_id, actor=actor)
         area = use_case.execute(input_dto)
         return area
     except AreaNotFoundError as e:
@@ -221,11 +208,13 @@ def update_area_endpoint(
 
     try:
         use_case = UpdateAreaUseCase(repo)
+
         input_dto = UpdateDescribedEntityInputDTO(
-            actor=actor,
             id=area_id,
+            actor=actor,
             description=request_body.description,
         )
+
         output_dto = use_case.execute(input_dto)
         return {
             "id": output_dto.id,
@@ -254,12 +243,12 @@ def delete_area_endpoint(
     actor: User = Depends(get_current_user),
 ):
     """
-    Delete an existing area.
+    Delete an existing area (soft delete).
     """
 
     try:
         use_case = DeleteAreaUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(actor=actor, id=area_id))
+        use_case.execute(DeleteRequestInputDTO(id=area_id, actor=actor))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -278,12 +267,12 @@ def restore_area_endpoint(
     actor: User = Depends(get_current_user),
 ):
     """
-    Restore an existing area.
+    Restore a soft-deleted area.
     """
 
     try:
         use_case = RestoreAreaUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(actor=actor, id=area_id))
+        use_case.execute(RestoreRequestInputDTO(id=area_id, actor=actor))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
