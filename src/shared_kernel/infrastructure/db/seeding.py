@@ -26,7 +26,7 @@ def seed_initial_plan(db_session: Session) -> PlanModel:
     plan = db_session.query(PlanModel).filter_by(name="Standard").first()
 
     if not plan:
-        plan = PlanModel(name="Standard", price=0.0)
+        plan = PlanModel(name="Standard", price=0.01)
         db_session.add(plan)
         print("Plan 'Standard' created.")
 
@@ -61,7 +61,6 @@ def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleMod
     print(f"Checking for initial roles for tenant {tenant_id}...")
     roles = {}
 
-    # --- CORREÇÃO AQUI: Query using RoleModel ---
     admin_exists = (
         db_session.query(RoleModel).filter_by(name="admin", tenant_id=tenant_id).first()
     )
