@@ -1,20 +1,10 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from math import ceil
 
 from src.identity_access_management.domain.entities import Permission
 from src.identity_access_management.domain.repositories import IPermissionRepository
-
-if TYPE_CHECKING:
-    from src.identity_access_management.domain.entities import User
-
-
-@dataclass(frozen=True)
-class ListPermissionsInputDTO:
-    """
-    Input DTO for listing permissions.
-    """
-
-    actor: "User"
+from src.shared_kernel.application._shared import PaginatedResponseDTO
+from src.shared_kernel.application._shared.dto import PaginationMeta
+from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 
 
 class ListPermissionsUseCase:
@@ -32,7 +22,9 @@ class ListPermissionsUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: ListPermissionsInputDTO) -> List[Permission]:
+    def execute(
+        self, input_dto: ListRequestInputDTO
+    ) -> PaginatedResponseDTO[Permission]:
         """
         Execute the use case.
 
@@ -40,4 +32,27 @@ class ListPermissionsUseCase:
         :return: A list of permissions.
         """
 
-        return self._repository.list_all()
+        all_permissions = self._repository.list_all()
+
+        total_items = len(all_permissions)
+        start = input_dto.offset
+        end = start + input_dto.limit
+        paginated_data = all_permissions[start:end]
+
+        page_size = input_dto.limit
+        if page_size > 0:
+            total_pages = ceil(total_items / page_size)
+            current_page = start // page_size + 1
+        else:
+            total_pages = 0
+            current_page = 1
+
+        return PaginatedResponseDTO(
+            data=paginated_data,
+            meta=PaginationMeta(
+                total_items=total_items,
+                current_page=current_page,
+                page_size=page_size,
+                total_pages=total_pages,
+            ),
+        )

@@ -1,19 +1,20 @@
-from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, ConfigDict
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.database import get_permission_repository
 from src.api.routers._shared import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.permission.queries import (
-    ListPermissionsInputDTO,
     ListPermissionsUseCase,
 )
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.repositories import (
     PermissionRepository,
+)
+from src.shared_kernel.application._shared.use_cases.queries.generic_list import (
+    ListRequestInputDTO,
 )
 
 
@@ -45,19 +46,24 @@ router = APIRouter(
 @router.get(
     path="/",
     status_code=status.HTTP_200_OK,
-    response_model=List[PermissionResponse],
+    response_model=PaginatedPermissionResponse,
 )
 def list_permissions_endpoint(
     repo: PermissionRepository = Depends(get_permission_repository),
     actor: User = Depends(get_current_user),
+    offset: int = Query(0, ge=0, description="Offset for pagination"),
+    limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),
 ):
     """
     List all available system permissions.
     Useful for frontend interfaces when creating/editing Roles.
     """
 
-    use_case = ListPermissionsUseCase(repo)
-    input_dto = ListPermissionsInputDTO(actor)
-    permissions = use_case.execute(input_dto)
+    input_dto = ListRequestInputDTO(
+        actor=actor,
+        offset=offset,
+        limit=limit,
+    )
 
-    return permissions
+    use_case = ListPermissionsUseCase(repo)
+    return use_case.execute(input_dto)
