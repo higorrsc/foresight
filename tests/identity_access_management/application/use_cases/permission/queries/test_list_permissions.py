@@ -1,10 +1,10 @@
 import pytest
 
 from src.identity_access_management.application.use_cases.permission.queries import (
-    ListPermissionsInputDTO,
     ListPermissionsUseCase,
 )
 from src.identity_access_management.domain.entities import Permission, User
+from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from tests.fakes import PermissionInMemoryRepository
 
 
@@ -49,13 +49,13 @@ class TestListPermissionsUseCase:
         for p in perms:
             permission_repo.save(p)
 
-        input_dto = ListPermissionsInputDTO(actor=admin_actor)
+        input_dto = ListRequestInputDTO(actor=admin_actor)
         result = list_permissions_use_case.execute(input_dto)
 
-        assert len(result) == 2
-        assert isinstance(result[0], Permission)
-        assert any(p.codename == "user:read" for p in result)
-        assert any(p.codename == "user:write" for p in result)
+        assert len(result.data) == 2
+        assert isinstance(result.data[0], Permission)
+        assert any(p.codename == "user:read" for p in result.data)
+        assert any(p.codename == "user:write" for p in result.data)
 
     def test_should_return_empty_list_if_no_permissions(
         self,
@@ -65,7 +65,7 @@ class TestListPermissionsUseCase:
         """
         Test if the use case returns an empty list if no permissions exist.
         """
-        input_dto = ListPermissionsInputDTO(actor=admin_actor)
+        input_dto = ListRequestInputDTO(actor=admin_actor)
         result = list_permissions_use_case.execute(input_dto)
 
-        assert result == []
+        assert result.data == []

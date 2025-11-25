@@ -16,9 +16,14 @@ class TestPermissionRouter:
             headers={"Authorization": f"Bearer {admin_token}"},
         )
         assert response.status_code == status.HTTP_200_OK
-        data = response.json()
+
+        json_response = response.json()
+        assert "data" in json_response
+        assert "meta" in json_response
+
+        data = json_response["data"]
         assert isinstance(data, list)
-        # Seeding creates many permissions, verify at least one known
+
         assert any(p["codename"] == "user:read" for p in data)
 
     def test_list_permissions_unauthorized(self, client: TestClient):
