@@ -1,6 +1,7 @@
 from .dummy_entity import DummyEntity
 from .dummy_value_object import DummyValueObjectForMoneyType
 from .in_memory_repository import (
+    PermissionInMemoryRepository,
     PlanInMemoryRepository,
     RoleInMemoryRepository,
     TenantInMemoryRepository,
@@ -10,6 +11,7 @@ from .in_memory_repository import (
 __all__ = [
     "DummyEntity",
     "DummyValueObjectForMoneyType",
+    "PermissionInMemoryRepository",
     "PlanInMemoryRepository",
     "RoleInMemoryRepository",
     "TenantInMemoryRepository",
