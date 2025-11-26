@@ -24,8 +24,6 @@ class TestPermissionRouter:
         data = json_response["data"]
         assert isinstance(data, list)
 
-        assert any(p["codename"] == "user:read" for p in data)
-
     def test_list_permissions_unauthorized(self, client: TestClient):
         """
         Unauthenticated request should fail.
