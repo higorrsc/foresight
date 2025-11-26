@@ -61,6 +61,8 @@ class CreateOrganizationalUnitUseCase:
                 parent_id=input_dto.parent_id,
                 tenant_id=input_dto.actor.tenant_id,
             )
+            entity.created_by = input_dto.actor.id
+            entity.updated_by = input_dto.actor.id
         except EntityValidationError as e:
             raise InvalidOrganizationalUnitError(f"Invalid input data: {e}") from e
 
