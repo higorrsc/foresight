@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class CreateOrganizationalUnitInputDTO:
+class UpdateOrganizationalUnitInputDTO:
     """
-    Data Transfer Object for input data when creating a new Organizational Unit.
+    Data Transfer Object for input data when updating a existent Organizational Unit.
     """
 
     actor: "User"
@@ -31,7 +31,7 @@ class CreateOrganizationalUnitInputDTO:
 @dataclass(frozen=True)
 class CreateOrganizationalUnitOutputDTO:
     """
-    Data Transfer Object for output data when creating a new Organizational Unit.
+    Data Transfer Object for output data when updating a existent Organizational Unit.
     """
 
 
@@ -47,7 +47,7 @@ class UpdateOrganizationalUnitUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: CreateOrganizationalUnitInputDTO) -> None:
+    def execute(self, input_dto: UpdateOrganizationalUnitInputDTO) -> None:
         """
         Execute the use case to update an existing Organizational Unit.
         """
@@ -63,6 +63,7 @@ class UpdateOrganizationalUnitUseCase:
             entity.description = input_dto.description
             entity.code = input_dto.code
             entity.parent_id = input_dto.parent_id
+            entity.updated_by = input_dto.actor.id
         except EntityValidationError as e:
             raise InvalidOrganizationalUnitError(f"Invalid input data: {e}") from e
 
