@@ -7,33 +7,38 @@ class AppPermission(str, Enum):
     Application permissions
     """
 
-    ROLE_CREATE = "role:create"
-    ROLE_READ = "role:read"
-    ROLE_UPDATE = "role:update"
-    ROLE_DELETE = "role:delete"
-
-    USER_CREATE = "user:create"
-    USER_READ = "user:read"
-    USER_UPDATE = "user:update"
-    USER_DELETE = "user:delete"
-    USER_SET_ROLES = "user:set_roles"
-    USER_SET_PERMISSIONS = "user:set_permissions"
-    USER_UPDATE_PROFILE = "user:update_profile"
-    USER_CHANGE_PASSWORD = "user:change_password"
-    USER_ME = "user:me"
-
     AREA_CREATE = "area:create"
+    AREA_DELETE = "area:delete"
     AREA_READ = "area:read"
     AREA_UPDATE = "area:update"
-    AREA_DELETE = "area:delete"
+
+    ORGANIZATIONAL_UNIT_CREATE = "organizational_unit:create"
+    ORGANIZATIONAL_UNIT_DELETE = "organizational_unit:delete"
+    ORGANIZATIONAL_UNIT_READ = "organizational_unit:read"
+    ORGANIZATIONAL_UNIT_UPDATE = "organizational_unit:update"
 
     PLAN_CREATE = "plan:create"
+    PLAN_DELETE = "plan:delete"
     PLAN_READ = "plan:read"
     PLAN_UPDATE = "plan:update"
-    PLAN_DELETE = "plan:delete"
+
+    ROLE_CREATE = "role:create"
+    ROLE_DELETE = "role:delete"
+    ROLE_READ = "role:read"
+    ROLE_UPDATE = "role:update"
 
     TENANT_READ = "tenant:read"
     TENANT_UPDATE = "tenant:update"
+
+    USER_CHANGE_PASSWORD = "user:change_password"
+    USER_CREATE = "user:create"
+    USER_DELETE = "user:delete"
+    USER_ME = "user:me"
+    USER_READ = "user:read"
+    USER_SET_PERMISSIONS = "user:set_permissions"
+    USER_SET_ROLES = "user:set_roles"
+    USER_UPDATE = "user:update"
+    USER_UPDATE_PROFILE = "user:update_profile"
 
     @classmethod
     def get_all_permissions(cls) -> Set[str]:
