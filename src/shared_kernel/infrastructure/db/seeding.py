@@ -126,8 +126,8 @@ def seed_app_permissions(
             permission_model = PermissionModel(
                 codename=permission_codename,
                 description=(
-                    f"Can {permission_codename.split(':')[1]}"
-                    f"{permission_codename.split(':')[0]}"
+                    f"Can {permission_codename.split(':')[1].replace('_', ' ')} "
+                    f"{permission_codename.split(':')[0].replace('_', ' ')}"
                 ),
             )
             db_session.add(permission_model)
