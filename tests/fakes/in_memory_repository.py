@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from src.identity_access_management.domain.entities import Permission, Role, User
@@ -6,6 +6,11 @@ from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
     IUserRepository,
+)
+from src.shared_kernel.domain.entities import Area, OrganizationalUnit
+from src.shared_kernel.domain.repositories import (
+    IAreaRepository,
+    IOrganizationalUnitRepository,
 )
 from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
 from src.tenant_management.domain.entities import Plan, Tenant
@@ -162,3 +167,37 @@ class TenantInMemoryRepository(
                 return tenant
 
         return None
+
+
+class AreaInMemoryRepository(
+    InMemoryRepository[Area],
+    IAreaRepository,
+):
+    """
+    In Memory Repository specific to test Area entity
+    """
+
+
+class OrganizationalUnitInMemoryRepository(
+    InMemoryRepository[OrganizationalUnit],
+    IOrganizationalUnitRepository,
+):
+    """
+    In Memory Repository specific to test OrganizationalUnit entity
+    """
+
+    def get_by_parent_id(
+        self,
+        parent_id: UUID,
+        tenant_id: UUID,
+    ) -> List[OrganizationalUnit]:
+        """
+        Get organizational units by parent ID.
+        """
+
+        return [
+            organizational_unit
+            for organizational_unit in self._entities
+            if organizational_unit.parent_id == parent_id
+            and organizational_unit.tenant_id == tenant_id
+        ]
