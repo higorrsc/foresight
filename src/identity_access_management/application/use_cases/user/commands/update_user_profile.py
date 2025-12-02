@@ -8,7 +8,7 @@ from src.identity_access_management.application.use_cases.user import (
     UserNotFoundError,
 )
 from src.identity_access_management.domain.constants import AppPermission
-from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.repositories import IUserRepository
 from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ class UpdateUserProfileUseCase:
     Use Case for updating a user's profile.
     """
 
-    def __init__(self, repository: UserRepository):
+    def __init__(self, repository: IUserRepository):
         """
         Initialize the UpdateUserProfileUseCase.
         """

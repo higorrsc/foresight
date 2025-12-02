@@ -9,7 +9,7 @@ from src.identity_access_management.application.use_cases.user import (
 )
 from src.identity_access_management.domain.constants.permissions import AppPermission
 from src.identity_access_management.domain.entities.user import hash_password
-from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.repositories import IUserRepository
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -32,7 +32,7 @@ class ChangePasswordUseCase:
     UseCase to change a user's password.
     """
 
-    def __init__(self, repository: UserRepository):
+    def __init__(self, repository: IUserRepository):
         """
         Initialize the ChangePasswordUseCase.
         """

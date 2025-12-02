@@ -4,8 +4,8 @@ from src.shared_kernel.application._shared.use_cases.queries import (
 from src.shared_kernel.application.use_cases.organizational_unit import (
     OrganizationalUnitNotFoundError,
 )
-from src.shared_kernel.domain._shared import AbstractRepository
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 
 
 class GetOrganizationalUnitByIdUseCase(GenericGetByIdUseCase[OrganizationalUnit]):
@@ -13,7 +13,7 @@ class GetOrganizationalUnitByIdUseCase(GenericGetByIdUseCase[OrganizationalUnit]
     Use case for getting an organizational unit by its ID.
     """
 
-    def __init__(self, repository: AbstractRepository[OrganizationalUnit]) -> None:
+    def __init__(self, repository: IOrganizationalUnitRepository) -> None:
         """
         Initialize the get by id use case.
         """

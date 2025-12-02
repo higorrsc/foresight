@@ -1,6 +1,6 @@
 # src/identity_access_management/application/use_cases/user/create_user.py
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from typing import List
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
@@ -15,9 +15,6 @@ from src.identity_access_management.domain.repositories import (
     IUserRepository,
 )
 
-if TYPE_CHECKING:
-    from src.identity_access_management.domain.entities import User as UserEntity
-
 
 @dataclass(frozen=True)
 class CreateUserInputDTO:
@@ -26,7 +23,7 @@ class CreateUserInputDTO:
     within an existing tenant.
     """
 
-    actor: "UserEntity"
+    actor: "User"
     username: str
     password: str
     roles: List[str] = field(default_factory=list)

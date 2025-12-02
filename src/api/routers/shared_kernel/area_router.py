@@ -9,7 +9,7 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_area_repository
 from src.api.routers._shared import PaginatedApiResponse
-from src.identity_access_management.domain.entities.user import User
+from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application._shared.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
@@ -34,7 +34,7 @@ from src.shared_kernel.application.use_cases.area.queries import (
     GetAreaByIdUseCase,
     ListAreaUseCase,
 )
-from src.shared_kernel.infrastructure.repositories.area_repository import AreaRepository
+from src.shared_kernel.domain.repositories import IAreaRepository
 
 # --- Permissions ---
 require_area_create_or_update = PermissionChecker(["area:create", "area:update"])
@@ -99,7 +99,7 @@ router = APIRouter(
 )
 def create_area_endpoint(
     request_body: AreaCreateBody,
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -129,7 +129,7 @@ def create_area_endpoint(
     dependencies=[Depends(require_area_read)],
 )
 def list_areas_endpoint(
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
     description: Optional[str] = Query(None, description="Filter by description"),
     sort_by: Optional[str] = Query("description", description="Sort field"),
@@ -167,7 +167,7 @@ def list_areas_endpoint(
 )
 def get_area_by_id_endpoint(
     area_id: UUID,
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -199,7 +199,7 @@ def get_area_by_id_endpoint(
 def update_area_endpoint(
     area_id: UUID,
     request_body: AreaUpdateBody,
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -239,7 +239,7 @@ def update_area_endpoint(
 )
 def delete_area_endpoint(
     area_id: UUID,
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -263,7 +263,7 @@ def delete_area_endpoint(
 )
 def restore_area_endpoint(
     area_id: UUID,
-    repo: AreaRepository = Depends(get_area_repository),
+    repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
 ):
     """

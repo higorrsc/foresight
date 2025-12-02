@@ -10,9 +10,7 @@ from src.identity_access_management.application.use_cases.permission.queries imp
     ListPermissionsUseCase,
 )
 from src.identity_access_management.domain.entities import User
-from src.identity_access_management.infrastructure.repositories import (
-    PermissionRepository,
-)
+from src.identity_access_management.domain.repositories import IPermissionRepository
 from src.shared_kernel.application._shared.use_cases.queries.generic_list import (
     ListRequestInputDTO,
 )
@@ -49,7 +47,7 @@ router = APIRouter(
     response_model=PaginatedPermissionResponse,
 )
 def list_permissions_endpoint(
-    repo: PermissionRepository = Depends(get_permission_repository),
+    repo: IPermissionRepository = Depends(get_permission_repository),
     actor: User = Depends(get_current_user),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),

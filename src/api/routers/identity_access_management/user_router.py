@@ -34,9 +34,9 @@ from src.identity_access_management.application.use_cases.user.queries import (
     ListUserUseCase,
 )
 from src.identity_access_management.domain.entities.user import User
-from src.identity_access_management.infrastructure.repositories import (
-    RoleRepository,
-    UserRepository,
+from src.identity_access_management.domain.repositories import (
+    IRoleRepository,
+    IUserRepository,
 )
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
@@ -146,8 +146,8 @@ router = APIRouter(
 )
 def create_user_endpoint(
     request_body: UserCreateBody,
-    user_repo: UserRepository = Depends(get_user_repository),
-    role_repo: RoleRepository = Depends(get_role_repository),
+    user_repo: IUserRepository = Depends(get_user_repository),
+    role_repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -206,7 +206,7 @@ def get_current_user_me(actor: User = Depends(get_current_user)):
     dependencies=[Depends(require_user_read)],
 )
 def list_users_endpoint(
-    repo: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
     username: Optional[str] = Query(None, description="Filter by part of the username"),
     sort_by: Optional[str] = Query("username", description="Sort field"),
@@ -244,7 +244,7 @@ def list_users_endpoint(
 )
 def get_user_by_id_endpoint(
     user_id: UUID,
-    repo: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -267,7 +267,7 @@ def get_user_by_id_endpoint(
 )
 def delete_user_endpoint(
     user_id: UUID,
-    repo: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -295,7 +295,7 @@ def delete_user_endpoint(
 def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
-    repo: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -335,7 +335,7 @@ def change_password_endpoint(
 def update_user_profile_endpoint(
     user_id: UUID,
     request_body: UpdateUserProfileBody,
-    repo: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -378,8 +378,8 @@ def update_user_profile_endpoint(
 def set_user_roles_endpoint(
     user_id: UUID,
     request_body: SetUserRolesBody,
-    user_repo: UserRepository = Depends(get_user_repository),
-    role_repo: RoleRepository = Depends(get_role_repository),
+    user_repo: IUserRepository = Depends(get_user_repository),
+    role_repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """

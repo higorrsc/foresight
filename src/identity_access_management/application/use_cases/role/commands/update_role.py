@@ -6,8 +6,8 @@ from src.identity_access_management.application.use_cases.role import (
     InvalidRoleError,
     RoleNotFoundError,
 )
-from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
+from src.identity_access_management.domain.repositories import IRoleRepository
+from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -41,7 +41,7 @@ class UpdateRoleUseCase:
     Use case for updating a role.
     """
 
-    def __init__(self, repository: AbstractRepository[Role]) -> None:
+    def __init__(self, repository: IRoleRepository) -> None:
         """
         Initialize the update use case.
         """

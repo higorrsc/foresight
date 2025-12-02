@@ -26,7 +26,7 @@ from src.identity_access_management.application.use_cases.role.queries import (
     ListRoleUseCase,
 )
 from src.identity_access_management.domain.entities import User
-from src.identity_access_management.infrastructure.repositories import RoleRepository
+from src.identity_access_management.domain.repositories import IRoleRepository
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
 )
@@ -90,7 +90,7 @@ router = APIRouter(
 )
 def create_role_endpoint(
     request_body: RoleCreateBody,
-    repo: RoleRepository = Depends(get_role_repository),
+    repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -124,7 +124,7 @@ def create_role_endpoint(
     dependencies=[Depends(require_role_read)],
 )
 def list_roles_endpoint(
-    repo: RoleRepository = Depends(get_role_repository),
+    repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
     name: Optional[str] = Query(None, description="Filter by part of the name"),
     sort_by: Optional[str] = Query("name", description="Sort field"),
@@ -162,7 +162,7 @@ def list_roles_endpoint(
 )
 def get_role_by_id_endpoint(
     role_id: UUID,
-    repo: RoleRepository = Depends(get_role_repository),
+    repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -188,7 +188,7 @@ def get_role_by_id_endpoint(
 def update_role_endpoint(
     role_id: UUID,
     request_body: RoleCreateBody,
-    repo: RoleRepository = Depends(get_role_repository),
+    repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -224,7 +224,7 @@ def update_role_endpoint(
 )
 def delete_role_endpoint(
     role_id: UUID,
-    repo: RoleRepository = Depends(get_role_repository),
+    repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
 ):
     """

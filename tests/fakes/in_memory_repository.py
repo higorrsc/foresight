@@ -2,11 +2,20 @@ from typing import Optional
 from uuid import UUID
 
 from src.identity_access_management.domain.entities import Permission, Role, User
+from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
+    IRoleRepository,
+    IUserRepository,
+)
 from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
 from src.tenant_management.domain.entities import Plan, Tenant
+from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
 
 
-class UserInMemoryRepository(InMemoryRepository[User]):
+class UserInMemoryRepository(
+    InMemoryRepository[User],
+    IUserRepository,
+):
     """
     In Memory Repository specific to test User entity,
     this implements get_by_username method.
@@ -38,8 +47,22 @@ class UserInMemoryRepository(InMemoryRepository[User]):
 
         return None
 
+    def get_by_email(self, email: str, tenant_id: UUID | None) -> User | None:
+        """
+        Method to get a user by its email.
+        """
 
-class RoleInMemoryRepository(InMemoryRepository[Role]):
+        for user in self._entities:
+            if user.email == email and user.tenant_id == tenant_id:
+                return user
+
+        return None
+
+
+class RoleInMemoryRepository(
+    InMemoryRepository[Role],
+    IRoleRepository,
+):
     """
     In Memory Repository specific to test Role entity,
     this implements get_by_name method.
@@ -61,7 +84,10 @@ class RoleInMemoryRepository(InMemoryRepository[Role]):
         return None
 
 
-class PermissionInMemoryRepository(InMemoryRepository[Permission]):
+class PermissionInMemoryRepository(
+    InMemoryRepository[Permission],
+    IPermissionRepository,
+):
     """
     In Memory Repository specific to test Permission entity,
     this implements get_by_codename method.
@@ -74,8 +100,22 @@ class PermissionInMemoryRepository(InMemoryRepository[Permission]):
 
         return self._entities
 
+    def get_by_codename(self, codename: str) -> Permission | None:
+        """
+        Method to get a permission by its codename.
+        """
 
-class PlanInMemoryRepository(InMemoryRepository[Plan]):
+        for permission in self._entities:
+            if permission.codename == codename:
+                return permission
+
+        return None
+
+
+class PlanInMemoryRepository(
+    InMemoryRepository[Plan],
+    IPlanRepository,
+):
     """
     In Memory Repository specific to test Plan entity,
     this implements get_by_name method.
@@ -92,7 +132,10 @@ class PlanInMemoryRepository(InMemoryRepository[Plan]):
         return None
 
 
-class TenantInMemoryRepository(InMemoryRepository[Tenant]):
+class TenantInMemoryRepository(
+    InMemoryRepository[Tenant],
+    ITenantRepository,
+):
     """
     In Memory Repository specific to test Tenant entity,
     this implements get_by_name method.

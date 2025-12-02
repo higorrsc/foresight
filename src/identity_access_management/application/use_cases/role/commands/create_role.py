@@ -4,7 +4,8 @@ from uuid import UUID
 
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
+from src.identity_access_management.domain.repositories import IRoleRepository
+from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -35,7 +36,7 @@ class CreateRoleUseCase:
     Use case for creating a new role.
     """
 
-    def __init__(self, repository: AbstractRepository[Role]):
+    def __init__(self, repository: IRoleRepository):
         """
         Initialize the create use case.
         """

@@ -2,8 +2,8 @@ from src.shared_kernel.application._shared.use_cases.commands import (
     GenericDeleteUseCase,
 )
 from src.shared_kernel.application.use_cases.area import AreaNotFoundError
-from src.shared_kernel.domain._shared import AbstractRepository
 from src.shared_kernel.domain.entities import Area
+from src.shared_kernel.domain.repositories import IAreaRepository
 
 
 class DeleteAreaUseCase(GenericDeleteUseCase[Area]):
@@ -11,7 +11,7 @@ class DeleteAreaUseCase(GenericDeleteUseCase[Area]):
     Use case for deleting an area.
     """
 
-    def __init__(self, repository: AbstractRepository[Area]) -> None:
+    def __init__(self, repository: IAreaRepository) -> None:
         """
         Initialize the delete use case.
         """

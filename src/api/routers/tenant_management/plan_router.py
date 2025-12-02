@@ -20,7 +20,7 @@ from src.tenant_management.application.use_cases.plan.queries import (
     ListPlansInputDTO,
     ListPlansUseCase,
 )
-from src.tenant_management.infrastructure.repositories import PlanRepository
+from src.tenant_management.domain.repositories import IPlanRepository
 
 require_plan_create = PermissionChecker(["plan:create"])
 require_plan_read = PermissionChecker(["plan:read"])
@@ -64,7 +64,7 @@ router = APIRouter(prefix="/plans", tags=["Plans"])
 )
 def create_plan_endpoint(
     body: PlanCreateBody,
-    repo: PlanRepository = Depends(get_plan_repository),
+    repo: IPlanRepository = Depends(get_plan_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -97,7 +97,7 @@ def create_plan_endpoint(
     dependencies=[Depends(require_plan_read)],
 )
 def list_plans_endpoint(
-    repo: PlanRepository = Depends(get_plan_repository),
+    repo: IPlanRepository = Depends(get_plan_repository),
     actor: User = Depends(get_current_user),
 ):
     """

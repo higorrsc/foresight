@@ -14,21 +14,19 @@ from src.api.dependencies.database import (
     get_user_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
-from src.identity_access_management.application.use_cases.user import (
-    UsernameAlreadyExistsError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
 )
 from src.identity_access_management.application.use_cases.user.exceptions import (
     InsufficientPermissionError,
+    UsernameAlreadyExistsError,
 )
-from src.identity_access_management.domain.entities.user import User
-from src.identity_access_management.infrastructure.repositories import (
-    PermissionRepository,
-    RoleRepository,
-    UserRepository,
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
+    IRoleRepository,
+    IUserRepository,
 )
 from src.tenant_management.application.use_cases.tenant.commands import (
     UpdateTenantStatusInputDTO,
@@ -41,11 +39,8 @@ from src.tenant_management.application.use_cases.tenant.queries import (
     ListTenantsInputDTO,
     ListTenantsUseCase,
 )
+from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
 from src.tenant_management.domain.value_objects import TenantStatus
-from src.tenant_management.infrastructure.repositories import (
-    PlanRepository,
-    TenantRepository,
-)
 
 
 class SignupRequest(BaseModel):
@@ -111,11 +106,11 @@ router = APIRouter(prefix="/tenants", tags=["Tenant Management"])
 )
 def signup_endpoint(
     request: SignupRequest,
-    plan_repo: PlanRepository = Depends(get_plan_repository),
-    tenant_repo: TenantRepository = Depends(get_tenant_repository),
-    role_repo: RoleRepository = Depends(get_role_repository),
-    user_repo: UserRepository = Depends(get_user_repository),
-    perm_repo: PermissionRepository = Depends(get_permission_repository),
+    plan_repo: IPlanRepository = Depends(get_plan_repository),
+    tenant_repo: ITenantRepository = Depends(get_tenant_repository),
+    role_repo: IRoleRepository = Depends(get_role_repository),
+    user_repo: IUserRepository = Depends(get_user_repository),
+    perm_repo: IPermissionRepository = Depends(get_permission_repository),
 ):
     """
     Register a new tenant and admin user.
@@ -166,7 +161,7 @@ def signup_endpoint(
     dependencies=[Depends(require_tenant_read)],
 )
 def list_tenants_endpoint(
-    repo: TenantRepository = Depends(get_tenant_repository),
+    repo: ITenantRepository = Depends(get_tenant_repository),
     actor: User = Depends(get_current_user),
 ):
     """
@@ -192,7 +187,7 @@ def list_tenants_endpoint(
 def update_tenant_status_endpoint(
     tenant_id: UUID,
     body: TenantStatusUpdateBody,
-    repo: TenantRepository = Depends(get_tenant_repository),
+    repo: ITenantRepository = Depends(get_tenant_repository),
     actor: User = Depends(get_current_user),
 ):
     """

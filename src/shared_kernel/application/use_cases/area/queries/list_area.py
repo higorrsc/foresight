@@ -1,6 +1,6 @@
 from src.shared_kernel.application._shared.use_cases.queries import GenericListUseCase
-from src.shared_kernel.domain._shared import AbstractRepository
 from src.shared_kernel.domain.entities import Area
+from src.shared_kernel.domain.repositories import IAreaRepository
 
 
 class ListAreaUseCase(GenericListUseCase[Area]):
@@ -8,7 +8,7 @@ class ListAreaUseCase(GenericListUseCase[Area]):
     Use case for listing areas.
     """
 
-    def __init__(self, repository: AbstractRepository[Area]) -> None:
+    def __init__(self, repository: IAreaRepository) -> None:
         """
         Initialize the list use case.
 

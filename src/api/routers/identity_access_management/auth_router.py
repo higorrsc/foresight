@@ -12,7 +12,7 @@ from src.identity_access_management.application.use_cases.user.commands import (
     AuthenticateUserInputDTO,
     AuthenticateUserUseCase,
 )
-from src.identity_access_management.infrastructure.repositories import UserRepository
+from src.identity_access_management.domain.repositories import IUserRepository
 from src.shared_kernel.infrastructure.config import settings
 
 router = APIRouter(
@@ -28,13 +28,13 @@ router = APIRouter(
 async def login_for_access_token(
     username: str = Form(...),
     password: str = Form(...),
-    repository: UserRepository = Depends(get_user_repository),
+    repo: IUserRepository = Depends(get_user_repository),
 ):
     """
     Create JWT token for user.
     """
 
-    use_case = AuthenticateUserUseCase(repository)
+    use_case = AuthenticateUserUseCase(repo)
     input_dto = AuthenticateUserInputDTO(
         username=username,
         password=password,
