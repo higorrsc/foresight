@@ -6,8 +6,7 @@ from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleOutputDTO,
     CreateRoleUseCase,
 )
-from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import RoleInMemoryRepository
 
 
 class TestCreateRoleUseCase:
@@ -20,7 +19,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role with valid data.
         """
 
-        repository = InMemoryRepository[Role]()
+        repository = RoleInMemoryRepository()
         use_case = CreateRoleUseCase(repository)
         output = use_case.execute(
             CreateRoleInputDTO(
@@ -38,7 +37,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role with invalid data.
         """
 
-        repository = InMemoryRepository[Role]()
+        repository = RoleInMemoryRepository()
         use_case = CreateRoleUseCase(repository)
         with pytest.raises(
             InvalidRoleError,
@@ -57,7 +56,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role with invalid data.
         """
 
-        repository = InMemoryRepository[Role]()
+        repository = RoleInMemoryRepository()
         use_case = CreateRoleUseCase(repository)
         with pytest.raises(
             InvalidRoleError,
@@ -76,7 +75,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role without description.
         """
 
-        repository = InMemoryRepository[Role]()
+        repository = RoleInMemoryRepository()
         use_case = CreateRoleUseCase(repository)
         output = use_case.execute(
             CreateRoleInputDTO(

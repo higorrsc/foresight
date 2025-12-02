@@ -2,7 +2,7 @@ from src.shared_kernel.application._shared.dto import PaginatedResponseDTO
 from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from src.shared_kernel.application.use_cases.area.queries import ListAreaUseCase
 from src.shared_kernel.domain.entities import Area
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import AreaInMemoryRepository
 
 
 class TestListArea:
@@ -15,7 +15,7 @@ class TestListArea:
         Test listing areas.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = ListAreaUseCase(repository)
 
         area1 = Area(
@@ -45,7 +45,7 @@ class TestListArea:
         Test listing areas when there are no areas.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = ListAreaUseCase(repository)
 
         areas: PaginatedResponseDTO[Area] = use_case.execute(

@@ -10,7 +10,7 @@ from src.identity_access_management.domain.entities import Role
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
 )
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import RoleInMemoryRepository
 
 
 class TestDeleteRoleUseCase:
@@ -24,7 +24,7 @@ class TestDeleteRoleUseCase:
         Fixture that represents an in-memory repository for testing purposes.
         """
 
-        return InMemoryRepository[Role]()
+        return RoleInMemoryRepository()
 
     def test_delete_existing_role(self, role_in_memory_repository, admin_actor):
         """

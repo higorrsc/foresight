@@ -8,7 +8,7 @@ from src.shared_kernel.application._shared.use_cases.queries import (
 from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.application.use_cases.area.queries import GetAreaByIdUseCase
 from src.shared_kernel.domain.entities import Area
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import AreaInMemoryRepository
 
 
 class TestGetAreaByIdUseCase:
@@ -21,7 +21,7 @@ class TestGetAreaByIdUseCase:
         Test getting an area by a valid ID.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = GetAreaByIdUseCase(repository)
 
         area = Area(description="Test Area", tenant_id=admin_actor.tenant_id)
@@ -42,7 +42,7 @@ class TestGetAreaByIdUseCase:
         Test getting an area by a non-existent ID.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = GetAreaByIdUseCase(repository)
 
         non_existent_id: UUID = UUID("123e4567-e89b-12d3-a456-426614174000")

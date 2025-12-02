@@ -7,7 +7,7 @@ from src.shared_kernel.application._shared.use_cases.commands import (
 from src.shared_kernel.application.use_cases.area import InvalidAreaError
 from src.shared_kernel.application.use_cases.area.commands import UpdateAreaUseCase
 from src.shared_kernel.domain.entities import Area
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import AreaInMemoryRepository
 
 
 class TestUpdateArea:
@@ -20,7 +20,7 @@ class TestUpdateArea:
         Test updating an area with valid data.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = UpdateAreaUseCase(repository)
 
         area = Area(
@@ -45,7 +45,7 @@ class TestUpdateArea:
         Test updating an area with invalid data.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = UpdateAreaUseCase(repository)
 
         area = Area(
@@ -71,7 +71,7 @@ class TestUpdateArea:
         Test updating an area with invalid data.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = UpdateAreaUseCase(repository)
 
         area = Area(

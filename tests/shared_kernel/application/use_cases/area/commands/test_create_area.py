@@ -6,8 +6,7 @@ from src.shared_kernel.application._shared.use_cases.commands import (
 )
 from src.shared_kernel.application.use_cases.area import InvalidAreaError
 from src.shared_kernel.application.use_cases.area.commands import CreateAreaUseCase
-from src.shared_kernel.domain.entities.area import Area
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import AreaInMemoryRepository
 
 
 class TestCreateArea:
@@ -20,7 +19,7 @@ class TestCreateArea:
         Test the creation of an area with valid data.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = CreateAreaUseCase(repository)
         output = use_case.execute(
             CreateDescribedEntityInputDTO(
@@ -37,7 +36,7 @@ class TestCreateArea:
         Test the creation of an area with invalid data.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = CreateAreaUseCase(repository)
 
         with pytest.raises(

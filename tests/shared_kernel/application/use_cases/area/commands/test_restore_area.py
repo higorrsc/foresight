@@ -7,7 +7,7 @@ from src.shared_kernel.application._shared.use_cases.commands import (
 from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.application.use_cases.area.commands import RestoreAreaUseCase
 from src.shared_kernel.domain.entities import Area
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import AreaInMemoryRepository
 
 
 class TestRestoreArea:
@@ -20,7 +20,7 @@ class TestRestoreArea:
         Test restoring an area with a valid ID.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = RestoreAreaUseCase(repository)
 
         area = Area(
@@ -51,7 +51,7 @@ class TestRestoreArea:
         Test restoring a non-existent area.
         """
 
-        repository = InMemoryRepository[Area]()
+        repository = AreaInMemoryRepository()
         use_case = RestoreAreaUseCase(repository)
 
         non_existent_id: UUID = UUID("123e4567-e89b-12d3-a456-426614174000")

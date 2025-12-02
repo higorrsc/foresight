@@ -5,7 +5,7 @@ from src.identity_access_management.application.use_cases.role.queries import (
 )
 from src.identity_access_management.domain.entities import Role
 from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import RoleInMemoryRepository
 
 
 class TestListRoleUseCase:
@@ -19,7 +19,7 @@ class TestListRoleUseCase:
         Fixture that represents an in-memory repository for testing purposes.
         """
 
-        return InMemoryRepository[Role]()
+        return RoleInMemoryRepository()
 
     def test_list_role(self, role_in_memory_repository, admin_actor):
         """

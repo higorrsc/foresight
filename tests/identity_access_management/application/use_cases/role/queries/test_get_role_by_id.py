@@ -10,7 +10,7 @@ from src.identity_access_management.domain.entities import Role
 from src.shared_kernel.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
 )
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import RoleInMemoryRepository
 
 
 class TestGetRoleByIdUseCase:
@@ -24,7 +24,7 @@ class TestGetRoleByIdUseCase:
         Fixture that represents an in-memory repository for testing purposes.
         """
 
-        return InMemoryRepository[Role]()
+        return RoleInMemoryRepository()
 
     def test_get_role_by_id(self, role_in_memory_repository, admin_actor):
         """

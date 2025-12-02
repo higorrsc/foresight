@@ -11,7 +11,7 @@ from src.identity_access_management.application.use_cases.role.commands import (
     UpdateRoleUseCase,
 )
 from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from tests.fakes import RoleInMemoryRepository
 
 
 class TestUpdateRoleUseCase:
@@ -25,7 +25,7 @@ class TestUpdateRoleUseCase:
         Fixture that represents an in-memory repository for testing purposes.
         """
 
-        return InMemoryRepository[Role]()
+        return RoleInMemoryRepository()
 
     def test_update_role(self, role_in_memory_repository, admin_actor):
         """
