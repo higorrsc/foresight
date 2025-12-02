@@ -3,16 +3,26 @@ from typing import Generator
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
+    IRoleRepository,
+    IUserRepository,
+)
 from src.identity_access_management.infrastructure.repositories import (
     PermissionRepository,
     RoleRepository,
     UserRepository,
+)
+from src.shared_kernel.domain.repositories import (
+    IAreaRepository,
+    IOrganizationalUnitRepository,
 )
 from src.shared_kernel.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.repositories import (
     AreaRepository,
     OrganizationalUnitRepository,
 )
+from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
 from src.tenant_management.infrastructure.repositories import (
     PlanRepository,
     TenantRepository,
@@ -36,7 +46,7 @@ def get_db_session() -> Generator:  # pragma: no cover
 
 def get_area_repository(
     session: Session = Depends(get_db_session),
-) -> AreaRepository:
+) -> IAreaRepository:
     """
     Return an AreaRepository instance with database session.
     """
@@ -46,7 +56,7 @@ def get_area_repository(
 
 def get_user_repository(
     session: Session = Depends(get_db_session),
-) -> UserRepository:
+) -> IUserRepository:
     """
     Return an UserRepository instance with database session.
     """
@@ -56,7 +66,7 @@ def get_user_repository(
 
 def get_role_repository(
     session: Session = Depends(get_db_session),
-) -> RoleRepository:
+) -> IRoleRepository:
     """
     Return an RoleRepository instance with database session.
     """
@@ -66,7 +76,7 @@ def get_role_repository(
 
 def get_permission_repository(
     session: Session = Depends(get_db_session),
-) -> PermissionRepository:
+) -> IPermissionRepository:
     """
     Return an PermissionRepository instance with database session.
     """
@@ -76,7 +86,7 @@ def get_permission_repository(
 
 def get_tenant_repository(
     session: Session = Depends(get_db_session),
-) -> TenantRepository:
+) -> ITenantRepository:
     """
     Return an TenantRepository instance with database session.
     """
@@ -86,7 +96,7 @@ def get_tenant_repository(
 
 def get_plan_repository(
     session: Session = Depends(get_db_session),
-) -> PlanRepository:
+) -> IPlanRepository:
     """
     Return an PlanRepository instance with database session.
     """
@@ -96,7 +106,7 @@ def get_plan_repository(
 
 def get_organization_unit_repository(
     session: Session = Depends(get_db_session),
-) -> OrganizationalUnitRepository:
+) -> IOrganizationalUnitRepository:
     """
     Return an OrganizationalUnitRepository instance with database session.
     """
