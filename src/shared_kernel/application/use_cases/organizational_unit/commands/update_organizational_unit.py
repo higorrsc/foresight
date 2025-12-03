@@ -29,10 +29,13 @@ class UpdateOrganizationalUnitInputDTO:
 
 
 @dataclass(frozen=True)
-class CreateOrganizationalUnitOutputDTO:
+class UpdateOrganizationalUnitOutputDTO:
     """
     Data Transfer Object for output data when updating a existent Organizational Unit.
     """
+
+    id: UUID
+    description: str
 
 
 class UpdateOrganizationalUnitUseCase:
@@ -47,7 +50,10 @@ class UpdateOrganizationalUnitUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: UpdateOrganizationalUnitInputDTO) -> None:
+    def execute(
+        self,
+        input_dto: UpdateOrganizationalUnitInputDTO,
+    ) -> UpdateOrganizationalUnitOutputDTO:
         """
         Execute the use case to update an existing Organizational Unit.
         """
@@ -68,3 +74,7 @@ class UpdateOrganizationalUnitUseCase:
             raise InvalidOrganizationalUnitError(f"Invalid input data: {e}") from e
 
         self._repository.update(entity)
+        return UpdateOrganizationalUnitOutputDTO(
+            id=entity.id,
+            description=entity.description,
+        )
