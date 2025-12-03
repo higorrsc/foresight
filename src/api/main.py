@@ -8,7 +8,7 @@ from src.api.routers.identity_access_management import (
     RoleRouter,
     UserRouter,
 )
-from src.api.routers.shared_kernel import AreaRouter
+from src.api.routers.shared_kernel import AreaRouter, OrganizationalUnitRouter
 from src.api.routers.tenant_management import PlanRouter, TenantRouter
 from src.shared_kernel.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.db import seed_initial_data
@@ -51,6 +51,7 @@ app.include_router(PermissionRouter)
 app.include_router(UserRouter)
 app.include_router(RoleRouter)
 app.include_router(AreaRouter)
+app.include_router(OrganizationalUnitRouter)
 
 
 @app.get("/")
