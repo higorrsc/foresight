@@ -25,10 +25,8 @@ from src.shared_kernel.application.use_cases.organizational_unit.commands import
     CreateOrganizationalUnitUseCase,
     DeleteOrganizationalUnitUseCase,
     RestoreOrganizationalUnitUseCase,
-    UpdateOrganizationalUnitUseCase,
-)
-from src.shared_kernel.application.use_cases.organizational_unit.commands.update_organizational_unit import (
     UpdateOrganizationalUnitInputDTO,
+    UpdateOrganizationalUnitUseCase,
 )
 from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
     InvalidOrganizationalUnitError,
