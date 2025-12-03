@@ -104,7 +104,7 @@ def get_plan_repository(
     return PlanRepository(session)
 
 
-def get_organization_unit_repository(
+def get_organizational_unit_repository(
     session: Session = Depends(get_db_session),
 ) -> IOrganizationalUnitRepository:
     """
