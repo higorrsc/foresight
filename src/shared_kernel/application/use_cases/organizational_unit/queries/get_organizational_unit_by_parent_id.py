@@ -52,7 +52,7 @@ class GetOrganizationalUnitByParentIdUseCase:
 
         entities = self._repository.get_by_parent_id(
             parent_id=request.parent_id,
-            tenant_id=request.actor.tenant_id,
+            tenant_id=request.actor.tenant_id,  # type: ignore
         )
         return (
             [
