@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from src.shared_kernel.domain._shared import AbstractRepository
@@ -14,8 +14,8 @@ class IOrganizationalUnitRepository(AbstractRepository[OrganizationalUnit]):
     @abstractmethod
     def get_by_parent_id(
         self,
-        parent_id: Optional[UUID],
-        tenant_id: Optional[UUID],
+        parent_id: UUID,
+        tenant_id: UUID,
     ) -> List[OrganizationalUnit]:
         """
         Get organizational units by parent ID.
