@@ -5,8 +5,10 @@ from uuid import UUID
 from src.shared_kernel.application.use_cases.organizational_unit import (
     InvalidOrganizationalUnitError,
 )
+from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
+    OrganizationalUnitNotFoundError,
+)
 from src.shared_kernel.domain._shared.exceptions import (
-    EntityNotFoundException,
     EntityValidationError,
 )
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
@@ -63,7 +65,9 @@ class UpdateOrganizationalUnitUseCase:
             tenant_id=input_dto.actor.tenant_id,
         )
         if not entity:
-            raise EntityNotFoundException("Organizational Unit with given ID not found")
+            raise OrganizationalUnitNotFoundError(
+                "Organizational Unit with given ID not found"
+            )
 
         try:
             entity.description = input_dto.description
