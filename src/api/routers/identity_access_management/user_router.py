@@ -21,6 +21,7 @@ from src.identity_access_management.application.use_cases.user.commands import (
     CreateUserInputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
+    RestoreUserUseCase,
     SetUserRolesInputDTO,
     SetUserRolesUseCase,
     UpdateUserProfileUseCase,
@@ -40,6 +41,9 @@ from src.identity_access_management.domain.repositories import (
 )
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
+)
+from src.shared_kernel.application._shared.use_cases.commands.generic_restore import (
+    RestoreRequestInputDTO,
 )
 from src.shared_kernel.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
@@ -411,3 +415,27 @@ def set_user_roles_endpoint(
             else status.HTTP_400_BAD_REQUEST
         )
         raise HTTPException(status_code=status_code, detail=str(e)) from e
+
+
+@router.patch(
+    "/{user_id}/restore",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_user_delete)],
+)
+def restore_user_endpoint(
+    user_id: UUID,
+    repo: IUserRepository = Depends(get_user_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    Restore a soft-deleted user.
+    """
+
+    try:
+        use_case = RestoreUserUseCase(repo)
+        use_case.execute(RestoreRequestInputDTO(id=user_id, actor=actor))
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e

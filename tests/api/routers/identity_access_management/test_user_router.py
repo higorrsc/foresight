@@ -285,3 +285,42 @@ class TestUserRouter:
         )
         assert check_response.status_code == status.HTTP_200_OK
         assert check_response.json()["is_active"] is False
+
+    def test_restore_user_by_admin(
+        self,
+        client: TestClient,
+        admin_token: str,
+        guest_user_model: UserModel,
+    ):
+        """
+        Admin restores the guest user.
+        """
+
+        guest_id = guest_user_model.id
+
+        response = client.delete(
+            f"/users/{guest_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        check_response = client.get(
+            f"/users/{guest_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert check_response.status_code == status.HTTP_200_OK
+        assert check_response.json()["is_active"] is False
+
+        response = client.patch(
+            f"/users/{guest_id}/restore",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        check_response = client.get(
+            f"/users/{guest_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert check_response.status_code == status.HTTP_200_OK
+        assert check_response.json()["is_active"] is True
