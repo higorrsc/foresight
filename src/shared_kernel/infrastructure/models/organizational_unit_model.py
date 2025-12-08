@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from src.shared_kernel.infrastructure.config import (
@@ -46,4 +46,11 @@ class OrganizationalUnitModel(
     children = relationship(
         "OrganizationalUnitModel",
         back_populates="parent",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "code",
+            "tenant_id",
+        ),
     )
