@@ -94,7 +94,7 @@ class UserRepository(
                 .filter(RoleModel.name.in_(entity.roles))
                 .all()
             )
-            model.roles = role_models
+            model.roles_rel = role_models
 
         self._session.commit()
         self._session.refresh(model)
