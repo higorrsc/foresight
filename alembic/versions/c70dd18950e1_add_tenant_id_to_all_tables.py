@@ -36,7 +36,12 @@ def upgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_areas_tenant_id"), ["tenant_id"], unique=False
         )
-        batch_op.create_foreign_key(None, "tenants", ["tenant_id"], ["id"])
+        batch_op.create_foreign_key(
+            "fk_areas_tenant_id",
+            "tenants",
+            ["tenant_id"],
+            ["id"],
+        )
 
     with op.batch_alter_table("organizational_units", schema=None) as batch_op:
         batch_op.add_column(sa.Column("tenant_id", GUID_Type(), nullable=False))
@@ -51,7 +56,12 @@ def upgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_organizational_units_tenant_id"), ["tenant_id"], unique=False
         )
-        batch_op.create_foreign_key(None, "tenants", ["tenant_id"], ["id"])
+        batch_op.create_foreign_key(
+            "fk_organizational_units_tenant_id",
+            "tenants",
+            ["tenant_id"],
+            ["id"],
+        )
 
     with op.batch_alter_table("permissions", schema=None) as batch_op:
         batch_op.drop_index(
@@ -74,7 +84,12 @@ def upgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_roles_tenant_id"), ["tenant_id"], unique=False
         )
-        batch_op.create_foreign_key(None, "tenants", ["tenant_id"], ["id"])
+        batch_op.create_foreign_key(
+            "fk_roles_tenant_id",
+            "tenants",
+            ["tenant_id"],
+            ["id"],
+        )
 
     with op.batch_alter_table("users", schema=None) as batch_op:
         batch_op.add_column(sa.Column("tenant_id", GUID_Type(), nullable=True))
@@ -95,7 +110,12 @@ def upgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_users_tenant_id"), ["tenant_id"], unique=False
         )
-        batch_op.create_foreign_key(None, "tenants", ["tenant_id"], ["id"])
+        batch_op.create_foreign_key(
+            "fk_users_tenant_id",
+            "tenants",
+            ["tenant_id"],
+            ["id"],
+        )
 
     # ### end Alembic commands ###
 

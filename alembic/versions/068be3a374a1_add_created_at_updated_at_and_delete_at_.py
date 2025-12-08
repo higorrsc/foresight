@@ -61,10 +61,18 @@ def upgrade() -> None:
             batch_op.f("ix_areas_tenant_id"), ["tenant_id"], unique=False
         )
         batch_op.create_foreign_key(
-            None, "users", ["updated_by"], ["id"], ondelete="SET NULL"
+            "fk_areas_updated_by",
+            "users",
+            ["updated_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
         batch_op.create_foreign_key(
-            None, "users", ["created_by"], ["id"], ondelete="SET NULL"
+            "fk_areas_created_by",
+            "users",
+            ["created_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
 
     with op.batch_alter_table("organizational_units", schema=None) as batch_op:
@@ -105,10 +113,18 @@ def upgrade() -> None:
             batch_op.f("ix_organizational_units_tenant_id"), ["tenant_id"], unique=False
         )
         batch_op.create_foreign_key(
-            None, "users", ["updated_by"], ["id"], ondelete="SET NULL"
+            "fk_organizational_units_updated_by",
+            "users",
+            ["updated_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
         batch_op.create_foreign_key(
-            None, "users", ["created_by"], ["id"], ondelete="SET NULL"
+            "fk_organizational_units_created_by",
+            "users",
+            ["created_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
 
     with op.batch_alter_table("permissions", schema=None) as batch_op:

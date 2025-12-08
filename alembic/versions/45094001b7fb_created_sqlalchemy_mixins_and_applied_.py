@@ -133,10 +133,18 @@ def upgrade() -> None:
             existing_nullable=True,
         )
         batch_op.create_foreign_key(
-            None, "users", ["created_by"], ["id"], ondelete="SET NULL"
+            "fk_plans_created_by",
+            "users",
+            ["created_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
         batch_op.create_foreign_key(
-            None, "users", ["updated_by"], ["id"], ondelete="SET NULL"
+            "fk_plans_updated_by",
+            "users",
+            ["updated_by"],
+            ["id"],
+            ondelete="SET NULL",
         )
 
     with op.batch_alter_table("roles", schema=None) as batch_op:
