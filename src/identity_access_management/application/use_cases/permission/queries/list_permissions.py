@@ -23,7 +23,8 @@ class ListPermissionsUseCase:
         self._repository = repository
 
     def execute(
-        self, input_dto: ListRequestInputDTO
+        self,
+        input_dto: ListRequestInputDTO,
     ) -> PaginatedResponseDTO[Permission]:
         """
         Execute the use case.
@@ -34,10 +35,13 @@ class ListPermissionsUseCase:
 
         all_permissions = self._repository.list_all()
 
-        total_items = len(all_permissions)
+        # Ordena a lista de permissões pelo atributo 'code'
+        sorted_permissions = sorted(all_permissions, key=lambda p: p.codename)
+
+        total_items = len(sorted_permissions)
         start = input_dto.offset
         end = start + input_dto.limit
-        paginated_data = all_permissions[start:end]
+        paginated_data = sorted_permissions[start:end]
 
         page_size = input_dto.limit
         if page_size > 0:
