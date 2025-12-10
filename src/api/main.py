@@ -44,15 +44,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(PlanRouter)
-app.include_router(TenantRouter)
-app.include_router(AuthRouter)
-app.include_router(PermissionRouter)
-app.include_router(UserRouter)
-app.include_router(RoleRouter)
-app.include_router(AreaRouter)
-app.include_router(OrganizationalUnitRouter)
-
 
 @app.get("/")
 def read_root():
@@ -61,3 +52,13 @@ def read_root():
     """
 
     return {"message": "Bem-vindo à Foresight API!"}
+
+
+app.include_router(AuthRouter)
+app.include_router(PermissionRouter)
+app.include_router(PlanRouter)
+app.include_router(TenantRouter)
+app.include_router(UserRouter)
+app.include_router(RoleRouter)
+app.include_router(AreaRouter)
+app.include_router(OrganizationalUnitRouter)
