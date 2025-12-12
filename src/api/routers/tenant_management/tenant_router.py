@@ -14,12 +14,14 @@ from src.api.dependencies.database import (
     get_user_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+)
 from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
 )
 from src.identity_access_management.application.use_cases.user.exceptions import (
-    InsufficientPermissionError,
     UsernameAlreadyExistsError,
 )
 from src.identity_access_management.domain.entities import User

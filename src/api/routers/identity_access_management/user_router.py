@@ -9,6 +9,9 @@ from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
 from src.api.dependencies.database import get_role_repository, get_user_repository
 from src.api.routers._shared import PaginatedApiResponse
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+)
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.application.use_cases.user import (
     InvalidPasswordError,
@@ -26,9 +29,6 @@ from src.identity_access_management.application.use_cases.user.commands import (
     SetUserRolesUseCase,
     UpdateUserProfileUseCase,
     UserProfileInputDTO,
-)
-from src.identity_access_management.application.use_cases.user.exceptions import (
-    InsufficientPermissionError,
 )
 from src.identity_access_management.application.use_cases.user.queries import (
     GetUserByIdUseCase,

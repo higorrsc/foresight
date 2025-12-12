@@ -1,5 +1,7 @@
-from src.identity_access_management.application.use_cases.user.exceptions import (
+from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
+)
+from src.identity_access_management.application.use_cases.user import (
     InvalidUserError,
     UserNotFoundError,
 )

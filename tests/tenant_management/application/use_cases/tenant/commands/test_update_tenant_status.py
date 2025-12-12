@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from src.identity_access_management.application.use_cases.user import (
+from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission

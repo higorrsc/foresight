@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from math import ceil
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from src.identity_access_management.application.use_cases.user import (
+from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission
