@@ -33,3 +33,9 @@ class InsufficientPermissionError(UserUseCaseError):
     Exception raised when the actor does not have sufficient
     permissions to perform an action.
     """
+
+
+class PermissionNotFoundError(UserUseCaseError):
+    """
+    Exception raised when a Permission is not found.
+    """

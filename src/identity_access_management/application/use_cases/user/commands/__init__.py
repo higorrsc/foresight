@@ -4,6 +4,7 @@ from .create_user import CreateUserInputDTO, CreateUserUseCase
 from .delete_user import DeleteUserUseCase
 from .onboarding import OnboardingInputDTO, OnboardingOutputDTO, OnboardingUseCase
 from .restore_user import RestoreUserUseCase
+from .set_user_permissions import SetUserPermissionsInputDTO, SetUserPermissionsUseCase
 from .set_user_roles import SetUserRolesInputDTO, SetUserRolesUseCase
 from .update_user_profile import UpdateUserProfileUseCase, UserProfileInputDTO
 
@@ -19,6 +20,8 @@ __all__ = [
     "OnboardingOutputDTO",
     "OnboardingUseCase",
     "RestoreUserUseCase",
+    "SetUserPermissionsInputDTO",
+    "SetUserPermissionsUseCase",
     "SetUserRolesInputDTO",
     "SetUserRolesUseCase",
     "UpdateUserProfileUseCase",

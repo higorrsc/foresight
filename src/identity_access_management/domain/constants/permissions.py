@@ -25,6 +25,7 @@ class AppPermission(str, Enum):
     ROLE_CREATE = "role:create"
     ROLE_DELETE = "role:delete"
     ROLE_READ = "role:read"
+    ROLE_SET_PERMISSIONS = "role:set_permissions"
     ROLE_UPDATE = "role:update"
 
     TENANT_READ = "tenant:read"
