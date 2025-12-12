@@ -10,9 +10,10 @@ from sqlalchemy.pool import NullPool, Pool, StaticPool
 
 from src.api.dependencies.database import get_db_session
 from src.api.main import app
+from src.identity_access_management.domain.entities import Role as RoleEntity
 from src.identity_access_management.domain.entities import User as UserEntity
-from src.identity_access_management.infrastructure.mappers import UserMapper
-from src.identity_access_management.infrastructure.models import UserModel
+from src.identity_access_management.infrastructure.mappers import RoleMapper, UserMapper
+from src.identity_access_management.infrastructure.models import RoleModel, UserModel
 from src.shared_kernel.infrastructure.config import Base
 from src.shared_kernel.infrastructure.db import seed_initial_data
 
@@ -211,3 +212,21 @@ def default_tenant_id(default_tenant: TenantModel) -> str:
     """
 
     return str(default_tenant.id)
+
+
+@pytest.fixture(scope="function")
+def admin_role(admin_role_model: RoleModel) -> RoleEntity:
+    """
+    Returns the 'admin' Role (Domain Entity) to be used as an role in use cases.
+    """
+
+    return RoleMapper.to_entity(admin_role_model)
+
+
+@pytest.fixture(scope="function")
+def guest_role(guest_role_model: RoleModel) -> RoleEntity:
+    """
+    Returns the 'guest' Role (Domain Entity) to be used as an role in use cases.
+    """
+
+    return RoleMapper.to_entity(guest_role_model)
