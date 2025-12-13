@@ -116,3 +116,32 @@ class TestRolesRouter:
             f"/roles/{role_id}", headers={"Authorization": f"Bearer {admin_token}"}
         )
         assert get_response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_update_role(self, client: TestClient, admin_token: str):
+        """
+        Test role update.
+        """
+        # 1. Create
+        create_resp = client.post(
+            "/roles/",
+            json={
+                "name": "role_to_update",
+                "description": "Old Desc",
+            },
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        role_id = create_resp.json()["id"]
+
+        # 2. Update
+        response = client.put(
+            f"/roles/{role_id}",
+            json={
+                "name": "updated_role_name",
+                "description": "New Desc",
+            },
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["name"] == "updated_role_name"

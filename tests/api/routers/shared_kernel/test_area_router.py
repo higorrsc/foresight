@@ -242,3 +242,52 @@ class TestAreaRouter:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_delete_and_restore_area(self, client: TestClient, admin_token: str):
+        """
+        Test the soft delete and restore flow.
+        """
+        # 1. Create
+        create_resp = client.post(
+            "/areas/",
+            json={"description": "To be deleted"},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        area_id = create_resp.json()["id"]
+
+        # 2. Delete
+        del_resp = client.delete(
+            f"/areas/{area_id}",
+            headers={
+                "Authorization": f"Bearer {admin_token}",
+            },
+        )
+        assert del_resp.status_code == status.HTTP_204_NO_CONTENT
+
+        # 3. Verify it's gone (Get should return 404 or inactive)
+        # Assuming repository filters active only by default or throws 404
+        get_resp = client.get(
+            f"/areas/{area_id}",
+            headers={
+                "Authorization": f"Bearer {admin_token}",
+            },
+        )
+        assert get_resp.status_code == status.HTTP_200_OK
+        assert get_resp.json()["is_active"] is False
+
+        # 4. Restore
+        restore_resp = client.patch(
+            f"/areas/{area_id}/restore",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert restore_resp.status_code == status.HTTP_204_NO_CONTENT
+
+        # 5. Verify it's back
+        get_resp_2 = client.get(
+            f"/areas/{area_id}",
+            headers={
+                "Authorization": f"Bearer {admin_token}",
+            },
+        )
+        assert get_resp_2.status_code == status.HTTP_200_OK
+        assert get_resp_2.json()["is_active"] is True
