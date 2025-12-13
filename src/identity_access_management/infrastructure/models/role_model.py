@@ -6,9 +6,14 @@ from src.shared_kernel.infrastructure.config import (
     SQLAlchemyBase,
     SQLAlchemyTenantMixin,
 )
+from src.shared_kernel.infrastructure.config.mixins import SQLAlchemySoftDeletableMixin
 
 
-class RoleModel(SQLAlchemyBase, SQLAlchemyTenantMixin):
+class RoleModel(
+    SQLAlchemyBase,
+    SQLAlchemyTenantMixin,
+    SQLAlchemySoftDeletableMixin,
+):
     """
     SQLAlchemy model for the Role entity.
     """

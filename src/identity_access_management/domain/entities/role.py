@@ -3,10 +3,11 @@ from typing import Optional, Set
 
 from src.shared_kernel.domain._shared import EntityValidationError
 from src.shared_kernel.domain._shared.entities import TenantAwareEntity
+from src.shared_kernel.domain._shared.mixins import SoftDeletableMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class Role(TenantAwareEntity):
+class Role(TenantAwareEntity, SoftDeletableMixin):
     """
     Entity representing a role in the system.
     """

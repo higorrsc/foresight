@@ -77,6 +77,11 @@ class RoleRepository(
 
         model.name = entity.name  # type: ignore
         model.description = entity.description  # type: ignore
+        model.is_active = entity.is_active  # type: ignore
+
+        if hasattr(entity, "deleted_at"):
+            model.deleted_at = entity.deleted_at  # type: ignore
+
         if entity.permissions:
             permission_models = (
                 self._session.query(PermissionModel)
