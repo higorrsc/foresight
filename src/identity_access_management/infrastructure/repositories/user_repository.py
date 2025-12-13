@@ -146,3 +146,23 @@ class UserRepository(
         stmt = select(self._model_cls).filter_by(username=username)
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
+
+    def count_users_by_role(self, role_id: UUID) -> int:
+        """
+        Count the number of users associated with a role.
+        """
+
+        stmt = (
+            select(UserModel)
+            .join(
+                UserModel.roles_rel,
+            )
+            .filter(
+                RoleModel.id == role_id,
+            )
+        )
+
+        result = self._session.execute(stmt)
+
+        users = result.unique().scalars().all()
+        return len(users)

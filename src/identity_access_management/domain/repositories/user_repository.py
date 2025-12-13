@@ -42,3 +42,11 @@ class IUserRepository(AbstractRepository[User]):
         """
 
         raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def count_users_by_role(self, role_id: UUID) -> int:
+        """
+        Count the number of users associated with a role.
+        """
+
+        raise NotImplementedError  # pragma: no cover
