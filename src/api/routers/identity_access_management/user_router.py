@@ -7,10 +7,15 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import get_role_repository, get_user_repository
+from src.api.dependencies.database import (
+    get_permission_repository,
+    get_role_repository,
+    get_user_repository,
+)
 from src.api.routers._shared import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
+    PermissionNotFoundError,
 )
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.application.use_cases.user import (
@@ -25,6 +30,8 @@ from src.identity_access_management.application.use_cases.user.commands import (
     CreateUserUseCase,
     DeleteUserUseCase,
     RestoreUserUseCase,
+    SetUserPermissionsInputDTO,
+    SetUserPermissionsUseCase,
     SetUserRolesInputDTO,
     SetUserRolesUseCase,
     UpdateUserProfileUseCase,
@@ -34,15 +41,14 @@ from src.identity_access_management.application.use_cases.user.queries import (
     GetUserByIdUseCase,
     ListUserUseCase,
 )
-from src.identity_access_management.domain.entities.user import User
+from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
     IRoleRepository,
     IUserRepository,
 )
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
-)
-from src.shared_kernel.application._shared.use_cases.commands.generic_restore import (
     RestoreRequestInputDTO,
 )
 from src.shared_kernel.application._shared.use_cases.queries import (
@@ -55,6 +61,7 @@ require_user_create = PermissionChecker(["user:create"])
 require_user_delete = PermissionChecker(["user:delete"])
 require_user_me = PermissionChecker(["user:me"])
 require_user_read = PermissionChecker(["user:read"])
+require_user_set_permissions = PermissionChecker(["user:set_permissions"])
 require_user_set_roles = PermissionChecker(["user:set_roles"])
 require_user_update = PermissionChecker(["user:update"])
 require_user_update_profile = PermissionChecker(["user:update_profile"])
@@ -114,6 +121,14 @@ class ChangePasswordBody(BaseModel):
 
     old_password: str
     new_password: str = Field(..., min_length=8)
+
+
+class SetUserPermissionsBody(BaseModel):
+    """
+    Request model for setting user permissions.
+    """
+
+    permission_codes: List[str] = Field(default_factory=list)
 
 
 class SetUserRolesBody(BaseModel):
@@ -179,12 +194,16 @@ def create_user_endpoint(
             if isinstance(e, UsernameAlreadyExistsError)
             else status.HTTP_400_BAD_REQUEST
         )
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
     except InsufficientPermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
 
 
@@ -260,7 +279,10 @@ def get_user_by_id_endpoint(
         user = use_case.execute(input_dto)
         return user
     except UserNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
 
 
 @router.delete(
@@ -281,10 +303,14 @@ def delete_user_endpoint(
         use_case = DeleteUserUseCase(repo)
         use_case.execute(DeleteRequestInputDTO(id=user_id, actor=actor))
     except UserNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except InsufficientPermissionError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
@@ -316,10 +342,14 @@ def change_password_endpoint(
         )
         use_case.execute(input_dto)
     except UserNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
     except InvalidPasswordError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except (ValueError, InsufficientPermissionError) as e:
         status_code = (
@@ -327,7 +357,54 @@ def change_password_endpoint(
             if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
+
+
+@router.patch(
+    "/{user_id}/permissions",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_user_set_permissions)],
+)
+def set_user_permissions_endpoint(
+    user_id: UUID,
+    request_body: SetUserPermissionsBody,
+    user_repo: IUserRepository = Depends(get_user_repository),
+    permission_repo: IPermissionRepository = Depends(get_permission_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    Set (overwrite) the permissions for a specific user. (Admin only)
+    """
+
+    try:
+        use_case = SetUserPermissionsUseCase(
+            user_repository=user_repo,
+            permission_repository=permission_repo,
+        )
+        input_dto = SetUserPermissionsInputDTO(
+            actor=actor,
+            user_id_to_update=user_id,
+            permissions_codes=request_body.permission_codes,
+        )
+        use_case.execute(input_dto)
+    except (UserNotFoundError, PermissionNotFoundError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except (ValueError, InsufficientPermissionError) as e:
+        status_code = (
+            status.HTTP_403_FORBIDDEN
+            if isinstance(e, InsufficientPermissionError)
+            else status.HTTP_400_BAD_REQUEST
+        )
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
 
 
 @router.patch(
@@ -363,14 +440,20 @@ def update_user_profile_endpoint(
         use_case = UpdateUserProfileUseCase(repo)
         use_case.execute(input_dto)
     except UserNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
     except (ValueError, InsufficientPermissionError) as e:
         status_code = (
             status.HTTP_403_FORBIDDEN
             if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
 
 
 @router.patch(
@@ -406,14 +489,15 @@ def set_user_roles_endpoint(
             detail=str(e),
         ) from e
     except (ValueError, InsufficientPermissionError) as e:
-        # InsufficientPermissionError (business rule) -> 403
-        # ValueError (role not found) -> 400
         status_code = (
             status.HTTP_403_FORBIDDEN
             if isinstance(e, InsufficientPermissionError)
             else status.HTTP_400_BAD_REQUEST
         )
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
 
 
 @router.patch(
