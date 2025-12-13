@@ -28,7 +28,6 @@ class UserProfileInputDTO:
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
-    is_active: Optional[bool] = None
 
 
 class UpdateUserProfileUseCase:
@@ -80,17 +79,6 @@ class UpdateUserProfileUseCase:
 
         if input_dto.email is not None:
             user_to_update.email = input_dto.email
-            something_changed = True
-
-        if input_dto.is_active is not None:
-            if (
-                not can_update_others
-                and input_dto.is_active != user_to_update.is_active
-            ):
-                raise InsufficientPermissionError(
-                    "User does not have permission to change 'is_active' status."
-                )
-            user_to_update.is_active = input_dto.is_active
             something_changed = True
 
         if not something_changed:

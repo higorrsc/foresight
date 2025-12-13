@@ -132,7 +132,6 @@ class UpdateUserProfileBody(BaseModel):
     first_name: Optional[str] = Field(None, max_length=100)
     last_name: Optional[str] = Field(None, max_length=100)
     email: Optional[EmailStr] = None
-    is_active: Optional[bool] = None
 
 
 router = APIRouter(
