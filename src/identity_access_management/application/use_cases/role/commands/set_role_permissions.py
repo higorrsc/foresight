@@ -51,7 +51,7 @@ class SetRolePermissionsUseCase:
         """
         if AppPermission.ROLE_SET_PERMISSIONS not in input_dto.actor.permissions:
             raise InsufficientPermissionError(
-                "Role does not have permission to set permissions."
+                "User does not have permission to set permissions."
             )
 
         role_to_update = self._role_repository.get_by_id(
