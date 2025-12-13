@@ -109,3 +109,36 @@ class TestUpdateRole:
         role.update_role(new_name="test_role", new_description="")
 
         assert role.description == ""
+
+
+class TestDeleteAndRestoreRole:
+    """
+    Test suite for deleting the Role entity.
+    """
+
+    def test_delete_role(self):
+        """
+        Test deleting a Role entity.
+        """
+
+        role = Role(name="test_role", description="Test Role")
+        role.soft_delete()
+
+        assert role.is_active is False
+        assert role.deleted_at is not None
+
+    def test_restore_role(self):
+        """
+        Test restoring a deleted Role entity.
+        """
+
+        role = Role(name="test_role", description="Test Role")
+        role.soft_delete()
+
+        assert role.is_active is False
+        assert role.deleted_at is not None
+
+        role.restore()
+
+        assert role.is_active is True
+        assert role.deleted_at is None
