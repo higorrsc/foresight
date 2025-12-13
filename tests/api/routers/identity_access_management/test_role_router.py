@@ -145,3 +145,94 @@ class TestRolesRouter:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["name"] == "updated_role_name"
+
+    def test_create_role_with_valid_permission(
+        self,
+        client: TestClient,
+        admin_token: str,
+    ):
+        """
+        Test role creation with a valid permission.
+        """
+
+        response = client.post(
+            "/roles/",
+            json={
+                "name": "role_with_permission",
+                "description": "Role with permission",
+                "permissions": ["area:read"],
+            },
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert "id" in response.json()
+
+    def test_create_role_with_invalid_permission(
+        self,
+        client: TestClient,
+        admin_token: str,
+    ):
+        """
+        Test role creation with a valid permission.
+        """
+
+        response = client.post(
+            "/roles/",
+            json={
+                "name": "role_with_permission",
+                "description": "Role with permission",
+                "permissions": ["area:reader"],
+            },
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Permission 'area:reader' not found." in response.json()["detail"]
+
+    def test_set_role_permissions(
+        self,
+        client: TestClient,
+        admin_token: str,
+    ):
+        """
+        Test setting role permissions.
+        """
+
+        response = client.get(
+            "/roles/",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        role_id = response.json()["data"][1]["id"]
+
+        response = client.patch(
+            f"/roles/{role_id}/permissions",
+            json={"permission_codes": ["area:read"]},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_set_role_permissions_invalid_permission(
+        self,
+        client: TestClient,
+        admin_token: str,
+    ):
+        """
+        Test setting role permissions with an invalid permission.
+        """
+
+        response = client.get(
+            "/roles/",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        role_id = response.json()["data"][1]["id"]
+
+        response = client.patch(
+            f"/roles/{role_id}/permissions",
+            json={"permission_codes": ["area:reader"]},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert "Permission 'area:reader' does not exist." in response.json()["detail"]

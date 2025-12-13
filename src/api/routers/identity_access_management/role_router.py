@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional, Set
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -7,8 +7,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import get_role_repository
+from src.api.dependencies.database import get_permission_repository, get_role_repository
 from src.api.routers._shared import PaginatedApiResponse
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+    PermissionNotFoundError,
+)
 from src.identity_access_management.application.use_cases.role import (
     InvalidRoleError,
     RoleAlreadyExistsError,
@@ -18,6 +22,8 @@ from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleUseCase,
     DeleteRoleUseCase,
+    SetRolePermissionsInputDTO,
+    SetRolePermissionsUseCase,
     UpdateRoleInputDTO,
     UpdateRoleUseCase,
 )
@@ -26,7 +32,10 @@ from src.identity_access_management.application.use_cases.role.queries import (
     ListRoleUseCase,
 )
 from src.identity_access_management.domain.entities import User
-from src.identity_access_management.domain.repositories import IRoleRepository
+from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
+    IRoleRepository,
+)
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
 )
@@ -39,10 +48,22 @@ from src.shared_kernel.application._shared.use_cases.queries import (
 require_role_create_or_update = PermissionChecker(["role:create", "role:update"])
 require_role_delete = PermissionChecker(["role:delete"])
 require_role_read = PermissionChecker(["role:read"])
+require_role_set_permissions = PermissionChecker(["role:set_permissions"])
 
 
 # --- Response Models ---
-class RoleResponse(BaseModel):
+class RoleSummaryResponse(BaseModel):
+    """
+    Summary response model for Role (used in lists).
+    """
+
+    id: UUID
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RoleDetailResponse(BaseModel):
     """
     Response model for Role API.
     """
@@ -52,11 +73,12 @@ class RoleResponse(BaseModel):
     description: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    permissions: Set[str] = set()
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class PaginatedRoleResponse(PaginatedApiResponse[RoleResponse]):
+class PaginatedRoleResponse(PaginatedApiResponse[RoleSummaryResponse]):
     """
     Paginated response model for Role.
     """
@@ -70,6 +92,15 @@ class RoleCreateBody(BaseModel):
 
     name: str = Field(..., min_length=3, max_length=100)
     description: Optional[str] = Field(None, max_length=255)
+    permissions: Set[str] = set()
+
+
+class SetRolePermissionsBody(BaseModel):
+    """
+    Request model for setting role permissions.
+    """
+
+    permission_codes: List[str] = Field(default_factory=list)
 
 
 # --- Router ---
@@ -90,20 +121,25 @@ router = APIRouter(
 )
 def create_role_endpoint(
     request_body: RoleCreateBody,
-    repo: IRoleRepository = Depends(get_role_repository),
+    role_repo: IRoleRepository = Depends(get_role_repository),
+    permission_repo: IPermissionRepository = Depends(get_permission_repository),
     actor: User = Depends(get_current_user),
 ):
     """
     Create a new role in the current tenant.
     """
     try:
-        use_case = CreateRoleUseCase(repo)
+        use_case = CreateRoleUseCase(
+            role_repo,
+            permission_repo,
+        )
 
         # Manual DTO construction
         input_dto = CreateRoleInputDTO(
             actor=actor,
             name=request_body.name,
             description=request_body.description,
+            permissions=request_body.permissions,  # type: ignore
         )
 
         result = use_case.execute(input_dto)
@@ -114,7 +150,20 @@ def create_role_endpoint(
             if isinstance(e, RoleAlreadyExistsError)
             else status.HTTP_422_UNPROCESSABLE_CONTENT
         )
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
+    except InsufficientPermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        ) from e
+    except (ValueError, PermissionNotFoundError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
 @router.get(
@@ -157,7 +206,7 @@ def list_roles_endpoint(
 @router.get(
     "/{role_id}",
     status_code=status.HTTP_200_OK,
-    response_model=RoleResponse,
+    response_model=RoleDetailResponse,
     dependencies=[Depends(require_role_read)],
 )
 def get_role_by_id_endpoint(
@@ -214,7 +263,10 @@ def update_role_endpoint(
             status_code = status.HTTP_409_CONFLICT
         else:
             status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
-        raise HTTPException(status_code=status_code, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status_code,
+            detail=str(e),
+        ) from e
 
 
 @router.delete(
@@ -236,5 +288,49 @@ def delete_role_endpoint(
     except RoleNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+
+
+@router.patch(
+    "/{role_id}/permissions",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role_set_permissions)],
+)
+def set_role_permissions_endpoint(
+    role_id: UUID,
+    request_body: SetRolePermissionsBody,
+    role_repo: IRoleRepository = Depends(get_role_repository),
+    permission_repo: IPermissionRepository = Depends(get_permission_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    Set (overwrite) the permissions for a specific role. (Admin only)
+    """
+
+    try:
+        use_case = SetRolePermissionsUseCase(
+            role_repository=role_repo,
+            permission_repository=permission_repo,
+        )
+        input_dto = SetRolePermissionsInputDTO(
+            actor=actor,
+            role_id_to_update=role_id,
+            permissions_codes=request_body.permission_codes,
+        )
+        use_case.execute(input_dto)
+    except (RoleNotFoundError, PermissionNotFoundError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except (ValueError, InsufficientPermissionError) as e:
+        status_code = (
+            status.HTTP_403_FORBIDDEN
+            if isinstance(e, InsufficientPermissionError)
+            else status.HTTP_400_BAD_REQUEST
+        )
+        raise HTTPException(
+            status_code=status_code,
             detail=str(e),
         ) from e
