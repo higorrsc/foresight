@@ -7,7 +7,11 @@ from sqlalchemy.orm import Session
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import IUserRepository
 from src.identity_access_management.infrastructure.mappers import UserMapper
-from src.identity_access_management.infrastructure.models import RoleModel, UserModel
+from src.identity_access_management.infrastructure.models import (
+    PermissionModel,
+    RoleModel,
+    UserModel,
+)
 from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
@@ -95,6 +99,14 @@ class UserRepository(
                 .all()
             )
             model.roles_rel = role_models
+
+        if entity.permissions is not None:
+            permission_models = (
+                self._session.query(PermissionModel)
+                .filter(PermissionModel.codename.in_(entity.permissions))
+                .all()
+            )
+            model.permissions_rel = permission_models
 
         self._session.commit()
         self._session.refresh(model)
