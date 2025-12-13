@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.repositories import IRoleRepository
 from src.identity_access_management.infrastructure.mappers import RoleMapper
-from src.identity_access_management.infrastructure.models import RoleModel
+from src.identity_access_management.infrastructure.models import (
+    PermissionModel,
+    RoleModel,
+)
 from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
@@ -42,3 +45,47 @@ class RoleRepository(
             .first()
         )
         return self._mapper.to_entity(model) if model else None
+
+    def save(self, entity: Role) -> Optional[Role]:
+        """
+        Save Role entity
+        """
+
+        model = self._mapper.to_model(entity)
+        if entity.permissions:
+            permissions_model = (
+                self._session.query(PermissionModel)
+                .filter(PermissionModel.codename.in_(entity.permissions))
+                .all()
+            )
+            model.permissions_rel = permissions_model
+
+        self._session.add(model)
+        self._session.commit()
+        self._session.refresh(model)
+
+        return self._mapper.to_entity(model)
+
+    def update(self, entity: Role) -> Optional[Role]:
+        """
+        Update Role entity
+        """
+
+        model = self._session.get(self._model_cls, entity.id)
+        if not model:
+            return None
+
+        model.name = entity.name  # type: ignore
+        model.description = entity.description  # type: ignore
+        if entity.permissions:
+            permission_models = (
+                self._session.query(PermissionModel)
+                .filter(PermissionModel.codename.in_(entity.permissions))
+                .all()
+            )
+            model.permissions_rel = permission_models
+
+        self._session.commit()
+        self._session.refresh(model)
+
+        return self._mapper.to_entity(model)
