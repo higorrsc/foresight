@@ -132,6 +132,6 @@ class TestSetUserPermissionsUseCase:
 
         with pytest.raises(
             PermissionNotFoundError,
-            match="Permission 'fake_permission' does not exist.",
+            match="Permission 'fake_permission' not found.",
         ):
             set_user_permissions_use_case.execute(input_dto)

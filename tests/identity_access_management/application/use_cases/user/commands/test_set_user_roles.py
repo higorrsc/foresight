@@ -131,6 +131,6 @@ class TestSetUserRolesUseCase:
 
         with pytest.raises(
             RoleNotFoundError,
-            match="Role 'fake_role' does not exist.",
+            match="Role 'fake_role' not found.",
         ):
             set_user_roles_use_case.execute(input_dto)

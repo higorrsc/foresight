@@ -73,7 +73,7 @@ class SetUserRolesUseCase:
                     input_dto.actor.tenant_id,
                 )
                 if not role:
-                    raise RoleNotFoundError(f"Role '{role_name}' does not exist.")
+                    raise RoleNotFoundError(f"Role '{role_name}' not found.")
 
                 valid_roles.append(role)
 

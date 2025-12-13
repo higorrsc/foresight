@@ -235,4 +235,4 @@ class TestRolesRouter:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert "Permission 'area:reader' does not exist." in response.json()["detail"]
+        assert "Permission 'area:reader' not found." in response.json()["detail"]

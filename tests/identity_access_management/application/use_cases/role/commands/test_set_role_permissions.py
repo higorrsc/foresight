@@ -136,6 +136,6 @@ class TestSetRolePermissionsUseCase:
 
         with pytest.raises(
             PermissionNotFoundError,
-            match="Permission 'invalid_perm' does not exist.",
+            match="Permission 'invalid_perm' not found.",
         ):
             use_case.execute(input_dto)

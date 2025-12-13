@@ -73,7 +73,7 @@ class SetUserPermissionsUseCase:
                 )
                 if not permission:
                     raise PermissionNotFoundError(
-                        f"Permission '{permission_code}' does not exist."
+                        f"Permission '{permission_code}' not found."
                     )
 
                 valid_permissions.append(permission)
