@@ -1,10 +1,16 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
+from src.identity_access_management.application.use_cases.permission.exceptions import (
+    PermissionNotFoundError,
+)
 from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.domain.entities import Role
-from src.identity_access_management.domain.repositories import IRoleRepository
+from src.identity_access_management.domain.repositories import (
+    IPermissionRepository,
+    IRoleRepository,
+)
 from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
@@ -20,6 +26,7 @@ class CreateRoleInputDTO:
     actor: "User"
     name: str
     description: Optional[str] = None
+    permissions: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -36,12 +43,17 @@ class CreateRoleUseCase:
     Use case for creating a new role.
     """
 
-    def __init__(self, repository: IRoleRepository):
+    def __init__(
+        self,
+        role_repository: IRoleRepository,
+        permission_repository: IPermissionRepository,
+    ):
         """
         Initialize the create use case.
         """
 
-        self._repository = repository
+        self._role_repository = role_repository
+        self._permission_repository = permission_repository
 
     def execute(self, input_dto: CreateRoleInputDTO) -> CreateRoleOutputDTO:
         """
@@ -49,13 +61,23 @@ class CreateRoleUseCase:
         """
 
         try:
+            permission_codes_set = set(input_dto.permissions)
+            for permission_code in permission_codes_set:
+                if not self._permission_repository.get_by_codename(
+                    permission_code,
+                ):
+                    raise PermissionNotFoundError(
+                        f"Permission '{permission_code}' not found."
+                    )
+
             role = Role(
                 name=input_dto.name,
                 description=input_dto.description,  # type: ignore
+                permissions=permission_codes_set,
                 tenant_id=input_dto.actor.tenant_id,
             )
         except EntityValidationError as e:
             raise InvalidRoleError(f"Invalid input data: {e}") from e
 
-        self._repository.save(role)
+        self._role_repository.save(role)
         return CreateRoleOutputDTO(id=role.id)
