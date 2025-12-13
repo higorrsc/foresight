@@ -63,6 +63,19 @@ class UserInMemoryRepository(
 
         return None
 
+    def count_users_by_role(self, role_id: UUID) -> int:
+        """
+        Count the number of users associated with a role.
+        """
+
+        count = 0
+
+        for user in self._entities:
+            if role_id in user.roles:
+                count += 1
+
+        return count
+
 
 class RoleInMemoryRepository(
     InMemoryRepository[Role],

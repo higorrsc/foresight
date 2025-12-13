@@ -14,3 +14,9 @@ class RoleAlreadyExistsError(Exception):
     """
     Exception raised when a Role already exists in the repository.
     """
+
+
+class RoleDeletionIntegrityError(Exception):
+    """
+    Exception raised when a Role has association with any user.
+    """
