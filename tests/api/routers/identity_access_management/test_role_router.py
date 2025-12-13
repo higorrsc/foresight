@@ -94,7 +94,7 @@ class TestRolesRouter:
         Admin should be able to delete a role.
         """
         # 1. Create a temporary role to delete
-        create_resp = client.post(
+        post_response = client.post(
             "/roles/",
             json={
                 "name": "to_delete",
@@ -103,19 +103,23 @@ class TestRolesRouter:
             },
             headers={"Authorization": f"Bearer {admin_token}"},
         )
-        role_id = create_resp.json()["id"]
+        role_id = post_response.json()["id"]
 
         # 2. Delete it
-        response = client.delete(
-            f"/roles/{role_id}", headers={"Authorization": f"Bearer {admin_token}"}
+        delete_response = client.delete(
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert delete_response.status_code == status.HTTP_204_NO_CONTENT
 
         # 3. Verify it's gone
         get_response = client.get(
-            f"/roles/{role_id}", headers={"Authorization": f"Bearer {admin_token}"}
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
-        assert get_response.status_code == status.HTTP_404_NOT_FOUND
+        print(get_response.json())
+        assert get_response.status_code == status.HTTP_200_OK
+        assert get_response.json()["is_active"] is False
 
     def test_update_role(self, client: TestClient, admin_token: str):
         """
@@ -236,3 +240,57 @@ class TestRolesRouter:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "Permission 'area:reader' not found." in response.json()["detail"]
+
+    def test_restore_role(
+        self,
+        client: TestClient,
+        admin_token: str,
+        default_tenant_id: str,
+    ):
+        """
+        Test restoring a role.
+        """
+
+        # 1. Create a temporary role to delete
+        post_response = client.post(
+            "/roles/",
+            json={
+                "name": "to_delete",
+                "description": "Temp",
+                "tenant_id": default_tenant_id,
+            },
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        role_id = post_response.json()["id"]
+
+        # 2. Delete it
+        delete_response = client.delete(
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert delete_response.status_code == status.HTTP_204_NO_CONTENT
+
+        # 3. Verify it's gone
+        get_response = client.get(
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert get_response.status_code == status.HTTP_200_OK
+        assert get_response.json()["is_active"] is False
+        assert get_response.json()["deleted_at"] is not None
+
+        # 4. Restore it
+        restore_response = client.patch(
+            f"/roles/{role_id}/restore",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert restore_response.status_code == status.HTTP_204_NO_CONTENT
+
+        # 5. Verify it's back
+        get_response = client.get(
+            f"/roles/{role_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert get_response.status_code == status.HTTP_200_OK
+        assert get_response.json()["is_active"] is True
+        assert get_response.json()["deleted_at"] is None

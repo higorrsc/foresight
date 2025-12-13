@@ -7,7 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies.auth import get_current_user
 from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import get_permission_repository, get_role_repository
+from src.api.dependencies.database import (
+    get_permission_repository,
+    get_role_repository,
+    get_user_repository,
+)
 from src.api.routers._shared import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
@@ -22,10 +26,14 @@ from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleUseCase,
     DeleteRoleUseCase,
+    RestoreRoleUseCase,
     SetRolePermissionsInputDTO,
     SetRolePermissionsUseCase,
     UpdateRoleInputDTO,
     UpdateRoleUseCase,
+)
+from src.identity_access_management.application.use_cases.role.exceptions import (
+    RoleDeletionIntegrityError,
 )
 from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
@@ -35,9 +43,13 @@ from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
+    IUserRepository,
 )
 from src.shared_kernel.application._shared.use_cases.commands import (
     DeleteRequestInputDTO,
+)
+from src.shared_kernel.application._shared.use_cases.commands.generic_restore import (
+    RestoreRequestInputDTO,
 )
 from src.shared_kernel.application._shared.use_cases.queries import (
     GetByIdRequestInputDTO,
@@ -71,8 +83,10 @@ class RoleDetailResponse(BaseModel):
     id: UUID
     name: str
     description: Optional[str] = None
+    is_active: bool
     created_at: datetime
     updated_at: datetime
+    deleted_at: Optional[datetime] = None
     permissions: Set[str] = set()
 
     model_config = ConfigDict(from_attributes=True)
@@ -276,18 +290,37 @@ def update_role_endpoint(
 )
 def delete_role_endpoint(
     role_id: UUID,
-    repo: IRoleRepository = Depends(get_role_repository),
+    role_repo: IRoleRepository = Depends(get_role_repository),
+    user_repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
 ):
     """
     Delete an existing role.
     """
     try:
-        use_case = DeleteRoleUseCase(repo)
+        use_case = DeleteRoleUseCase(
+            role_repo,
+            user_repo,
+        )
         use_case.execute(DeleteRequestInputDTO(id=role_id, actor=actor))
-    except RoleNotFoundError as e:
+    except (RoleNotFoundError, RoleDeletionIntegrityError) as e:
+        status_code = (
+            status.HTTP_404_NOT_FOUND
+            if isinstance(e, RoleNotFoundError)
+            else status.HTTP_400_BAD_REQUEST
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except (ValueError, InsufficientPermissionError) as e:
+        status_code = (
+            status.HTTP_403_FORBIDDEN
+            if isinstance(e, InsufficientPermissionError)
+            else status.HTTP_400_BAD_REQUEST
+        )
+        raise HTTPException(
+            status_code=status_code,
             detail=str(e),
         ) from e
 
@@ -332,5 +365,29 @@ def set_role_permissions_endpoint(
         )
         raise HTTPException(
             status_code=status_code,
+            detail=str(e),
+        ) from e
+
+
+@router.patch(
+    "/{role_id}/restore",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role_delete)],
+)
+def restore_user_endpoint(
+    role_id: UUID,
+    repo: IRoleRepository = Depends(get_role_repository),
+    actor: User = Depends(get_current_user),
+):
+    """
+    Restore a soft-deleted user.
+    """
+
+    try:
+        use_case = RestoreRoleUseCase(repo)
+        use_case.execute(RestoreRequestInputDTO(id=role_id, actor=actor))
+    except RoleNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
