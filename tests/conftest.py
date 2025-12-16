@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, Pool, StaticPool
 
-from src.api.dependencies.database import get_db_session
+from src.api.dependencies import get_db_session
 from src.api.main import app
 from src.identity_access_management.domain.entities import Role as RoleEntity
 from src.identity_access_management.domain.entities import User as UserEntity

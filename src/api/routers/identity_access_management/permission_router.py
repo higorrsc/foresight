@@ -3,8 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, ConfigDict
 
-from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.database import get_permission_repository
+from src.api.dependencies import get_current_user, get_permission_repository
 from src.api.routers._shared import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.permission.queries import (
     ListPermissionsUseCase,

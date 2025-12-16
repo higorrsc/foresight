@@ -3,7 +3,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 
 from src.api.auth.security import create_access_token
-from src.api.dependencies.database import get_user_repository
+from src.api.dependencies import get_user_repository
 from src.identity_access_management.application.use_cases.user import (
     InvalidPasswordError,
     UserNotFoundError,

@@ -5,9 +5,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import (
+from src.api.dependencies import (
+    PermissionChecker,
+    get_current_user,
     get_permission_repository,
     get_role_repository,
     get_user_repository,

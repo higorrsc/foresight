@@ -5,9 +5,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import get_organizational_unit_repository
+from src.api.dependencies import (
+    PermissionChecker,
+    get_current_user,
+    get_organizational_unit_repository,
+)
 from src.api.routers._shared import PaginatedApiResponse
 from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application._shared.use_cases.commands.generic_delete import (

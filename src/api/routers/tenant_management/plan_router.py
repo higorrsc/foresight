@@ -4,9 +4,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.authorization import PermissionChecker
-from src.api.dependencies.database import get_plan_repository
+from src.api.dependencies import (
+    PermissionChecker,
+    get_current_user,
+    get_plan_repository,
+)
 from src.api.routers._shared.dto import PaginatedApiResponse
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
