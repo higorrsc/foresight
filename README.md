@@ -26,6 +26,11 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 ├── src/
 │   ├── api/                      # Camada de Apresentação (FastAPI Endpoints)
 │   │
+│   ├── core/                     # Núcleo da aplicação (Base classes, Configs)
+│   │   ├── application/
+│   │   ├── domain/
+│   │   └── infrastructure/
+│   │
 │   ├── identity_access_management/ # Contexto: Gestão de Identidade e Acesso
 │   │   ├── application/          # Casos de Uso, DTOs
 │   │   ├── domain/               # Entidades, Value Objects, Regras de Negócio
@@ -56,7 +61,7 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 
 ## ✨ Funcionalidades Principais
 
-- **API RESTful Completa**: Endpoints para gestão de `Users`, `Roles` e `Areas`.
+- **API RESTful Completa**: Endpoints para gestão de `Users`, `Roles`, `Permissions`, `Tenants`, `Plans`, `Areas` e `Organizational Units`.
 - **Autenticação JWT**: Sistema de login seguro baseado em tokens.
 - **Autorização Baseada em Papéis (RBAC)**: Endpoints protegidos que requerem papéis específicos (ex: `admin`).
 - **Sistema de Migrações**: Evolução segura do esquema da base de dados com **Alembic**.
@@ -64,6 +69,7 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 - **Configuração por Ambiente**: Gestão de configurações flexível (`.env`) para diferentes ambientes (desenvolvimento, produção).
 - **Injeção de Dependência**: Uso extensivo do `Depends` do FastAPI para gerir dependências e sessões de base de dados.
 - **Testes Abrangentes**: Cobertura de testes para todas as camadas da aplicação.
+- **Seeding Automático**: Inicialização automática da base de dados com dados essenciais durante o arranque da aplicação.
 
 ---
 
