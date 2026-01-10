@@ -1,5 +1,5 @@
+from src.core.infrastructure.mappers import BaseMapper
 from src.shared_kernel.domain.entities import OrganizationalUnit
-from src.shared_kernel.infrastructure.mappers._shared import BaseMapper
 from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
 
 

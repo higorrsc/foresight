@@ -1,6 +1,6 @@
+from src.core.infrastructure.mappers import BaseMapper
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.models import UserModel
-from src.shared_kernel.infrastructure.mappers._shared.base_mapper import BaseMapper
 
 
 class UserMapper:

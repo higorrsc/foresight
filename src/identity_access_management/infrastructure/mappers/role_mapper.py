@@ -1,6 +1,6 @@
+from src.core.infrastructure.mappers import BaseMapper
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.infrastructure.models import RoleModel
-from src.shared_kernel.infrastructure.mappers._shared import BaseMapper
 
 
 class RoleMapper:

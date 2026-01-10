@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from src.shared_kernel.infrastructure.mappers._shared import BaseMapper
+from src.core.infrastructure.mappers import BaseMapper
 from src.tenant_management.domain.entities import Plan
 from src.tenant_management.infrastructure.models import PlanModel
 
