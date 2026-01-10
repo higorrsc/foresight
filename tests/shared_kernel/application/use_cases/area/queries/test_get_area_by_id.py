@@ -2,9 +2,7 @@ from uuid import UUID
 
 import pytest
 
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GetByIdRequestInputDTO,
-)
+from src.core.application.use_cases.queries import GetByIdRequestInputDTO
 from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.application.use_cases.area.queries import GetAreaByIdUseCase
 from src.shared_kernel.domain.entities import Area

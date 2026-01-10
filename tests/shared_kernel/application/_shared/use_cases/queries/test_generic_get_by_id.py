@@ -2,11 +2,11 @@ from uuid import UUID
 
 import pytest
 
-from src.core.domain import EntityNotFoundException
-from src.shared_kernel.application._shared.use_cases.queries import (
+from src.core.application.use_cases.queries import (
     GenericGetByIdUseCase,
     GetByIdRequestInputDTO,
 )
+from src.core.domain import EntityNotFoundException
 from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
 from tests.fakes import DummyEntity
 

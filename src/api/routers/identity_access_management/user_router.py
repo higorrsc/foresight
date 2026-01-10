@@ -13,6 +13,14 @@ from src.api.dependencies import (
     get_user_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application.use_cases.commands import (
+    DeleteRequestInputDTO,
+    RestoreRequestInputDTO,
+)
+from src.core.application.use_cases.queries import (
+    GetByIdRequestInputDTO,
+    ListRequestInputDTO,
+)
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
     PermissionNotFoundError,
@@ -46,14 +54,6 @@ from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
     IUserRepository,
-)
-from src.shared_kernel.application._shared.use_cases.commands import (
-    DeleteRequestInputDTO,
-    RestoreRequestInputDTO,
-)
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GetByIdRequestInputDTO,
-    ListRequestInputDTO,
 )
 
 require_user_change_password = PermissionChecker(["user:change_password"])

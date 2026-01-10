@@ -2,14 +2,11 @@ from dataclasses import dataclass
 from math import ceil
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
+from src.core.application.dto import PaginatedResponseDTO, PaginationMeta
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission
-from src.shared_kernel.application._shared.dto import (
-    PaginatedResponseDTO,
-    PaginationMeta,
-)
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.repositories import ITenantRepository
 

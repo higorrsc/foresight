@@ -1,6 +1,6 @@
 import pytest
 
-from src.shared_kernel.application._shared.use_cases.commands import (
+from src.core.application.use_cases.commands import (
     UpdateDescribedEntityInputDTO,
     UpdateDescribedEntityOutputDTO,
 )

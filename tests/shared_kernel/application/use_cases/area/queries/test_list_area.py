@@ -1,5 +1,5 @@
-from src.shared_kernel.application._shared.dto import PaginatedResponseDTO
-from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
+from src.core.application.dto import PaginatedResponseDTO
+from src.core.application.use_cases.queries import ListRequestInputDTO
 from src.shared_kernel.application.use_cases.area.queries import ListAreaUseCase
 from src.shared_kernel.domain.entities import Area
 from tests.fakes import AreaInMemoryRepository

@@ -1,6 +1,4 @@
-from src.shared_kernel.application._shared.use_cases.commands import (
-    CreateDescribedEntityUseCase,
-)
+from src.core.application.use_cases.commands import CreateDescribedEntityUseCase
 from src.shared_kernel.application.use_cases.area import InvalidAreaError
 from src.shared_kernel.domain.entities.area import Area
 from src.shared_kernel.domain.repositories import IAreaRepository

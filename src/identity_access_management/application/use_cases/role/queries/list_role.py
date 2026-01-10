@@ -1,6 +1,6 @@
+from src.core.application.use_cases.queries import GenericListUseCase
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.repositories import IRoleRepository
-from src.shared_kernel.application._shared.use_cases.queries import GenericListUseCase
 
 
 class ListRoleUseCase(GenericListUseCase[Role]):

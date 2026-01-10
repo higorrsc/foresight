@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import pytest
 
+from src.core.application.use_cases.queries import ListRequestInputDTO
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
@@ -11,7 +12,6 @@ from src.identity_access_management.application.use_cases.user.queries import (
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities.user import User
-from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from tests.fakes import UserInMemoryRepository
 
 

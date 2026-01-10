@@ -11,17 +11,15 @@ from src.api.dependencies import (
     get_organizational_unit_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
-from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application._shared.use_cases.commands.generic_delete import (
-    DeleteRequestInputDTO,
-)
-from src.shared_kernel.application._shared.use_cases.commands.generic_restore import (
+from src.core.application.use_cases.commands.generic_delete import DeleteRequestInputDTO
+from src.core.application.use_cases.commands.generic_restore import (
     RestoreRequestInputDTO,
 )
-from src.shared_kernel.application._shared.use_cases.queries import (
+from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
+from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application.use_cases.organizational_unit.commands import (
     CreateOrganizationalUnitInputDTO,
     CreateOrganizationalUnitUseCase,

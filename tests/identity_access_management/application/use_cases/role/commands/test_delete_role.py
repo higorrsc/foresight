@@ -2,6 +2,7 @@ from uuid import uuid4
 
 import pytest
 
+from src.core.application.use_cases.commands import DeleteRequestInputDTO
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.role.commands import (
     DeleteRoleUseCase,
@@ -11,9 +12,6 @@ from src.identity_access_management.application.use_cases.role.exceptions import
 )
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.entities.user import User, hash_password
-from src.shared_kernel.application._shared.use_cases.commands import (
-    DeleteRequestInputDTO,
-)
 from tests.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 

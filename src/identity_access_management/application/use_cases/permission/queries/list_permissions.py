@@ -1,10 +1,10 @@
 from math import ceil
 
+from src.core.application import PaginatedResponseDTO
+from src.core.application.dto import PaginationMeta
+from src.core.application.use_cases.queries import ListRequestInputDTO
 from src.identity_access_management.domain.entities import Permission
 from src.identity_access_management.domain.repositories import IPermissionRepository
-from src.shared_kernel.application._shared import PaginatedResponseDTO
-from src.shared_kernel.application._shared.dto import PaginationMeta
-from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 
 
 class ListPermissionsUseCase:

@@ -1,4 +1,4 @@
-from src.shared_kernel.application._shared.use_cases.queries import GenericListUseCase
+from src.core.application.use_cases.queries import GenericListUseCase
 from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.domain.repositories import IAreaRepository
 

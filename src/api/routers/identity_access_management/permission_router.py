@@ -5,14 +5,12 @@ from pydantic import BaseModel, ConfigDict
 
 from src.api.dependencies import get_current_user, get_permission_repository
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application.use_cases.queries.generic_list import ListRequestInputDTO
 from src.identity_access_management.application.use_cases.permission.queries import (
     ListPermissionsUseCase,
 )
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import IPermissionRepository
-from src.shared_kernel.application._shared.use_cases.queries.generic_list import (
-    ListRequestInputDTO,
-)
 
 
 class PermissionResponse(BaseModel):

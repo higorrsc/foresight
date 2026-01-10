@@ -1,6 +1,4 @@
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GenericGetByIdUseCase,
-)
+from src.core.application.use_cases.queries import GenericGetByIdUseCase
 from src.shared_kernel.application.use_cases.organizational_unit import (
     OrganizationalUnitNotFoundError,
 )

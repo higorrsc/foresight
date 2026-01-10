@@ -2,14 +2,12 @@ import uuid
 
 import pytest
 
+from src.core.application.use_cases.queries import GetByIdRequestInputDTO
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
 )
 from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GetByIdRequestInputDTO,
-)
 from tests.fakes import RoleInMemoryRepository
 
 

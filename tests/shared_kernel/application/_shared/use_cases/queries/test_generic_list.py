@@ -1,6 +1,6 @@
 import pytest
 
-from src.shared_kernel.application._shared.use_cases.queries import (
+from src.core.application.use_cases.queries import (
     GenericListUseCase,
     ListRequestInputDTO,
 )

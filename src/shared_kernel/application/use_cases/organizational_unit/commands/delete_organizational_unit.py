@@ -1,6 +1,4 @@
-from src.shared_kernel.application._shared.use_cases.commands import (
-    GenericDeleteUseCase,
-)
+from src.core.application.use_cases.commands import GenericDeleteUseCase
 from src.shared_kernel.application.use_cases.organizational_unit import (
     OrganizationalUnitNotFoundError,
 )

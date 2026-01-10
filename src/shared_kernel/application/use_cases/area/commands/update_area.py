@@ -1,6 +1,4 @@
-from src.shared_kernel.application._shared.use_cases.commands import (
-    UpdateDescribedEntityUseCase,
-)
+from src.core.application.use_cases.commands import UpdateDescribedEntityUseCase
 from src.shared_kernel.application.use_cases.area import (
     AreaNotFoundError,
     InvalidAreaError,

@@ -1,3 +1,4 @@
+from src.core.application.use_cases.queries import GetByIdRequestInputDTO
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
@@ -5,9 +6,6 @@ from src.identity_access_management.application.use_cases.user import UserNotFou
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import IUserRepository
-from src.shared_kernel.application._shared.use_cases.queries import (
-    GetByIdRequestInputDTO,
-)
 
 
 class GetUserByIdUseCase:

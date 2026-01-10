@@ -11,17 +11,17 @@ from src.api.dependencies import (
     get_current_user,
 )
 from src.api.routers._shared import PaginatedApiResponse
-from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application._shared.use_cases.commands import (
+from src.core.application.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
     RestoreRequestInputDTO,
     UpdateDescribedEntityInputDTO,
 )
-from src.shared_kernel.application._shared.use_cases.queries import (
+from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
+from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application.use_cases.area import (
     AreaNotFoundError,
     InvalidAreaError,

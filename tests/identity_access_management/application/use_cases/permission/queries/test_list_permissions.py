@@ -1,10 +1,10 @@
 import pytest
 
+from src.core.application.use_cases.queries import ListRequestInputDTO
 from src.identity_access_management.application.use_cases.permission.queries import (
     ListPermissionsUseCase,
 )
 from src.identity_access_management.domain.entities import Permission, User
-from src.shared_kernel.application._shared.use_cases.queries import ListRequestInputDTO
 from tests.fakes import PermissionInMemoryRepository
 
 
