@@ -3,11 +3,11 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.shared_kernel.domain.entities import OrganizationalUnit
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 from src.shared_kernel.infrastructure.mappers import OrganizationalUnitMapper
 from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 class OrganizationalUnitRepository(

@@ -3,11 +3,11 @@ from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.identity_access_management.domain.entities import Permission
 from src.identity_access_management.domain.repositories import IPermissionRepository
 from src.identity_access_management.infrastructure.mappers import PermissionMapper
 from src.identity_access_management.infrastructure.models import PermissionModel
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 class PermissionRepository(

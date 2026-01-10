@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from src.core.infrastructure.repository import InMemoryRepository
 from tests.fakes.dummy_entity import DummyEntity
 
 

@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.repositories import IRoleRepository
 from src.identity_access_management.infrastructure.mappers import RoleMapper
@@ -10,7 +11,6 @@ from src.identity_access_management.infrastructure.models import (
     PermissionModel,
     RoleModel,
 )
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 class RoleRepository(

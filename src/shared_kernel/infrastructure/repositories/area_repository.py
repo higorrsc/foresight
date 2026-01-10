@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.domain.repositories import IAreaRepository
 from src.shared_kernel.infrastructure.mappers import AreaMapper
 from src.shared_kernel.infrastructure.models import AreaModel
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 class AreaRepository(

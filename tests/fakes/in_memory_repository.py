@@ -1,6 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
+from src.core.infrastructure.repository import InMemoryRepository
 from src.identity_access_management.domain.entities import Permission, Role, User
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
@@ -12,7 +13,6 @@ from src.shared_kernel.domain.repositories import (
     IAreaRepository,
     IOrganizationalUnitRepository,
 )
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
 from src.tenant_management.domain.entities import Plan, Tenant
 from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
 

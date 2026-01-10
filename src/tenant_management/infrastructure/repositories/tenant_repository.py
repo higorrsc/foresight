@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.repositories import ITenantRepository
 from src.tenant_management.infrastructure.mappers import TenantMapper

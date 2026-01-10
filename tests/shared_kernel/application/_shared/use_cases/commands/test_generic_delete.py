@@ -6,7 +6,7 @@ from src.core.application.use_cases.commands import (
     DeleteRequestInputDTO,
     GenericDeleteUseCase,
 )
-from src.shared_kernel.infrastructure.repositories._shared import InMemoryRepository
+from src.core.infrastructure.repository import InMemoryRepository
 from tests.fakes import DummyEntity
 
 

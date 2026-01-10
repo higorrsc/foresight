@@ -1,8 +1,8 @@
 import pytest
 
+from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.shared_kernel.infrastructure.mappers import AreaMapper
 from src.shared_kernel.infrastructure.models import AreaModel
-from src.shared_kernel.infrastructure.repositories._shared import SQLAlchemyRepository
 
 
 @pytest.fixture
