@@ -4,9 +4,9 @@ from typing import Optional, Set
 from email_validator import EmailNotValidError, validate_email
 from passlib.context import CryptContext
 
-from src.shared_kernel.domain._shared import EntityValidationError
-from src.shared_kernel.domain._shared.entities import TenantAwareEntity
-from src.shared_kernel.domain._shared.mixins import SoftDeletableMixin
+from src.core.domain import EntityValidationError
+from src.core.domain.entities import TenantAwareEntity
+from src.core.domain.mixins import SoftDeletableMixin
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 

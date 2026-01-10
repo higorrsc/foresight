@@ -1,7 +1,7 @@
 import pytest
 
+from src.core.domain import EntityValidationError
 from src.identity_access_management.domain.entities import Permission
-from src.shared_kernel.domain._shared import EntityValidationError
 
 
 class TestCreatePermissionEntity:

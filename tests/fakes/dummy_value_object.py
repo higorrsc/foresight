@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from src.shared_kernel.domain._shared import AbstractValueObject
+from src.core.domain import AbstractValueObject
 
 
 @dataclass(kw_only=True)

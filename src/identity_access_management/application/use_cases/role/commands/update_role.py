@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
+from src.core.domain import EntityValidationError
 from src.identity_access_management.application.use_cases.role import (
     InvalidRoleError,
     RoleNotFoundError,
 )
 from src.identity_access_management.domain.repositories import IRoleRepository
-from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

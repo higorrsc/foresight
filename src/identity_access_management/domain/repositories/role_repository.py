@@ -2,8 +2,8 @@ from abc import abstractmethod
 from typing import Optional
 from uuid import UUID
 
+from src.core.domain import AbstractRepository
 from src.identity_access_management.domain.entities import Role
-from src.shared_kernel.domain._shared import AbstractRepository
 
 
 class IRoleRepository(AbstractRepository[Role]):

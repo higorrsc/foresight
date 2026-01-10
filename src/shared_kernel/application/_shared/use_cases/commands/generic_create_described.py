@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID, uuid4
 
-from src.shared_kernel.domain._shared import AbstractRepository, EntityValidationError
-from src.shared_kernel.domain._shared.entities import DescribedEntity
+from src.core.domain import AbstractRepository, EntityValidationError
+from src.core.domain.entities import DescribedEntity
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

@@ -2,14 +2,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
+from src.core.domain.exceptions import EntityValidationError
 from src.shared_kernel.application.use_cases.organizational_unit import (
     InvalidOrganizationalUnitError,
 )
 from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
     OrganizationalUnitNotFoundError,
-)
-from src.shared_kernel.domain._shared.exceptions import (
-    EntityValidationError,
 )
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, Type, TypeVar
 from uuid import UUID
 
-from src.shared_kernel.domain._shared import AbstractRepository, SoftDeletableMixin
+from src.core.domain import AbstractRepository, SoftDeletableMixin
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.shared_kernel.domain._shared import EntityValidationError
+from src.core.domain import EntityValidationError
 
 from .tenant_aware_entity import TenantAwareEntity
 

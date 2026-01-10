@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from typing import List, Optional
 
+from src.core.domain.repository import AbstractRepository
 from src.identity_access_management.domain.entities import Permission
-from src.shared_kernel.domain._shared.repository import AbstractRepository
 
 
 class IPermissionRepository(AbstractRepository[Permission]):

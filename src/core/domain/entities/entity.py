@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
-from src.shared_kernel.domain._shared import Notification
+from src.core.domain import Notification
 
 
 @dataclass(kw_only=True, eq=False)

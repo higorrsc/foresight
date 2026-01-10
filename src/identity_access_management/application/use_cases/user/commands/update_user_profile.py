@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
+from src.core.domain import EntityValidationError
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
@@ -11,7 +12,6 @@ from src.identity_access_management.application.use_cases.user import (
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.repositories import IUserRepository
-from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

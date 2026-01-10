@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import asc, delete, desc, func, inspect, select  # Adicionado func
 from sqlalchemy.orm import Session
 
-from src.shared_kernel.domain._shared import AbstractRepository, PaginatedResult
+from src.core.domain import AbstractRepository, PaginatedResult
 
 T = TypeVar("T")
 M = TypeVar("M")

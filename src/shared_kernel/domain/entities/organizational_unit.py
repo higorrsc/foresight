@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from typing import Optional
 from uuid import UUID
 
-from src.shared_kernel.domain._shared.entities import DescribedEntity
-from src.shared_kernel.domain._shared.mixins import SoftDeletableMixin
+from src.core.domain.entities import DescribedEntity
+from src.core.domain.mixins import SoftDeletableMixin
 
 
 @dataclass(kw_only=True, eq=False)

@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Optional, Set
 
-from src.shared_kernel.domain._shared import EntityValidationError
-from src.shared_kernel.domain._shared.entities import TenantAwareEntity
-from src.shared_kernel.domain._shared.mixins import SoftDeletableMixin
+from src.core.domain import EntityValidationError
+from src.core.domain.entities import TenantAwareEntity
+from src.core.domain.mixins import SoftDeletableMixin
 
 
 @dataclass(kw_only=True, eq=False)

@@ -1,4 +1,4 @@
-from src.shared_kernel.domain._shared import Notification
+from src.core.domain import Notification
 
 
 class TestNotification:

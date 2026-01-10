@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.shared_kernel.domain._shared.entities import TenantAwareEntity
+from src.core.domain.entities import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)

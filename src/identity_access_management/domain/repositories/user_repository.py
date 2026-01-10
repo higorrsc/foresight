@@ -2,8 +2,8 @@ from abc import abstractmethod
 from typing import Optional
 from uuid import UUID
 
+from src.core.domain.repository import AbstractRepository
 from src.identity_access_management.domain.entities.user import User
-from src.shared_kernel.domain._shared.repository import AbstractRepository
 
 
 class IUserRepository(AbstractRepository[User]):

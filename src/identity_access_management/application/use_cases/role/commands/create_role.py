@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
+from src.core.domain import EntityValidationError
 from src.identity_access_management.application.use_cases.permission.exceptions import (
     PermissionNotFoundError,
 )
@@ -11,7 +12,6 @@ from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
 )
-from src.shared_kernel.domain._shared import EntityValidationError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from math import ceil
 from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
 
+from src.core.domain import AbstractRepository
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.shared_kernel.application._shared import PaginatedResponseDTO, PaginationMeta
-from src.shared_kernel.domain._shared import AbstractRepository
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

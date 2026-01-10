@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List
 from uuid import UUID
 
-from src.shared_kernel.domain._shared import AbstractRepository
+from src.core.domain import AbstractRepository
 from src.shared_kernel.domain.entities import OrganizationalUnit
 
 

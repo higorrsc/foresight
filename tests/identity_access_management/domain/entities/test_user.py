@@ -1,8 +1,8 @@
 import pytest
 
+from src.core.domain import EntityValidationError
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.entities.user import hash_password
-from src.shared_kernel.domain._shared import EntityValidationError
 
 
 class TestUserEntity:

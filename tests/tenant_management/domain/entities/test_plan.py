@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from src.shared_kernel.domain._shared.exceptions import EntityValidationError
+from src.core.domain.exceptions import EntityValidationError
 from src.tenant_management.domain.entities.plan import Plan
 
 

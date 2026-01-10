@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from src.shared_kernel.domain._shared.entities import AbstractEntity
-from src.shared_kernel.domain._shared.exceptions import EntityValidationError
+from src.core.domain.entities import AbstractEntity
+from src.core.domain.exceptions import EntityValidationError
 from src.tenant_management.domain.value_objects import TenantStatus
 
 

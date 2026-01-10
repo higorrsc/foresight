@@ -1,6 +1,6 @@
+from src.core.domain.repository import AbstractRepository
 from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application._shared.use_cases.queries import GenericListUseCase
-from src.shared_kernel.domain._shared.repository import AbstractRepository
 
 
 class ListUserUseCase(GenericListUseCase[User]):

@@ -2,8 +2,8 @@ import operator
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
 
-from src.shared_kernel.domain._shared import AbstractRepository, PaginatedResult
-from src.shared_kernel.domain._shared.entities import AbstractEntity
+from src.core.domain import AbstractRepository, PaginatedResult
+from src.core.domain.entities import AbstractEntity
 
 T = TypeVar("T", bound=AbstractEntity)
 
