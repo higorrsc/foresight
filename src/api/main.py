@@ -10,7 +10,7 @@ from src.api.routers.identity_access_management import (
 )
 from src.api.routers.shared_kernel import AreaRouter, OrganizationalUnitRouter
 from src.api.routers.tenant_management import PlanRouter, TenantRouter
-from src.shared_kernel.infrastructure.config import SessionLocal
+from src.core.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.db import seed_initial_data
 
 

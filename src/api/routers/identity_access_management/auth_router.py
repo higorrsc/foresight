@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, status
 
 from src.api.auth.security import create_access_token
 from src.api.dependencies import get_user_repository
+from src.core.infrastructure.config import settings
 from src.identity_access_management.application.use_cases.user import (
     InvalidPasswordError,
     UserNotFoundError,
@@ -13,7 +14,6 @@ from src.identity_access_management.application.use_cases.user.commands import (
     AuthenticateUserUseCase,
 )
 from src.identity_access_management.domain.repositories import IUserRepository
-from src.shared_kernel.infrastructure.config import settings
 
 router = APIRouter(
     prefix="/auth",

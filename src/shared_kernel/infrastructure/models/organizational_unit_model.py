@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from src.shared_kernel.infrastructure.config import (
+from src.core.infrastructure.config import (
     GUID_Type,
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,

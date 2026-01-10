@@ -4,7 +4,7 @@ from uuid import UUID
 
 from jose import jwt
 
-from src.shared_kernel.infrastructure.config import settings
+from src.core.infrastructure.config import settings
 
 
 def create_access_token(

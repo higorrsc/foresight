@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.shared_kernel.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.core.infrastructure.config import GUID_Type, SQLAlchemyBase
 from src.tenant_management.domain.value_objects import TenantStatus
 
 

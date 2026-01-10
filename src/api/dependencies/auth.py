@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from src.api.auth import LocalAuthenticationProvider
 from src.api.auth._shared import AbstractAuthenticationProvider
+from src.core.infrastructure.config import settings
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.repositories import UserRepository
-from src.shared_kernel.infrastructure.config import settings
 
 from .database import get_db_session
 

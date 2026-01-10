@@ -3,6 +3,7 @@ from typing import Generator
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from src.core.infrastructure.config import SessionLocal
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
@@ -17,7 +18,6 @@ from src.shared_kernel.domain.repositories import (
     IAreaRepository,
     IOrganizationalUnitRepository,
 )
-from src.shared_kernel.infrastructure.config import SessionLocal
 from src.shared_kernel.infrastructure.repositories import (
     AreaRepository,
     OrganizationalUnitRepository,

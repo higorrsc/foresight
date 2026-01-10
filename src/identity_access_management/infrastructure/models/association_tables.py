@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Table
 
-from src.shared_kernel.infrastructure.config import GUID_Type
-from src.shared_kernel.infrastructure.config.base import Base
+from src.core.infrastructure.config import GUID_Type
+from src.core.infrastructure.config.base import Base
 
 # Tabela de associação para User <-> Role
 user_roles = Table(

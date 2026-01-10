@@ -1,12 +1,9 @@
 from sqlalchemy import Column, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
+from src.core.infrastructure.config import SQLAlchemyBase, SQLAlchemyTenantMixin
+from src.core.infrastructure.config.mixins import SQLAlchemySoftDeletableMixin
 from src.identity_access_management.infrastructure.models import user_roles
-from src.shared_kernel.infrastructure.config import (
-    SQLAlchemyBase,
-    SQLAlchemyTenantMixin,
-)
-from src.shared_kernel.infrastructure.config.mixins import SQLAlchemySoftDeletableMixin
 
 
 class RoleModel(

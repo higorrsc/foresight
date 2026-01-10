@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
+from src.core.infrastructure.config import SQLAlchemyBase
 from src.identity_access_management.infrastructure.models import (
     role_permissions,
     user_permissions,
 )
-from src.shared_kernel.infrastructure.config import SQLAlchemyBase
 
 
 class PermissionModel(SQLAlchemyBase):

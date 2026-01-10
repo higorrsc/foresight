@@ -1,14 +1,14 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
-from src.identity_access_management.infrastructure.models import (
-    user_permissions,
-    user_roles,
-)
-from src.shared_kernel.infrastructure.config import (
+from src.core.infrastructure.config import (
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
+)
+from src.identity_access_management.infrastructure.models import (
+    user_permissions,
+    user_roles,
 )
 
 

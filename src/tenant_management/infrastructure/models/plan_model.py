@@ -3,10 +3,7 @@ from decimal import Decimal
 from sqlalchemy import DECIMAL, Column, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.shared_kernel.infrastructure.config import (
-    SQLAlchemyBase,
-    SQLAlchemyUserAuditFields,
-)
+from src.core.infrastructure.config import SQLAlchemyBase, SQLAlchemyUserAuditFields
 
 
 class PlanModel(SQLAlchemyBase, SQLAlchemyUserAuditFields):
