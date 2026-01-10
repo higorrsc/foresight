@@ -11,11 +11,11 @@ from sqlalchemy.pool import NullPool, Pool, StaticPool
 from src.api.dependencies import get_db_session
 from src.api.main import app
 from src.core.infrastructure.config import Base
+from src.core.infrastructure.db import seed_initial_data
 from src.identity_access_management.domain.entities import Role as RoleEntity
 from src.identity_access_management.domain.entities import User as UserEntity
 from src.identity_access_management.infrastructure.mappers import RoleMapper, UserMapper
 from src.identity_access_management.infrastructure.models import RoleModel, UserModel
-from src.shared_kernel.infrastructure.db import seed_initial_data
 
 # Imports needed for new data fixtures
 from src.tenant_management.infrastructure.models import TenantModel
