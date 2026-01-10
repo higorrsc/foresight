@@ -33,14 +33,25 @@ dev = [
     "types-python-jose>=3.5.0.20250531",
 ]
 
+# ------------------------------------------------------
+# Mypy
+# ------------------------------------------------------
+
 [tool.mypy]
 python_version = "3.13"
-explicit_package_bases = true
-namespace_packages = true
 check_untyped_defs = true
+disallow_untyped_defs = false
+explicit_package_bases = true
+ignore_missing_imports = true
+namespace_packages = true
+warn_unused_configs = true
 exclude = [
     "alembic/versions",
 ]
+
+# ------------------------------------------------------
+# Ruff
+# ------------------------------------------------------
 
 [tool.ruff]
 line-length = 88
@@ -59,3 +70,66 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+# ------------------------------------------------------
+# Pylint
+# ------------------------------------------------------
+
+[tool.pylint.main]
+py-version = "3.13"
+jobs = 0
+ignore-patterns = ["test_.*\\.py"]
+extension-pkg-allow-list = ["pyodbc"]
+
+[tool.pylint.messages_control]
+disable = [
+  "too-few-public-methods",
+  "duplicate-code",
+  "missing-module-docstring",
+]
+
+[tool.pylint.basic]
+# Permite:
+# - _ (descartáveis)
+# - i, j, k (loops)
+# - TEntity, TId, TSearch (Type Parameters - PEP 695)
+good-names-rgx = "^(_|i|j|k|T[A-Z][a-zA-Z0-9]*)$"
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
+function-naming-style = "snake_case"
+method-naming-style = "snake_case"
+variable-naming-style = "snake_case"
+class-naming-style = "PascalCase"
+const-naming-style = "UPPER_CASE"
+
+[tool.pylint.design]
+min-public-methods = 1
+max-attributes = 30
+
+[tool.pylint.typecheck]
+ignore-none = true
+ignore-mixin-members = true
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint.reports]
+reports = false
+output-format = "colorized"
+
+# ------------------------------------------------------
+# Pytest
+# ------------------------------------------------------
+
+[tool.pytest.ini_options]
+pythonpath = "."
+python_files = "tests.py tests_*.py *_tests.py test_*.py *_test.py"
+addopts = "-v --import-mode=importlib"
+testpaths = "tests"
+filterwarnings = [
+  # Ignora o aviso de ciclo de tabelas do SQLAlchemy (específico dos testes)
+  "ignore:Cannot correctly sort tables:sqlalchemy.exc.SAWarning",
+
+  # Ignora o aviso da passlib
+  "ignore:Accessing argon2.__version__:DeprecationWarning",
+]

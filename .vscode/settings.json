@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "addopts",
     "anotheruser",
     "anypassword",
     "autoflush",
@@ -11,6 +12,7 @@
     "fastapi",
     "httpx",
     "ilike",
+    "importlib",
     "ipython",
     "isort",
     "jose",
@@ -30,12 +32,16 @@
     "pycodestyle",
     "pydantic",
     "Pyflakes",
+    "pylint",
+    "Pylint",
     "pyodbc",
     "pytest",
+    "pythonpath",
     "sessionmaker",
     "SGBD",
     "sqlalchemy",
     "sqlite",
+    "testpaths",
     "UNIQUEIDENTIFIER",
     "uvicorn",
     "wrongpassword"
