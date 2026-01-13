@@ -10,6 +10,7 @@
     "descomentar",
     "drivername",
     "fastapi",
+    "filterwarnings",
     "httpx",
     "ilike",
     "importlib",
