@@ -41,5 +41,5 @@ class PlanMapper:
             updated_at=model.updated_at,  # type: ignore
         )
 
-        BaseMapper.map_auditing_fields_to_model(entity, model)
+        BaseMapper.map_auditing_fields_to_entity(model, entity)
         return entity
