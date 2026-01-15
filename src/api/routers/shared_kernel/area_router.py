@@ -52,6 +52,17 @@ class AreaResponse(BaseModel):
 
     id: UUID
     description: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AreaResponseDetail(BaseModel):
+    """
+    Response model for Area API.
+    """
+
+    id: UUID
+    description: str
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -164,7 +175,7 @@ def list_areas_endpoint(
 @router.get(
     "/{area_id}",
     status_code=status.HTTP_200_OK,
-    response_model=AreaResponse,
+    response_model=AreaResponseDetail,
     dependencies=[Depends(require_area_read)],
 )
 def get_area_by_id_endpoint(
