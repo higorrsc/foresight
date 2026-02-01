@@ -1,56 +1,57 @@
-# Makefile para o projeto ForeSight
-# Ajuda a automatizar tarefas comuns de desenvolvimento e verificação de qualidade.
+# Makefile for the ForeSight project
+# Helps automate common development and quality-check tasks.
 
-# Define o interpretador a ser usado. O .PHONY garante que os comandos sejam sempre executados.
-.PHONY: help install run check format lint type-check test
+.PHONY: help install run check format lint type-check test coverage secret
 
-# --- Comandos Principais ---
+# --- Main Commands ---
 
 help:
-	@echo "Comandos disponíveis:"
-	@echo "  make install      - Instala/sincroniza as dependências do projeto com uv."
-	@echo "  make run          - Inicia o servidor da API em modo de desenvolvimento."
-	@echo "  make check        - Executa todas as verificações de qualidade (lint, type-check, test)."
-	@echo "  make format       - Formata todo o código com black."
-	@echo "  make lint         - Verifica a formatação do código com black."
-	@echo "  make type-check   - Executa a verificação de tipos com mypy."
-	@echo "  make test         - Executa a suíte de testes completa com pytest."
+	@echo "Available commands:"
+	@echo "  make install      - Install/sync project dependencies using uv."
+	@echo "  make run          - Start the API server in development mode."
+	@echo "  make check        - Run all quality checks (lint, type-check, test)."
+	@echo "  make format       - Format the entire codebase with ruff."
+	@echo "  make lint         - Run lint checks with ruff."
+	@echo "  make type-check   - Run static type checks with mypy."
+	@echo "  make test         - Run the full test suite with pytest."
+	@echo "  make coverage     - Generate test coverage reports."
+	@echo "  make secret       - Generate a random project secret."
 
 install:
-	@echo "📦 Instalando dependências..."
+	@echo "📦 Installing dependencies..."
 	@uv sync
 
 run:
-	@echo "🚀 Iniciando a API em http://127.0.0.1:8000..."
+	@echo "🚀 Starting API at http://127.0.0.1:8000..."
 	@uv run uvicorn src.api.main:app --reload
 
 check: lint type-check test
-	@echo "✅ Todas as verificações passaram com sucesso!"
+	@echo "✅ All quality checks passed successfully!"
 
 format:
-	@echo "🎨 Formatando o código com ruff..."
+	@echo "🎨 Formatting code with ruff..."
 	@uv run ruff format .
 	@uv run ruff check --fix .
 
 secret:
-	@echo "📦 Gerando secrets para o projeto..."
-	@python -c "import secrets;print(secrets.token_hex(32))"
+	@echo "🔐 Generating project secret..."
+	@python -c "import secrets; print(secrets.token_hex(32))"
 
-# --- Comandos de Verificação de Qualidade ---
+# --- Quality Assurance Commands ---
 
 lint:
-	@echo "🔍 Verificando a formatação do código com ruff..."
+	@echo "🔍 Running lint checks with ruff..."
 	@uv run ruff check .
 	@uv run ruff format --check .
 
 type-check:
-	@echo " typing: Verificando os tipos com mypy..."
+	@echo "🧠 Running type checks with mypy..."
 	@uv run mypy .
 
 test:
-	@echo "🧪 Executando os testes com pytest..."
+	@echo "🧪 Running tests with pytest..."
 	@uv run pytest
 
 coverage:
-	@echo "🧪 Gerando relatório de cobertura de testes..."
+	@echo "📊 Generating test coverage report..."
 	@uv run pytest --cov=src --cov-report=term-missing --cov-report=html
