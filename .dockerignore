@@ -47,6 +47,7 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+.ruff_cache/
 
 # Testes e Cobertura
 tests/
