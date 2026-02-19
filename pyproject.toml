@@ -22,10 +22,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "black>=25.9.0",
   "httpx>=0.28.1",
   "ipython>=9.5.0",
   "mypy>=1.18.2",
+  "mypy-extensions>=1.1.0",
   "pytest>=8.4.2",
   "pytest-cov>=7.0.0",
   "ruff>=0.14.4",
@@ -127,9 +127,9 @@ python_files = "tests.py tests_*.py *_tests.py test_*.py *_test.py"
 addopts = "-v --import-mode=importlib"
 testpaths = "tests"
 filterwarnings = [
-  # Ignora o aviso de ciclo de tabelas do SQLAlchemy (específico dos testes)
   "ignore:Cannot correctly sort tables:sqlalchemy.exc.SAWarning",
-
-  # Ignora o aviso da passlib
   "ignore:Accessing argon2.__version__:DeprecationWarning",
+  "ignore:pandas only supports SQLAlchemy connectable:UserWarning",
+  "ignore:The behavior of DataFrame concatenation:FutureWarning",
+  "ignore::ResourceWarning",
 ]
