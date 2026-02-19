@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "firecrawl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp@latest"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp",
+      ]
+    }
+  }
+}
