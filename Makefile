@@ -17,9 +17,14 @@ endif
 
 # === Server ===
 
-run: check-python
-	@echo "Starting API server at http://127.0.0.1:8000..."
+run-uvicorn: check-python
+	@echo "Starting API server at http://127.0.0.1:8000 with Uvicorn..."
 	$(RUN_TOOL) uvicorn src.api.main:app --reload
+
+run-fastapi: check-python
+	@echo "Starting API server at http://127.0.0.1:8000 with FastAPI..."
+	$(RUN_TOOL) uv run fastapi dev -e src.api.main:app
+
 
 # === Environment Setup ===
 

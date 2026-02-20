@@ -25,9 +25,20 @@
       "problemMatcher": []
     },
     {
-      "label": "Run API Server",
+      "label": "Run API Server with Uvicorn",
       "type": "shell",
-      "command": "make run",
+      "command": "make run-uvicorn",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API Server with FastAPI",
+      "type": "shell",
+      "command": "make run-fastapi",
       "isBackground": true,
       "group": {
         "kind": "build",
