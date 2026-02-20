@@ -1,52 +1,79 @@
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
   // for the documentation about the tasks.json format
-
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "install",
+      "label": "Create Virtual Environment",
       "type": "shell",
-      "command": "echo \"📦 Installing project dependencies...\" && uv sync",
+      "command": "make venv",
       "group": "build",
       "problemMatcher": []
     },
     {
-      "label": "run",
+      "label": "Install Dependencies",
       "type": "shell",
-      "command": "echo \"🚀 Starting API at http://127.0.0.1:8000...\" && uv run uvicorn src.api.main:app --reload",
+      "command": "make install",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Export Requirements File",
+      "type": "shell",
+      "command": "make export-req",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API Server",
+      "type": "shell",
+      "command": "make run",
       "isBackground": true,
       "group": {
-        "kind": "none",
+        "kind": "build",
         "isDefault": true
       },
       "problemMatcher": []
     },
     {
-      "label": "format",
+      "label": "Format Code",
       "type": "shell",
-      "command": "echo \"🎨 Formatting code with ruff...\" && uv run ruff format . && uv run ruff check --fix .",
+      "command": "make format",
       "group": "build",
       "problemMatcher": []
     },
     {
-      "label": "lint",
+      "label": "Lint Code",
       "type": "shell",
-      "command": "echo \"🔍 Running lint checks with ruff...\" && uv run ruff check . && uv run ruff format --check .",
+      "command": "make lint",
       "group": "test",
       "problemMatcher": []
     },
     {
-      "label": "type-check",
+      "label": "Run Type Check",
       "type": "shell",
-      "command": "echo \"🧠 Running type checks with mypy...\" && uv run mypy .",
+      "command": "make type-check",
       "group": "test",
       "problemMatcher": []
     },
     {
-      "label": "test",
+      "label": "Run Tests",
       "type": "shell",
-      "command": "echo \"🧪 Running test suite with pytest...\" && uv run pytest",
+      "command": "make test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Coverage Report",
+      "type": "shell",
+      "command": "make coverage",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Full Quality Check",
+      "type": "shell",
+      "command": "make check",
       "group": {
         "kind": "test",
         "isDefault": true
@@ -54,24 +81,9 @@
       "problemMatcher": []
     },
     {
-      "label": "coverage",
+      "label": "Generate Project Secret",
       "type": "shell",
-      "command": "echo \"🧪 Generating test coverage report...\" && uv run pytest --cov=src --cov-report=term-missing --cov-report=html",
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "label": "check",
-      "type": "shell",
-      "dependsOn": ["lint", "type-check", "test"],
-      "command": "echo \"✅ All quality checks passed successfully!\"",
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "label": "generate-secret",
-      "type": "shell",
-      "command": "echo \"🔐 Generating project secret...\" && python -c \"import secrets; print(secrets.token_hex(32))\"",
+      "command": "make secret",
       "group": "none",
       "problemMatcher": []
     }
