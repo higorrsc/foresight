@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.user.exceptions import (
@@ -26,8 +25,8 @@ class OnboardingInputDTO:
     tenant_name: str
     username: str
     password: str
-    first_name: Optional[str] = None
-    email: Optional[str] = None
+    first_name: str | None = None
+    email: str | None = None
     plan_name: str = "Standard"
 
 

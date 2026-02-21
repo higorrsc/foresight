@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import List, Optional
 
 from src.core.domain.repository import AbstractRepository
 from src.identity_access_management.domain.entities import Permission
@@ -11,7 +10,7 @@ class IPermissionRepository(AbstractRepository[Permission]):
     """
 
     @abstractmethod
-    def list_all(self) -> List[Permission]:
+    def list_all(self) -> list[Permission]:
         """
         Lists all permissions in the system.
         """
@@ -19,7 +18,7 @@ class IPermissionRepository(AbstractRepository[Permission]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_codename(self, codename: str) -> Optional[Permission]:
+    def get_by_codename(self, codename: str) -> Permission | None:
         """
         Retrieves a permission by its codename.
         """

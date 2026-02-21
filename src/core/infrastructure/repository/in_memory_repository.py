@@ -1,5 +1,5 @@
 import operator
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 from src.core.domain import AbstractRepository, PaginatedResult
@@ -13,14 +13,14 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
     A simple in-memory implementation of AbstractRepository for testing.
     """
 
-    def __init__(self, entities: Optional[List[T]] = None):
+    def __init__(self, entities: list[T] | None = None):
         """
         Initialize the repository with an optional list of entities.
         """
 
         self._entities = entities or []
 
-    def save(self, entity: T) -> Optional[T]:
+    def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -34,8 +34,8 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
     def get_by_id(
         self,
         entity_id: UUID,
-        tenant_id: Optional[UUID],
-    ) -> Optional[T]:
+        tenant_id: UUID | None,
+    ) -> T | None:
         """
         Retrieve an entity by its ID.
 
@@ -52,10 +52,10 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
         return None
 
-    def list(
+    def get_all(
         self,
-        tenant_id: Optional[UUID],
-    ) -> List[T]:
+        tenant_id: UUID | None,
+    ) -> list[T]:
         """
         List all entities in the repository.
 
@@ -70,7 +70,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
         return list(self._entities)
 
-    def update(self, entity: T) -> Optional[T]:
+    def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -91,7 +91,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
         return None
 
-    def delete(self, entity_id: UUID, tenant_id: Optional[UUID]) -> None:
+    def delete(self, entity_id: UUID, tenant_id: UUID | None) -> None:
         """
         Delete an entity from the repository.
 
@@ -106,7 +106,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         if entity:
             self._entities.remove(entity)
 
-    def __entity_matches_filters(self, entity: T, filters: Dict[str, Any]) -> bool:
+    def __entity_matches_filters(self, entity: T, filters: dict[str, Any]) -> bool:
         """
         Verify if an entity matches the given filters.
         """
@@ -120,7 +120,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
                 return False
         return True
 
-    def __apply_filters(self, entities: List[T], filters: Dict[str, Any]) -> List[T]:
+    def __apply_filters(self, entities: list[T], filters: dict[str, Any]) -> list[T]:
         """
         Apply filters to a list of entities.
         """
@@ -135,8 +135,8 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         ]
 
     def __apply_sorting(
-        self, entities: List[T], sort_by: Optional[str], sort_order: str
-    ) -> List[T]:
+        self, entities: list[T], sort_by: str | None, sort_order: str
+    ) -> list[T]:
         """
         Apply sorting to a list of entities.
         """
@@ -150,9 +150,9 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
 
     def search(
         self,
-        tenant_id: Optional[UUID],
-        filters: Optional[Dict[str, Any]] = None,
-        sort_by: Optional[str] = None,
+        tenant_id: UUID | None,
+        filters: dict[str, Any] | None = None,
+        sort_by: str | None = None,
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 100,

@@ -59,7 +59,7 @@ class TestInMemoryRepository:
 
         assert found_entity is None
 
-    def test_list_entities(self, default_tenant_id):
+    def test_get_all_entities(self, default_tenant_id):
         """
         Test listing all entities in the repository.
         """
@@ -73,7 +73,7 @@ class TestInMemoryRepository:
             tenant_id=default_tenant_id,
         )
         repository = InMemoryRepository(entities=[entity1, entity2])
-        entities = repository.list(tenant_id=default_tenant_id)
+        entities = repository.get_all(tenant_id=default_tenant_id)
 
         assert entities == [entity1, entity2]
 

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
@@ -11,15 +9,15 @@ class Settings(BaseSettings):
     """
 
     DB_DRIVER: str = "sqlite"
-    DB_USER: Optional[str] = None
-    DB_PASSWORD: Optional[str] = None
-    DB_HOST: Optional[str] = None
-    DB_PORT: Optional[int] = None
+    DB_USER: str | None = None
+    DB_PASSWORD: str | None = None
+    DB_HOST: str | None = None
+    DB_PORT: int | None = None
     DB_DATABASE: str = "./db.sqlite3"
 
-    DB_SSL_ROOT_CERT: Optional[str] = None
+    DB_SSL_ROOT_CERT: str | None = None
 
-    DATABASE_URL: Optional[str] = None
+    DATABASE_URL: str | None = None
 
     SECRET_KEY: str = "default_secret_key_if_not_in_env_file"
     ALGORITHM: str = "HS256"
@@ -28,7 +26,7 @@ class Settings(BaseSettings):
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
-    def assemble_db_connection(cls, v: Optional[str], info: ValidationInfo) -> str:
+    def assemble_db_connection(cls, v: str | None, info: ValidationInfo) -> str:
         """
         Build DATABASE_URL from environment variables.
         """

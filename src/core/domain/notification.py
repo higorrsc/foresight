@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
@@ -13,7 +12,7 @@ class Notification:
         Initializes a Notification with an empty list of errors
         """
 
-        self._errors: List[str] = []
+        self._errors: list[str] = []
 
     def add_error(self, message: str) -> None:
         """

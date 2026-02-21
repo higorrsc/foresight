@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from src.identity_access_management.domain.constants import AppPermission
@@ -100,7 +98,7 @@ def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleMod
 def seed_app_permissions(
     db_session: Session,
     admin_role: RoleModel,
-    guest_role: Optional[RoleModel] = None,
+    guest_role: RoleModel | None = None,
 ):
     """
     Create application permissions if they don't exist, using PermissionModel

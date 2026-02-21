@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
 from src.core.application import PaginatedResponseDTO, PaginationMeta
 from src.identity_access_management.application.use_cases.permission import (
@@ -21,8 +21,8 @@ class ListPlansInputDTO:
     """
 
     actor: "User"
-    filters: Optional[Dict[str, Any]] = None
-    sort_by: Optional[str] = None
+    filters: dict[str, Any] | None = None
+    sort_by: str | None = None
     sort_order: str = "asc"
     offset: int = 0
     limit: int = 10

@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import List
 from uuid import UUID
 
 from src.core.domain import AbstractRepository
@@ -16,7 +15,7 @@ class IOrganizationalUnitRepository(AbstractRepository[OrganizationalUnit]):
         self,
         parent_id: UUID,
         tenant_id: UUID,
-    ) -> List[OrganizationalUnit]:
+    ) -> list[OrganizationalUnit]:
         """
         Get organizational units by parent ID.
         """

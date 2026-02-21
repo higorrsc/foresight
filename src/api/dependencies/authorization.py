@@ -1,5 +1,3 @@
-from typing import List, Set
-
 from fastapi import Depends, HTTPException, status
 
 from src.identity_access_management.domain.entities import User
@@ -12,7 +10,7 @@ class RoleChecker:
     Dependency that checks if the current user has the required role.
     """
 
-    def __init__(self, allowed_roles: List[str]):
+    def __init__(self, allowed_roles: list[str]):
         """
         Initialize the RoleChecker with a list of allowed roles.
         """
@@ -36,7 +34,7 @@ class PermissionChecker:
     Dependency that checks if the current user has the required permission.
     """
 
-    def __init__(self, required_permissions: List[str]):
+    def __init__(self, required_permissions: list[str]):
         """
         Initialize the PermissionChecker with a list of required permissions.
         """
@@ -48,7 +46,7 @@ class PermissionChecker:
         Check if the current user has any of the required permissions.
         """
 
-        user_permissions: Set[str] = (
+        user_permissions: set[str] = (
             current_user.permissions if current_user.permissions else set()
         )
         common_permissions = self._required_permissions.intersection(user_permissions)

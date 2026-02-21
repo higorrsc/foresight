@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -24,7 +23,7 @@ class TenantRepository(SQLAlchemyRepository[Tenant, TenantModel], ITenantReposit
 
         super().__init__(session, TenantModel, mapper=TenantMapper)
 
-    def get_by_id_global(self, tenant_id: UUID) -> Optional[Tenant]:
+    def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """
         Finds a tenant by its unique id.
         """

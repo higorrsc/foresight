@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 from uuid import UUID
 
 from src.core.domain.entities import DescribedEntity
@@ -13,7 +12,7 @@ class OrganizationalUnit(DescribedEntity, SoftDeletableMixin):
     """
 
     code: str
-    parent_id: Optional[UUID] = field(default=None, repr=False)
+    parent_id: UUID | None = field(default=None, repr=False)
 
     def __str__(self) -> str:
         """

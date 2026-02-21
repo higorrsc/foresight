@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Generic, Type, TypeVar
 from uuid import UUID
 
 from sqlalchemy import asc, delete, desc, func, inspect, select  # Adicionado func
@@ -37,7 +37,7 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         mapper = inspect(self._model_cls)
         return column_name in mapper.columns  # type: ignore
 
-    def save(self, entity: T) -> Optional[T]:
+    def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -54,8 +54,8 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
     def get_by_id(
         self,
         entity_id: UUID,
-        tenant_id: Optional[UUID],
-    ) -> Optional[T]:
+        tenant_id: UUID | None,
+    ) -> T | None:
         """
         Retrieve an entity by its ID.
 
@@ -72,10 +72,10 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
 
-    def list(
+    def get_all(
         self,
-        tenant_id: Optional[UUID],
-    ) -> List[T]:
+        tenant_id: UUID | None,
+    ) -> list[T]:
         """
         List all entities in the repository.
 
@@ -91,7 +91,7 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         result = self._session.execute(stmt)
         return [self._mapper.to_entity(m) for m in result.unique().scalars().all()]
 
-    def update(self, entity: T) -> Optional[T]:
+    def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -108,7 +108,7 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
     def delete(
         self,
         entity_id: UUID,
-        tenant_id: Optional[UUID],
+        tenant_id: UUID | None,
     ) -> None:
         """
         Delete an entity from the repository.
@@ -127,9 +127,9 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
 
     def search(
         self,
-        tenant_id: Optional[UUID],
-        filters: Optional[Dict[str, Any]] = None,
-        sort_by: Optional[str] = None,
+        tenant_id: UUID | None,
+        filters: dict[str, Any] | None = None,
+        sort_by: str | None = None,
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 100,

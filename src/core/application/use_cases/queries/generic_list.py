@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from math import ceil
-from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from src.core.application import PaginatedResponseDTO, PaginationMeta
 from src.core.domain import AbstractRepository
@@ -22,9 +22,9 @@ class ListRequestInputDTO:
     """
 
     actor: "User"
-    filters: Optional[Dict[str, Any]] = field(default_factory=dict)
-    sort_by: Optional[str] = None
-    sort_order: Optional[str] = "asc"
+    filters: dict[str, Any] | None = field(default_factory=dict)
+    sort_by: str | None = None
+    sort_order: str | None = "asc"
     offset: int = 0
     limit: int = 10
     include_inactive: bool = False

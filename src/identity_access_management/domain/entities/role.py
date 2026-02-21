@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Set
 
 from src.core.domain import EntityValidationError
 from src.core.domain.entities import TenantAwareEntity
@@ -14,9 +13,9 @@ class Role(TenantAwareEntity, SoftDeletableMixin):
 
     name: str
     description: str
-    permissions: Set[str] = field(default_factory=set)
+    permissions: set[str] = field(default_factory=set)
 
-    def update_role(self, new_name: str, new_description: Optional[str] = None) -> None:
+    def update_role(self, new_name: str, new_description: str | None = None) -> None:
         """
         Updates the name and description of the Role entity.
         """

@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -35,9 +34,9 @@ class OrganizationalUnitRepository(
 
     def get_by_parent_id(
         self,
-        parent_id: Optional[UUID],
-        tenant_id: Optional[UUID],
-    ) -> List[OrganizationalUnit]:
+        parent_id: UUID | None,
+        tenant_id: UUID | None,
+    ) -> list[OrganizationalUnit]:
         """
         Get OrganizationalUnits by parent_id using SQLAlchemy
         """

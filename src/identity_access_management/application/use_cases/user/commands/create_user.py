@@ -1,6 +1,5 @@
 # src/identity_access_management/application/use_cases/user/create_user.py
 from dataclasses import dataclass, field
-from typing import List
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
@@ -26,7 +25,7 @@ class CreateUserInputDTO:
     actor: "User"
     username: str
     password: str
-    roles: List[str] = field(default_factory=list)
+    roles: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

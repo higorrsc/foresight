@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
@@ -25,9 +25,9 @@ class UserProfileInputDTO:
 
     actor: "User"
     user_id_to_update: UUID
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
 
 
 class UpdateUserProfileUseCase:

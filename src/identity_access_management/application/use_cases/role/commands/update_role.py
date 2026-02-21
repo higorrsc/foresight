@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
@@ -22,7 +22,7 @@ class UpdateRoleInputDTO:
     actor: "User"
     id: UUID
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 @dataclass
@@ -33,7 +33,7 @@ class UpdateRoleResponseDTO:
 
     id: UUID
     name: str
-    description: Optional[str]
+    description: str | None
 
 
 class UpdateRoleUseCase:

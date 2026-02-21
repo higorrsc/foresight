@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional, Set
 
 from email_validator import EmailNotValidError, validate_email
 from passlib.context import CryptContext
@@ -19,11 +18,11 @@ class User(TenantAwareEntity, SoftDeletableMixin):
 
     username: str
     hashed_password: str
-    roles: Set[str] = field(default_factory=set)
-    permissions: Set[str] = field(default_factory=set)
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
+    roles: set[str] = field(default_factory=set)
+    permissions: set[str] = field(default_factory=set)
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
 
     def verify_password(self, plain_password: str) -> bool:
         """

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from src.identity_access_management.domain.entities import User
 
@@ -10,7 +9,7 @@ class AbstractAuthenticationProvider(ABC):
     """
 
     @abstractmethod
-    async def get_user_from_token(self, token: str) -> Optional[User]:
+    async def get_user_from_token(self, token: str) -> User | None:
         """
         Get a user from a token.
         """

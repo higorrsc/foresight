@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
@@ -25,8 +25,8 @@ class CreateRoleInputDTO:
 
     actor: "User"
     name: str
-    description: Optional[str] = None
-    permissions: List[str] = field(default_factory=list)
+    description: str | None = None
+    permissions: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Optional, Set
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -85,15 +84,15 @@ class UserDetailResponse(BaseModel):
 
     id: UUID
     username: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[EmailStr] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    roles: Set[str] = set()
-    permissions: Set[str] = set()
-    deleted_at: Optional[datetime] = None
+    roles: set[str] = set()
+    permissions: set[str] = set()
+    deleted_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -111,7 +110,7 @@ class UserCreateBody(BaseModel):
 
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8)
-    roles: Optional[List[str]] = Field(default_factory=list)
+    roles: list[str] | None = Field(default_factory=list)
 
 
 class ChangePasswordBody(BaseModel):
@@ -128,7 +127,7 @@ class SetUserPermissionsBody(BaseModel):
     Request model for setting user permissions.
     """
 
-    permission_codes: List[str] = Field(default_factory=list)
+    permission_codes: list[str] = Field(default_factory=list)
 
 
 class SetUserRolesBody(BaseModel):
@@ -136,7 +135,7 @@ class SetUserRolesBody(BaseModel):
     Request model for setting user roles.
     """
 
-    role_names: List[str] = Field(default_factory=list)
+    role_names: list[str] = Field(default_factory=list)
 
 
 class UpdateUserProfileBody(BaseModel):
@@ -144,9 +143,9 @@ class UpdateUserProfileBody(BaseModel):
     Request model for updating a user profile.
     """
 
-    first_name: Optional[str] = Field(None, max_length=100)
-    last_name: Optional[str] = Field(None, max_length=100)
-    email: Optional[EmailStr] = None
+    first_name: str | None = Field(None, max_length=100)
+    last_name: str | None = Field(None, max_length=100)
+    email: EmailStr | None = None
 
 
 router = APIRouter(
@@ -233,8 +232,8 @@ def get_current_user_me(actor: User = Depends(get_current_user)):
 def list_users_endpoint(
     repo: IUserRepository = Depends(get_user_repository),
     actor: User = Depends(get_current_user),
-    username: Optional[str] = Query(None, description="Filter by part of the username"),
-    sort_by: Optional[str] = Query("username", description="Sort field"),
+    username: str | None = Query(None, description="Filter by part of the username"),
+    sort_by: str | None = Query("username", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),

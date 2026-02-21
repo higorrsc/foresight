@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -66,7 +65,7 @@ class AreaResponseDetail(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    deleted_at: Optional[datetime] = None
+    deleted_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -144,8 +143,8 @@ def create_area_endpoint(
 def list_areas_endpoint(
     repo: IAreaRepository = Depends(get_area_repository),
     actor: User = Depends(get_current_user),
-    description: Optional[str] = Query(None, description="Filter by description"),
-    sort_by: Optional[str] = Query("description", description="Sort field"),
+    description: str | None = Query(None, description="Filter by description"),
+    sort_by: str | None = Query("description", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
     offset: int = Query(0, ge=0, description="Offset"),
     limit: int = Query(10, ge=1, le=100, description="Limit"),

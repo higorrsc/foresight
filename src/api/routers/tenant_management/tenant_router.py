@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -53,8 +52,8 @@ class SignupRequest(BaseModel):
     tenant_name: str = Field(..., min_length=3, max_length=100)
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8)
-    first_name: Optional[str] = None
-    email: Optional[EmailStr] = None
+    first_name: str | None = None
+    email: EmailStr | None = None
     plan_name: str = "Standard"  # Valor padrão
 
 

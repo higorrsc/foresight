@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
@@ -22,7 +22,7 @@ class CreateOrganizationalUnitInputDTO:
     actor: "User"
     description: str
     code: str
-    parent_id: Optional[UUID] = field(default=None)
+    parent_id: UUID | None = field(default=None)
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
@@ -45,7 +45,7 @@ class GetOrganizationalUnitByParentIdUseCase:
     def execute(
         self,
         request: GetOrganizationalUnitByParentIdInputDTO,
-    ) -> List[GetOrganizationalUnitByParentIdOutputDTO]:
+    ) -> list[GetOrganizationalUnitByParentIdOutputDTO]:
         """
         Execute the get by parent id use case.
         """

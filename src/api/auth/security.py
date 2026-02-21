@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional
 from uuid import UUID
 
 from jose import jwt
@@ -8,9 +7,9 @@ from src.core.infrastructure.config import settings
 
 
 def create_access_token(
-    data: Dict,
-    tenant_id: Optional[UUID],
-    expires_delta: Optional[timedelta] = None,
+    data: dict,
+    tenant_id: UUID | None,
+    expires_delta: timedelta | None = None,
 ):
     """
     Create an access token.

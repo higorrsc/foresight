@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 T = TypeVar("T")
@@ -12,7 +12,7 @@ class PaginatedResult(Generic[T]):
     Paginated result of list operations.
     """
 
-    data: List[T]
+    data: list[T]
     total: int
 
 
@@ -22,7 +22,7 @@ class AbstractRepository(ABC, Generic[T]):
     """
 
     @abstractmethod
-    def save(self, entity: T) -> Optional[T]:
+    def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -35,8 +35,8 @@ class AbstractRepository(ABC, Generic[T]):
     def get_by_id(
         self,
         entity_id: UUID,
-        tenant_id: Optional[UUID],
-    ) -> Optional[T]:
+        tenant_id: UUID | None,
+    ) -> T | None:
         """
         Retrieve an entity by its ID.
 
@@ -48,10 +48,10 @@ class AbstractRepository(ABC, Generic[T]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def list(
+    def get_all(
         self,
-        tenant_id: Optional[UUID],
-    ) -> List[T]:
+        tenant_id: UUID | None,
+    ) -> list[T]:
         """
         List all entities in the repository.
 
@@ -62,7 +62,7 @@ class AbstractRepository(ABC, Generic[T]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def update(self, entity: T) -> Optional[T]:
+    def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -76,7 +76,7 @@ class AbstractRepository(ABC, Generic[T]):
     def delete(
         self,
         entity_id: UUID,
-        tenant_id: Optional[UUID],
+        tenant_id: UUID | None,
     ) -> None:
         """
         Delete an entity from the repository.
@@ -90,9 +90,9 @@ class AbstractRepository(ABC, Generic[T]):
     @abstractmethod
     def search(
         self,
-        tenant_id: Optional[UUID],
-        filters: Optional[Dict[str, Any]] = None,
-        sort_by: Optional[str] = None,
+        tenant_id: UUID | None,
+        filters: dict[str, Any] | None = None,
+        sort_by: str | None = None,
         sort_order: str = "asc",
         offset: int = 0,
         limit: int = 10,

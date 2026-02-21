@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from jose import JWTError, jwt
@@ -21,15 +20,15 @@ class LocalAuthenticationProvider(AbstractAuthenticationProvider):
 
         self._repository = repository
 
-    async def get_user_from_token(self, token: str) -> Optional[User]:
+    async def get_user_from_token(self, token: str) -> User | None:
         try:
             payload = jwt.decode(
                 token,
                 settings.SECRET_KEY,
                 algorithms=[settings.ALGORITHM],
             )
-            username: Optional[str] = payload.get("sub")
-            tenant_id_str: Optional[str] = payload.get("tenant_id")
+            username: str | None = payload.get("sub")
+            tenant_id_str: str | None = payload.get("tenant_id")
 
             if username is None:
                 return None

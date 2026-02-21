@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -33,8 +32,8 @@ class RoleRepository(
     def get_by_name(
         self,
         name: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[Role]:
+        tenant_id: UUID | None,
+    ) -> Role | None:
         """
         Get a role by its name.
         """
@@ -46,7 +45,7 @@ class RoleRepository(
         )
         return self._mapper.to_entity(model) if model else None
 
-    def save(self, entity: Role) -> Optional[Role]:
+    def save(self, entity: Role) -> Role | None:
         """
         Save Role entity
         """
@@ -66,7 +65,7 @@ class RoleRepository(
 
         return self._mapper.to_entity(model)
 
-    def update(self, entity: Role) -> Optional[Role]:
+    def update(self, entity: Role) -> Role | None:
         """
         Update Role entity
         """

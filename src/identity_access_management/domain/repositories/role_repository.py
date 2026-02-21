@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Optional
 from uuid import UUID
 
 from src.core.domain import AbstractRepository
@@ -15,8 +14,8 @@ class IRoleRepository(AbstractRepository[Role]):
     def get_by_name(
         self,
         name: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[Role]:
+        tenant_id: UUID | None,
+    ) -> Role | None:
         """
         Get a role by its name.
         """

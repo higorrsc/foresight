@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -24,7 +22,7 @@ class PlanRepository(SQLAlchemyRepository[Plan, PlanModel], IPlanRepository):
 
         super().__init__(session, PlanModel, mapper=PlanMapper)
 
-    def get_by_name(self, name: str) -> Optional[Plan]:
+    def get_by_name(self, name: str) -> Plan | None:
         """
         Finds a plan by its name.
         """

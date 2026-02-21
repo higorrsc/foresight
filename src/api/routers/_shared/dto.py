@@ -1,4 +1,4 @@
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -23,7 +23,7 @@ class PaginatedApiResponse(BaseModel, Generic[T]):
     Response model for API.
     """
 
-    data: List[T]
+    data: list[T]
     meta: PaginationMetaResponse
 
     model_config = ConfigDict(from_attributes=True)

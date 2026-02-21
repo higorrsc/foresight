@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from src.core.domain import EntityValidationError
 from src.core.domain.entities import AbstractEntity
@@ -16,8 +15,8 @@ class Permission(AbstractEntity):
 
     def update_permission(
         self,
-        new_codename: Optional[str] = None,
-        new_description: Optional[str] = None,
+        new_codename: str | None = None,
+        new_description: str | None = None,
     ) -> None:
         """
         Updates the codename and description of the Permission entity.

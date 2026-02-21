@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.permission import (
@@ -25,7 +25,7 @@ class SetUserRolesInputDTO:
 
     actor: "User"
     user_id_to_update: UUID
-    role_names: List[str] = field(default_factory=list)
+    role_names: list[str] = field(default_factory=list)
 
 
 class SetUserRolesUseCase:

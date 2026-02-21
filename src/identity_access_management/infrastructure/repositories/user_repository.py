@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -35,8 +34,8 @@ class UserRepository(
     def get_by_username(
         self,
         username: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[User]:
+        tenant_id: UUID | None,
+    ) -> User | None:
         """
         Get a user by its username and tenant.
         """
@@ -52,7 +51,7 @@ class UserRepository(
 
         return self._mapper.to_entity(model) if model else None
 
-    def save(self, entity: User) -> Optional[User]:
+    def save(self, entity: User) -> User | None:
         """
         Save User entity
         """
@@ -73,7 +72,7 @@ class UserRepository(
 
         return self._mapper.to_entity(model)
 
-    def update(self, entity: User) -> Optional[User]:
+    def update(self, entity: User) -> User | None:
         """
         Update User entity
         """
@@ -116,8 +115,8 @@ class UserRepository(
     def get_by_email(
         self,
         email: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[User]:
+        tenant_id: UUID | None,
+    ) -> User | None:
         """
         Get a user by its email.
 
@@ -135,7 +134,7 @@ class UserRepository(
         )
         return self._mapper.to_entity(model) if model else None
 
-    def get_by_username_global(self, username: str) -> Optional[User]:
+    def get_by_username_global(self, username: str) -> User | None:
         """
         Get a user by its username at any tenant.
 

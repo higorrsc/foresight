@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Optional, Set
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -80,12 +79,12 @@ class RoleDetailResponse(BaseModel):
 
     id: UUID
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    deleted_at: Optional[datetime] = None
-    permissions: Set[str] = set()
+    deleted_at: datetime | None = None
+    permissions: set[str] = set()
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -103,8 +102,8 @@ class RoleCreateBody(BaseModel):
     """
 
     name: str = Field(..., min_length=3, max_length=100)
-    description: Optional[str] = Field(None, max_length=255)
-    permissions: Set[str] = set()
+    description: str | None = Field(None, max_length=255)
+    permissions: set[str] = set()
 
 
 class SetRolePermissionsBody(BaseModel):
@@ -112,7 +111,7 @@ class SetRolePermissionsBody(BaseModel):
     Request model for setting role permissions.
     """
 
-    permission_codes: List[str] = Field(default_factory=list)
+    permission_codes: list[str] = Field(default_factory=list)
 
 
 # --- Router ---
@@ -187,8 +186,8 @@ def create_role_endpoint(
 def list_roles_endpoint(
     repo: IRoleRepository = Depends(get_role_repository),
     actor: User = Depends(get_current_user),
-    name: Optional[str] = Query(None, description="Filter by part of the name"),
-    sort_by: Optional[str] = Query("name", description="Sort field"),
+    name: str | None = Query(None, description="Filter by part of the name"),
+    sort_by: str | None = Query("name", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),

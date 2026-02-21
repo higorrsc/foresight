@@ -2,7 +2,7 @@ from math import ceil
 
 from src.core.application import PaginatedResponseDTO
 from src.core.application.dto import PaginationMeta
-from src.core.application.use_cases.queries import ListRequestInputDTO
+from src.core.application.use_cases.queries.generic_list import ListRequestInputDTO
 from src.identity_access_management.domain.entities import Permission
 from src.identity_access_management.domain.repositories import IPermissionRepository
 

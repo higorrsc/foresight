@@ -43,7 +43,7 @@ class TestSQLAlchemyRepository:
         assert fetched_area is not None
         assert fetched_area.description == "Test Area"
 
-    def test_list(self, repository, default_tenant_id):
+    def test_get_all(self, repository, default_tenant_id):
         """
         Test listing all entities.
         """
@@ -59,7 +59,7 @@ class TestSQLAlchemyRepository:
         repository.save(area1)
         repository.save(area2)
 
-        areas = repository.list(tenant_id=default_tenant_id)
+        areas = repository.get_all(tenant_id=default_tenant_id)
         assert len(areas) == 2
         assert areas[0].description == "Area 1"
         assert areas[1].description == "Area 2"

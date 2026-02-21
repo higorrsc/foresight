@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -29,7 +27,7 @@ class PermissionRepository(
             mapper=PermissionMapper,
         )
 
-    def list_all(self) -> List[Permission]:
+    def list_all(self) -> list[Permission]:
         """
         Lists all permissions.
         """
@@ -38,7 +36,7 @@ class PermissionRepository(
         models = self._session.scalars(stmt).all()
         return [self._mapper.to_entity(m) for m in models]
 
-    def get_by_codename(self, codename: str) -> Optional[Permission]:
+    def get_by_codename(self, codename: str) -> Permission | None:
         """
         Retrieves a permission by its codename.
         """

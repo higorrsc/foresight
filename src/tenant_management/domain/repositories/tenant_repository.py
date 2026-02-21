@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Optional
 from uuid import UUID
 
 from src.core.domain.repository import AbstractRepository
@@ -12,7 +11,7 @@ class ITenantRepository(AbstractRepository[Tenant]):
     """
 
     @abstractmethod
-    def get_by_id_global(self, tenant_id: UUID) -> Optional[Tenant]:
+    def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """
         Finds a tenant by its unique id.
         """
