@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -54,7 +54,7 @@ class TestTenant:
     )
     def test_create_tenant_with_invalid_name_raises_error(
         self,
-        name: Optional[str] | None,
+        name: str | None,
         expected_error: str,
     ) -> None:
         """

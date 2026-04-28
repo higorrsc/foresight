@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -40,7 +40,7 @@ class TestPlan:
     )
     def test_create_plan_with_invalid_name_raises_error(
         self,
-        name: Optional[str],
+        name: str | None,
         expected_error: str,
     ) -> None:
         """

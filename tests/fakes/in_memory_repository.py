@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from src.core.infrastructure.repository import InMemoryRepository
@@ -29,8 +28,8 @@ class UserInMemoryRepository(
     def get_by_username(
         self,
         username: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[User]:
+        tenant_id: UUID | None,
+    ) -> User | None:
         """
         Method to get a user by its username.
         """
@@ -41,7 +40,7 @@ class UserInMemoryRepository(
 
         return None
 
-    def get_by_username_global(self, username: str) -> Optional[User]:
+    def get_by_username_global(self, username: str) -> User | None:
         """
         Method to get a user by its username globally.
         """
@@ -89,8 +88,8 @@ class RoleInMemoryRepository(
     def get_by_name(
         self,
         name: str,
-        tenant_id: Optional[UUID],
-    ) -> Optional[Role]:
+        tenant_id: UUID | None,
+    ) -> Role | None:
         """
         Method to get a role by its name.
         """
@@ -139,7 +138,7 @@ class PlanInMemoryRepository(
     this implements get_by_name method.
     """
 
-    def get_by_name(self, name: str) -> Optional[Plan]:
+    def get_by_name(self, name: str) -> Plan | None:
         """
         Method to get a plan by its name.
         """
@@ -159,7 +158,7 @@ class TenantInMemoryRepository(
     this implements get_by_name method.
     """
 
-    def get_by_name(self, name: str) -> Optional[Tenant]:
+    def get_by_name(self, name: str) -> Tenant | None:
         """
         Method to get a tenant by its name.
         """
@@ -170,7 +169,7 @@ class TenantInMemoryRepository(
 
         return None
 
-    def get_by_id_global(self, tenant_id: UUID) -> Optional[Tenant]:
+    def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """
         Finds a tenant by its unique id.
         """
@@ -203,7 +202,7 @@ class OrganizationalUnitInMemoryRepository(
         self,
         parent_id: UUID,
         tenant_id: UUID,
-    ) -> List[OrganizationalUnit]:
+    ) -> list[OrganizationalUnit]:
         """
         Get organizational units by parent ID.
         """
