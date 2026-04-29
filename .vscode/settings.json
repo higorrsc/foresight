@@ -70,15 +70,6 @@
   // ----------------------------
   // EDITOR
   // ----------------------------
-  "editor.formatOnPaste": true,
-  "editor.formatOnSave": true,
-  "editor.formatOnType": true,
-  "editor.renderWhitespace": "boundary",
-  "editor.rulers": [
-    80,
-    120
-  ],
-  "editor.tabSize": 4,
   "editor.codeActionsOnSave": {
     "source.addMissingImports": "always",
     "source.fixAll.eslint": "always",
@@ -87,6 +78,14 @@
     "source.removeUnusedImports": "always",
     "source.unusedImports": "always"
   },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.rulers": [
+    88
+  ],
+  "editor.tabSize": 4,
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   // ----------------------------
@@ -97,22 +96,26 @@
   "python.analysis.importFormat": "absolute",
   "python.analysis.inlayHints.callArgumentNames": "all",
   "python.analysis.typeCheckingMode": "basic",
-  "python.defaultInterpreterPath": ".venv/bin/python",
   "python.terminal.activateEnvironment": true,
+  "[python]": {
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "always",
+      "source.organizeImports.ruff": "always"
+    },
+    "editor.wordBasedSuggestions": "off",
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  // ----------------------------
+  // TESTES (pytest)
+  // ----------------------------
   "python.testing.pytestArgs": [
-    "--import-mode=importlib",
     "-v",
+    "--import-mode=importlib",
     "tests"
   ],
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
-  "[python]": {
-    "diffEditor.ignoreTrimWhitespace": false,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.pylance": "always"
-    },
-    "editor.wordBasedSuggestions": "off"
-  },
   // ----------------------------
   // RUFF (Formato + Lint)
   // ----------------------------
@@ -121,14 +124,21 @@
     "run",
     "ruff"
   ],
-  "editor.defaultFormatter": "charliermarsh.ruff",
+  "ruff.lint.enable": true,
   // ----------------------------
-  // SEARCH
+  // SEARCH / IGNORE
   // ----------------------------
   "search.exclude": {
     "**/__pycache__": true,
+    "**/.mypy_cache": true,
     "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
     "**/htmlcov": true,
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.pytest_cache": true,
     "**/.ruff_cache": true
-  }
+  },
 }
