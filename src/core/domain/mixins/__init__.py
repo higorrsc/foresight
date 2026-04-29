@@ -1,5 +1,7 @@
-from .soft_deletable_mixin import SoftDeletableMixin
+from .soft_deletable import SoftDeletableMixin
+from .user_audit import UserAuditMixin
 
 __all__ = [
     "SoftDeletableMixin",
+    "UserAuditMixin",
 ]

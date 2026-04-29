@@ -3,11 +3,12 @@ from uuid import UUID
 
 from src.core.domain.entities import AbstractEntity
 from src.core.domain.exceptions import EntityValidationError
+from src.core.domain.mixins import UserAuditMixin
 from src.tenant_management.domain.value_objects import TenantStatus
 
 
 @dataclass(kw_only=True, eq=False)
-class Tenant(AbstractEntity):
+class Tenant(AbstractEntity, UserAuditMixin):
     """
     Entity representing a Tenant in the system.
     """

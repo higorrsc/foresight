@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 from src.core.domain.entities import TenantAwareEntity
+from src.core.domain.mixins import UserAuditMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class DummyEntity(TenantAwareEntity):
+class DummyEntity(TenantAwareEntity, UserAuditMixin):
     """
     A dummy entity for testing purposes.
     """

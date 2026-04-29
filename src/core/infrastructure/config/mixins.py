@@ -71,6 +71,17 @@ class SQLAlchemyUserAuditFields:
         )
 
     @declared_attr
+    def created_at(cls):  # pylint: disable=E0213
+        """
+        Add date of creation.
+        """
+
+        return Column(
+            DateTime(timezone=True),
+            default=lambda: datetime.now(timezone.utc),
+        )
+
+    @declared_attr
     def updated_by(cls):  # pylint: disable=E0213
         """
         Add UserID that updated the record.
@@ -83,6 +94,18 @@ class SQLAlchemyUserAuditFields:
                 ondelete="SET NULL",
             ),
             nullable=True,
+        )
+
+    @declared_attr
+    def updated_at(cls):  # pylint: disable=E0213
+        """
+        Add date of update.
+        """
+
+        return Column(
+            DateTime(timezone=True),
+            default=lambda: datetime.now(timezone.utc),
+            onupdate=lambda: datetime.now(timezone.utc),
         )
 
     @declared_attr

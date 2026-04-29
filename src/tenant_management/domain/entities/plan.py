@@ -3,10 +3,11 @@ from decimal import Decimal
 
 from src.core.domain.entities import AbstractEntity
 from src.core.domain.exceptions import EntityValidationError
+from src.core.domain.mixins import UserAuditMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class Plan(AbstractEntity):
+class Plan(AbstractEntity, UserAuditMixin):
     """
     Entity representing a Plan in the system.
     """

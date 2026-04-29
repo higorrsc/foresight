@@ -5,13 +5,13 @@ from passlib.context import CryptContext
 
 from src.core.domain import EntityValidationError
 from src.core.domain.entities import TenantAwareEntity
-from src.core.domain.mixins import SoftDeletableMixin
+from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
 @dataclass(kw_only=True, eq=False)
-class User(TenantAwareEntity, SoftDeletableMixin):
+class User(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing a user in the system.
     """

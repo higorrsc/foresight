@@ -5,8 +5,10 @@ from src.core.infrastructure.config import (
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
+    SQLAlchemyUserAuditFields,
 )
-from src.identity_access_management.infrastructure.models import (
+
+from .association_tables import (
     user_permissions,
     user_roles,
 )
@@ -16,6 +18,7 @@ class UserModel(
     SQLAlchemyBase,
     SQLAlchemyTenantMixin,
     SQLAlchemySoftDeletableMixin,
+    SQLAlchemyUserAuditFields,
 ):
     """
     SQLAlchemy model for the User entity.

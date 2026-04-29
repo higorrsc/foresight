@@ -2,11 +2,11 @@ from dataclasses import dataclass, field
 
 from src.core.domain import EntityValidationError
 from src.core.domain.entities import TenantAwareEntity
-from src.core.domain.mixins import SoftDeletableMixin
+from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class Role(TenantAwareEntity, SoftDeletableMixin):
+class Role(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing a role in the system.
     """

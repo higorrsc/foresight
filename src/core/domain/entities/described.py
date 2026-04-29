@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from src.core.domain import EntityValidationError
 
-from .tenant_aware_entity import TenantAwareEntity
+from .tenant_aware import TenantAwareEntity
 
 
 @dataclass(kw_only=True, eq=False)

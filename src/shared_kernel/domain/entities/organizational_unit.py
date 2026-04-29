@@ -2,11 +2,11 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 from src.core.domain.entities import DescribedEntity
-from src.core.domain.mixins import SoftDeletableMixin
+from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
 
 @dataclass(kw_only=True, eq=False)
-class OrganizationalUnit(DescribedEntity, SoftDeletableMixin):
+class OrganizationalUnit(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing an organizational unit within the system.
     """
