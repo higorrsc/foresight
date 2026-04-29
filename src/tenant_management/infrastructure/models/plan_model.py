@@ -3,10 +3,13 @@ from decimal import Decimal
 from sqlalchemy import DECIMAL, Column, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.core.infrastructure.config import SQLAlchemyBase, SQLAlchemyUserAuditFields
+from src.core.infrastructure.config import SQLAlchemyBase
+from src.core.infrastructure.config.mixins import (
+    SQLAlchemyUserAuditMixin,
+)
 
 
-class PlanModel(SQLAlchemyBase, SQLAlchemyUserAuditFields):
+class PlanModel(SQLAlchemyBase, SQLAlchemyUserAuditMixin):
     """
     SQLAlchemy model for the Plan entity.
     """

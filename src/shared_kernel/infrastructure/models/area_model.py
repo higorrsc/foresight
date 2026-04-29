@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String
 
-from src.core.infrastructure.config import (
-    SQLAlchemyBase,
+from src.core.infrastructure.config import SQLAlchemyBase
+from src.core.infrastructure.config.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 )
 
 
@@ -12,7 +12,7 @@ class AreaModel(
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 ):
     """
     SQLAlchemy model for the Area entity.

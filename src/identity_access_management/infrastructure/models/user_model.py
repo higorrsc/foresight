@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
-from src.core.infrastructure.config import (
-    SQLAlchemyBase,
+from src.core.infrastructure.config import SQLAlchemyBase
+from src.core.infrastructure.config.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 )
 
 from .association_tables import (
@@ -18,7 +18,7 @@ class UserModel(
     SQLAlchemyBase,
     SQLAlchemyTenantMixin,
     SQLAlchemySoftDeletableMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 ):
     """
     SQLAlchemy model for the User entity.

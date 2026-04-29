@@ -1,15 +1,14 @@
 from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.core.infrastructure.config import (
-    GUID_Type,
-    SQLAlchemyBase,
-    SQLAlchemyUserAuditFields,
+from src.core.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.core.infrastructure.config.mixins import (
+    SQLAlchemyUserAuditMixin,
 )
 from src.tenant_management.domain.value_objects import TenantStatus
 
 
-class TenantModel(SQLAlchemyBase, SQLAlchemyUserAuditFields):
+class TenantModel(SQLAlchemyBase, SQLAlchemyUserAuditMixin):
     """
     SQLAlchemy model for the Tenant entity.
     """

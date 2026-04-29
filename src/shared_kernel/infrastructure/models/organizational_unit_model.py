@@ -1,12 +1,11 @@
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from src.core.infrastructure.config import (
-    GUID_Type,
-    SQLAlchemyBase,
+from src.core.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.core.infrastructure.config.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 )
 
 
@@ -14,7 +13,7 @@ class OrganizationalUnitModel(
     SQLAlchemyBase,
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
-    SQLAlchemyUserAuditFields,
+    SQLAlchemyUserAuditMixin,
 ):
     """
     SQLAlchemy model for the OrganizationalUnit entity.
