@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Generic, Type, TypeVar
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from src.core.domain import AbstractRepository, EntityValidationError
@@ -7,8 +7,6 @@ from src.core.domain.entities import DescribedEntity
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
-
-T = TypeVar("T", bound=DescribedEntity)
 
 
 @dataclass(frozen=True)
@@ -31,7 +29,7 @@ class CreateDescribedEntityOutputDTO:
     id: UUID
 
 
-class CreateDescribedEntityUseCase(Generic[T]):
+class CreateDescribedEntityUseCase[T: DescribedEntity]:
     """
     Create a new entity.
     """
@@ -39,8 +37,8 @@ class CreateDescribedEntityUseCase(Generic[T]):
     def __init__(
         self,
         repository: AbstractRepository[T],
-        entity_cls: Type[T],
-        invalid_data_exception: Type[Exception],
+        entity_cls: type[T],
+        invalid_data_exception: type[Exception],
     ) -> None:
         """
         Initialize the CreateDescribedEntityUseCase.

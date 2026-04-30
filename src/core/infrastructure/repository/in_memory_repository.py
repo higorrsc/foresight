@@ -1,14 +1,12 @@
-import operator
-from typing import Any, Generic, TypeVar
+from typing import Any
 from uuid import UUID
 
 from src.core.domain import AbstractRepository, PaginatedResult
 from src.core.domain.entities import AbstractEntity
+from src.core.types.guards import has_tenant, is_soft_deletable
 
-T = TypeVar("T", bound=AbstractEntity)
 
-
-class InMemoryRepository(AbstractRepository[T], Generic[T]):
+class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
     """
     A simple in-memory implementation of AbstractRepository for testing.
     """
@@ -44,10 +42,9 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         """
 
         for entity in self._entities:
-            if (
-                entity.id == entity_id
-                and getattr(entity, "tenant_id", None) == tenant_id
-            ):  # type: ignore
+            if entity.id == entity_id and (
+                not has_tenant(entity) or entity.tenant_id == tenant_id
+            ):
                 return entity
 
         return None
@@ -65,7 +62,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
             return [
                 entity
                 for entity in self._entities
-                if getattr(entity, "tenant_id", None) == tenant_id
+                if not has_tenant(entity) or entity.tenant_id == tenant_id
             ]
 
         return list(self._entities)
@@ -78,7 +75,7 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         :return: None
         """
 
-        tenant_id = getattr(entity, "tenant_id", None)
+        tenant_id = entity.tenant_id if has_tenant(entity) else None
         old_entity = self.get_by_id(
             entity.id,  # type: ignore
             tenant_id,
@@ -141,11 +138,12 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         Apply sorting to a list of entities.
         """
 
-        if sort_by and (entities and hasattr(entities[0], sort_by)):
+        if sort_by:
             entities.sort(
-                key=operator.attrgetter(sort_by),
+                key=lambda e: getattr(e, sort_by, None),  # type: ignore
                 reverse=sort_order.lower() == "desc",
             )
+
         return entities
 
     def search(
@@ -163,14 +161,13 @@ class InMemoryRepository(AbstractRepository[T], Generic[T]):
         """
 
         results = [
-            e for e in self._entities if getattr(e, "tenant_id", None) == tenant_id
+            e for e in self._entities if not has_tenant(e) or e.tenant_id == tenant_id
         ]
 
-        # Only filter by is_active if requested and if the entity has this attribute
-        if not include_inactive and results and hasattr(results[0], "is_active"):
-            results = [e for e in results if getattr(e, "is_active")]
+        if not include_inactive:
+            results = [e for e in results if not is_soft_deletable(e) or e.is_active]
 
-        filtered_results = self.__apply_filters(results, filters or {})
+        filtered_results = self.__apply_filters(results, filters or {})  # type: ignore
         total = len(filtered_results)
         sorted_results = self.__apply_sorting(filtered_results, sort_by, sort_order)
         paginated_data = sorted_results[offset : offset + limit]

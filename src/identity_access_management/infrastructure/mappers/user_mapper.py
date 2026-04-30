@@ -1,9 +1,9 @@
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.models import UserModel
 
 
-class UserMapper:
+class UserMapper(AbstractMapper[User, UserModel]):
     """
     Mapper class to convert between User entity and UserModel.
     """

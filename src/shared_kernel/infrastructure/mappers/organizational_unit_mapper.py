@@ -1,9 +1,11 @@
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.shared_kernel.domain.entities import OrganizationalUnit
 from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
 
 
-class OrganizationalUnitMapper:
+class OrganizationalUnitMapper(
+    AbstractMapper[OrganizationalUnit, OrganizationalUnitModel]
+):
     """
     Mapper class to convert between OrganizationalUnit entity
     and OrganizationalUnitModel

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from math import ceil
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from src.core.application import PaginatedResponseDTO, PaginationMeta
 from src.core.domain import AbstractRepository
@@ -11,8 +11,6 @@ from src.identity_access_management.domain.constants import AppPermission
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
-
-T = TypeVar("T")
 
 
 @dataclass
@@ -30,7 +28,7 @@ class ListRequestInputDTO:
     include_inactive: bool = False
 
 
-class GenericListUseCase(Generic[T]):
+class GenericListUseCase[T]:
     """
     Use case for listing entities of type T.
     """

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy.orm import declarative_mixin, declared_attr
@@ -15,7 +15,7 @@ class SQLAlchemySoftDeletableMixin:
     """
 
     @declared_attr
-    def is_active(cls):  # pylint: disable=E0213
+    def is_active(cls):  # noqa: N805
         """
         Add is active field for soft delete.
         """
@@ -28,7 +28,7 @@ class SQLAlchemySoftDeletableMixin:
         )
 
     @declared_attr
-    def deleted_at(cls):  # pylint: disable=E0213
+    def deleted_at(cls):  # noqa: N805
         """
         Add date of soft delete.
         """
@@ -44,4 +44,4 @@ class SQLAlchemySoftDeletableMixin:
         """
 
         self.is_active = False
-        self.deleted_at = datetime.now(timezone.utc)
+        self.deleted_at = datetime.now(UTC)

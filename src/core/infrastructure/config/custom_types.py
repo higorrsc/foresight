@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.types import CHAR, TypeDecorator
 
 
-class GUID_Type(TypeDecorator):
+class GUIDType(TypeDecorator):
     """
     Custom UUID type that adapts to the database dialect:
     - PostgreSQL: Uses the native UUID type

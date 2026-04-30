@@ -1,11 +1,11 @@
-from .auth_router import router as AuthRouter
-from .permission_router import router as PermissionRouter
-from .role_router import router as RoleRouter
-from .user_router import router as UserRouter
+from .auth_router import router as auth_router
+from .permission_router import router as permission_router
+from .role_router import router as role_router
+from .user_router import router as user_router
 
 __all__ = [
-    "AuthRouter",
-    "PermissionRouter",
-    "RoleRouter",
-    "UserRouter",
+    "auth_router",
+    "permission_router",
+    "role_router",
+    "user_router",
 ]

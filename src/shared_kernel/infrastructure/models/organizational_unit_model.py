@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from src.core.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.core.infrastructure.config import GUIDType, SQLAlchemyBase
 from src.core.infrastructure.config.mixins import (
     SQLAlchemySoftDeletableMixin,
     SQLAlchemyTenantMixin,
@@ -30,7 +30,7 @@ class OrganizationalUnitModel(
         nullable=False,
     )
     parent_id = Column(
-        GUID_Type,
+        GUIDType,
         ForeignKey("organizational_units.id"),
         nullable=True,
     )

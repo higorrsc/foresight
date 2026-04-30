@@ -29,7 +29,7 @@ class OrganizationalUnitRepository(
         super().__init__(
             session,
             OrganizationalUnitModel,
-            mapper=OrganizationalUnitMapper,
+            OrganizationalUnitMapper(),
         )
 
     def get_by_parent_id(

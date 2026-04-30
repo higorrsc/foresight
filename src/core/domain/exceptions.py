@@ -1,16 +1,16 @@
-class DomainException(Exception):
+class DomainError(Exception):
     """
     Domain exception base class.
     """
 
 
-class EntityValidationError(DomainException):
+class EntityValidationError(DomainError):
     """
     Exception raised when an entity validation fails.
     """
 
 
-class EntityNotFoundException(DomainException):
+class EntityNotFoundError(DomainError):
     """
     Exception raised when an entity is not found.
     """

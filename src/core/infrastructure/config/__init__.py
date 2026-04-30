@@ -1,5 +1,5 @@
 from .base import Base
-from .custom_types import GUID_Type
+from .custom_types import GUIDType
 from .database import SessionLocal, engine
 from .settings import settings
 from .sqlalchemy_base import SQLAlchemyBase
@@ -10,5 +10,5 @@ __all__ = [
     "SessionLocal",
     "engine",
     "settings",
-    "GUID_Type",
+    "GUIDType",
 ]

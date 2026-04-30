@@ -22,9 +22,9 @@ class PermissionRepository(
         """
 
         super().__init__(
-            session=session,
-            model_cls=PermissionModel,
-            mapper=PermissionMapper,
+            session,
+            PermissionModel,
+            PermissionMapper(),
         )
 
     def list_all(self) -> list[Permission]:

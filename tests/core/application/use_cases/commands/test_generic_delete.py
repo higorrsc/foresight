@@ -10,7 +10,7 @@ from src.core.infrastructure.repository import InMemoryRepository
 from tests.fakes import DummyEntity
 
 
-class EntityNotFoundException(Exception):
+class EntityNotFoundError(Exception):
     """
     Exception raised when an entity is not found in the repository.
     """
@@ -33,7 +33,7 @@ def delete_use_case(repository):
 
     return GenericDeleteUseCase[DummyEntity](
         repository=repository,
-        not_found_exception=EntityNotFoundException,
+        not_found_exception=EntityNotFoundError,
         not_found_message="DummyEntity with id={id} not found",
     )
 
@@ -74,7 +74,7 @@ class TestGenericDeleteUseCase:
             id=UUID("c1c4d4d7-f545-5f27-b366-1546b022e622"),
         )
 
-        with pytest.raises(EntityNotFoundException) as exc_info:
+        with pytest.raises(EntityNotFoundError) as exc_info:
             delete_use_case.execute(request=invalid_entity)
 
         assert (

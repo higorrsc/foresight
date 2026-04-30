@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generic, Type, TypeVar
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import AbstractRepository, SoftDeletableMixin
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
-
-T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -20,7 +18,7 @@ class RestoreRequestInputDTO:
     id: UUID
 
 
-class GenericRestoreUseCase(Generic[T]):
+class GenericRestoreUseCase[T]:
     """
     Use case for deleting an entity of type T.
     """
@@ -28,7 +26,7 @@ class GenericRestoreUseCase(Generic[T]):
     def __init__(
         self,
         repository: AbstractRepository[T],
-        not_found_exception: Type[Exception],
+        not_found_exception: type[Exception],
         not_found_message: str = "Entity with id={id} not found",
     ) -> None:
         """

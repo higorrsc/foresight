@@ -6,7 +6,7 @@ from src.core.application.use_cases.queries import (
     GenericGetByIdUseCase,
     GetByIdRequestInputDTO,
 )
-from src.core.domain import EntityNotFoundException
+from src.core.domain import EntityNotFoundError
 from src.core.infrastructure.repository import InMemoryRepository
 from tests.fakes import DummyEntity
 
@@ -28,7 +28,7 @@ def get_by_id_use_case(repository):
 
     return GenericGetByIdUseCase[DummyEntity](
         repository=repository,
-        not_found_exception=EntityNotFoundException,
+        not_found_exception=EntityNotFoundError,
         not_found_message="DummyEntity with id={id} not found",
     )
 
@@ -75,7 +75,7 @@ class TestGenericGetByIdUseCase:
             actor=admin_actor,
         )
 
-        with pytest.raises(EntityNotFoundException) as exc_info:
+        with pytest.raises(EntityNotFoundError) as exc_info:
             get_by_id_use_case.execute(request=request)
 
         assert str(exc_info.value) == f"DummyEntity with id={invalid_id} not found"

@@ -1,22 +1,22 @@
-from typing import Any, Generic, Type, TypeVar
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import asc, delete, desc, func, inspect, select  # Adicionado func
 from sqlalchemy.orm import Session
 
 from src.core.domain import AbstractRepository, PaginatedResult
-
-T = TypeVar("T")
-M = TypeVar("M")
+from src.core.infrastructure.mappers.mapper import AbstractMapper
 
 
-class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
+class SQLAlchemyRepository[T, M](AbstractRepository[T]):
     """
     SQLAlchemy implementation of the AbstractRepository.
     Works with any database supported by SQLAlchemy.
     """
 
-    def __init__(self, session: Session, model_cls: Type[M], mapper):
+    def __init__(
+        self, session: Session, model_cls: type[M], mapper: AbstractMapper[T, M]
+    ):
         """
         Initialize the repository.
 
@@ -35,7 +35,14 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         """
 
         mapper = inspect(self._model_cls)
-        return column_name in mapper.columns  # type: ignore
+        return column_name in mapper.columns.keys()  # type: ignore
+
+    def _get_column(self, column_name: str):
+        """
+        Get a column from the model.
+        """
+
+        return getattr(self._model_cls, column_name, None)
 
     def save(self, entity: T) -> T | None:
         """
@@ -64,10 +71,15 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         :return: The entity if found, otherwise None.
         """
 
-        stmt = select(self._model_cls).where(self._model_cls.id == entity_id)  # type: ignore
+        id_column = self._get_column("id")
+        if id_column is None:
+            return None
 
-        if self._has_column("tenant_id"):
-            stmt = stmt.where(getattr(self._model_cls, "tenant_id") == tenant_id)
+        stmt = select(self._model_cls).where(id_column == entity_id)
+
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None:
+            stmt = stmt.where(tenant_column == tenant_id)
 
         model = self._session.scalars(stmt).first()
         return self._mapper.to_entity(model) if model else None
@@ -85,11 +97,13 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
 
         stmt = select(self._model_cls)
 
-        if self._has_column("tenant_id"):
-            stmt = stmt.filter_by(tenant_id=tenant_id)
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None:
+            stmt = stmt.where(tenant_column == tenant_id)
 
         result = self._session.execute(stmt)
-        return [self._mapper.to_entity(m) for m in result.unique().scalars().all()]
+        models = result.unique().scalars().all()
+        return [self._mapper.to_entity(m) for m in models]
 
     def update(self, entity: T) -> T | None:
         """
@@ -117,12 +131,17 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
         :param tenant_id: The ID of the tenant.
         """
 
-        stmt = delete(self._model_cls).where(self._model_cls.id == entity_id)  # type: ignore
+        id_column = self._get_column("id")
+        if id_column is None:
+            return
 
-        if self._has_column("tenant_id"):
-            stmt = stmt.where(getattr(self._model_cls, "tenant_id") == tenant_id)
+        stmt = delete(self._model_cls).where(id_column == entity_id)
 
-        self._session.execute(stmt)  # type: ignore
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None:
+            stmt = stmt.where(tenant_column == tenant_id)
+
+        self._session.execute(stmt)
         self._session.commit()
 
     def search(
@@ -141,34 +160,34 @@ class SQLAlchemyRepository(AbstractRepository[T], Generic[T, M]):
 
         stmt = select(self._model_cls)
 
-        if self._has_column("tenant_id"):
-            stmt = stmt.filter_by(tenant_id=tenant_id)
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None:
+            stmt = stmt.where(tenant_column == tenant_id)
 
-        if not include_inactive and self._has_column("is_active"):
-            stmt = stmt.filter_by(is_active=True)  # type: ignore  # noqa: E712
+        is_active_column = self._get_column("is_active")
+        if not include_inactive and is_active_column is not None:
+            stmt = stmt.where(is_active_column.is_(True))
 
         if filters:
             for field, value in filters.items():
-                if hasattr(self._model_cls, field):
-                    stmt = stmt.filter(
-                        getattr(self._model_cls, field).ilike(f"%{value}%")
-                    )
+                column = self._get_column(field)
+                if column is not None:
+                    stmt = stmt.where(column.ilike(f"%{value}%"))
 
-        count_stmt = stmt.with_only_columns(func.count()).order_by(None)
+        count_stmt = select(func.count()).select_from(stmt.subquery())
         total = self._session.scalar(count_stmt) or 0
 
-        if sort_by and hasattr(self._model_cls, sort_by):
-            column = getattr(self._model_cls, sort_by)
-            if sort_order.lower() == "desc":
-                stmt = stmt.order_by(desc(column))
-            else:
-                stmt = stmt.order_by(asc(column))
+        if sort_by:
+            column = self._get_column(sort_by)
+            if column is not None:
+                stmt = stmt.order_by(
+                    desc(column) if sort_order.lower() == "desc" else asc(column)
+                )
 
         stmt = stmt.offset(offset).limit(limit)
 
         result = self._session.execute(stmt)
-        unique_results = result.unique()
-        models = unique_results.scalars().all()
+        models = result.unique().scalars().all()
         entities = [self._mapper.to_entity(model) for model in models]
 
         return PaginatedResult(

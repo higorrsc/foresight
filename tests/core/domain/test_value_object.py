@@ -30,7 +30,7 @@ class TestAbstractValueObject:
         except ValueError as e:
             assert str(e) == "Amount cannot be empty"
         else:
-            assert False, "ValueError was not raised"
+            raise AssertionError("ValueError was not raised")
 
     def test_validate_invalid_amount(self):
         """
@@ -45,7 +45,7 @@ class TestAbstractValueObject:
         except ValueError as e:
             assert str(e) == "Amount must be a decimal"
         else:
-            assert False, "ValueError was not raised"
+            raise AssertionError("ValueError was not raised")
 
     def test_validate_currency_characters(self):
         """
@@ -60,7 +60,7 @@ class TestAbstractValueObject:
         except ValueError as e:
             assert str(e) == "Currency must be exactly 3 characters long"
         else:
-            assert False, "ValueError was not raised"
+            raise AssertionError("ValueError was not raised")
 
     def test_validate_empty_currency(self):
         """
@@ -75,7 +75,7 @@ class TestAbstractValueObject:
         except ValueError as e:
             assert str(e) == "Currency cannot be empty"
         else:
-            assert False, "ValueError was not raised"
+            raise AssertionError("ValueError was not raised")
 
     def test_validate_invalid_currency(self):
         """
@@ -90,4 +90,4 @@ class TestAbstractValueObject:
         except ValueError as e:
             assert str(e) == "Currency must be a string"
         else:
-            assert False, "ValueError was not raised"
+            raise AssertionError("ValueError was not raised")

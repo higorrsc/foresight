@@ -6,18 +6,18 @@ Create Date: 2025-11-07 20:27:52.844974
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
 
 from alembic import op
-from src.core.infrastructure.config import GUID_Type
+from src.core.infrastructure.config import GUIDType
 
 # revision identifiers, used by Alembic.
 revision: str = "45094001b7fb"
-down_revision: Union[str, Sequence[str], None] = "c70dd18950e1"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = "c70dd18950e1"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -118,8 +118,8 @@ def upgrade() -> None:
         )
 
     with op.batch_alter_table("plans", schema=None) as batch_op:
-        batch_op.add_column(sa.Column("created_by", GUID_Type(), nullable=True))
-        batch_op.add_column(sa.Column("updated_by", GUID_Type(), nullable=True))
+        batch_op.add_column(sa.Column("created_by", GUIDType(), nullable=True))
+        batch_op.add_column(sa.Column("updated_by", GUIDType(), nullable=True))
         batch_op.alter_column(
             "created_at",
             existing_type=sa.TIMESTAMP(),

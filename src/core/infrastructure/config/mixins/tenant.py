@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import declarative_mixin, declared_attr, relationship
 
-from src.core.infrastructure.config import GUID_Type
+from src.core.infrastructure.config import GUIDType
 
 
 @declarative_mixin
@@ -11,20 +11,20 @@ class SQLAlchemyTenantMixin:
     """
 
     @declared_attr
-    def tenant_id(cls):  # pylint: disable=E0213
+    def tenant_id(cls):  # noqa: N805
         """
         Add TenantID field.
         """
 
         return Column(
-            GUID_Type,
+            GUIDType,
             ForeignKey("tenants.id"),
             nullable=False,
             index=True,
         )
 
     @declared_attr
-    def tenant(cls):  # pylint: disable=E0213
+    def tenant(cls):  # noqa: N805
         """
         Add TenantModel relationship.
         """

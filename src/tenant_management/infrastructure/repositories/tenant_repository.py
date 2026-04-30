@@ -21,7 +21,7 @@ class TenantRepository(SQLAlchemyRepository[Tenant, TenantModel], ITenantReposit
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, TenantModel, mapper=TenantMapper)
+        super().__init__(session, TenantModel, mapper=TenantMapper())
 
     def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """

@@ -27,7 +27,7 @@ class RoleRepository(
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, RoleModel, mapper=RoleMapper)
+        super().__init__(session, RoleModel, RoleMapper())
 
     def get_by_name(
         self,

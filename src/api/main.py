@@ -3,13 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.routers.identity_access_management import (
-    AuthRouter,
-    PermissionRouter,
-    RoleRouter,
-    UserRouter,
+    auth_router,
+    permission_router,
+    role_router,
+    user_router,
 )
-from src.api.routers.shared_kernel import AreaRouter, OrganizationalUnitRouter
-from src.api.routers.tenant_management import PlanRouter, TenantRouter
+from src.api.routers.shared_kernel import area_router, organizational_unit_router
+from src.api.routers.tenant_management import plan_router, tenant_router
 from src.core.infrastructure.config import SessionLocal
 from src.core.infrastructure.db import seed_initial_data
 
@@ -54,11 +54,11 @@ def read_root():
     return {"message": "Bem-vindo à Foresight API!"}
 
 
-app.include_router(AuthRouter)
-app.include_router(PermissionRouter)
-app.include_router(PlanRouter)
-app.include_router(TenantRouter)
-app.include_router(UserRouter)
-app.include_router(RoleRouter)
-app.include_router(AreaRouter)
-app.include_router(OrganizationalUnitRouter)
+app.include_router(auth_router)
+app.include_router(permission_router)
+app.include_router(plan_router)
+app.include_router(tenant_router)
+app.include_router(user_router)
+app.include_router(role_router)
+app.include_router(area_router)
+app.include_router(organizational_unit_router)

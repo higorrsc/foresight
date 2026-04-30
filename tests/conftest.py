@@ -1,5 +1,6 @@
 import os
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 import pytest
 from dotenv import load_dotenv
@@ -70,7 +71,7 @@ def setup_database():
 
 
 @pytest.fixture(scope="function")
-def db_session_for_test(setup_database) -> Generator[Session, None, None]:
+def db_session_for_test(setup_database) -> Generator[Session]:
     """
     Creates ONE transaction for each test, seeds data, flushes,
     and rolls back at the end.
@@ -100,7 +101,7 @@ def client(db_session_for_test: Session) -> Generator[TestClient, Any, Any]:
     Creates a TestClient for each test, using the correct test session.
     """
 
-    def override_get_db_session_for_test() -> Generator[Session, None, None]:
+    def override_get_db_session_for_test() -> Generator[Session]:
         yield db_session_for_test
 
     app.dependency_overrides[get_db_session] = override_get_db_session_for_test

@@ -1,9 +1,9 @@
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.infrastructure.models import RoleModel
 
 
-class RoleMapper:
+class RoleMapper(AbstractMapper[Role, RoleModel]):
     """
     Mapper class to convert between Role entity and RoleModel.
     """

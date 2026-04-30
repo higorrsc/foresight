@@ -3,7 +3,7 @@ from uuid import uuid4
 from sqlalchemy import Column
 
 from .base import Base
-from .custom_types import GUID_Type
+from .custom_types import GUIDType
 
 
 class SQLAlchemyBase(Base):
@@ -17,7 +17,7 @@ class SQLAlchemyBase(Base):
     __abstract__ = True
 
     id = Column(
-        GUID_Type,
+        GUIDType,
         primary_key=True,
         default=uuid4,
     )

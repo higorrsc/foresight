@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Set
 
 
 class AppPermission(str, Enum):
@@ -42,7 +41,7 @@ class AppPermission(str, Enum):
     USER_UPDATE_PROFILE = "user:update_profile"
 
     @classmethod
-    def get_all_permissions(cls) -> Set[str]:
+    def get_all_permissions(cls) -> set[str]:
         """
         Get all permissions
         """
@@ -50,7 +49,7 @@ class AppPermission(str, Enum):
         return {permission.value for permission in cls}
 
     @classmethod
-    def get_guest_permissions(cls) -> Set[str]:
+    def get_guest_permissions(cls) -> set[str]:
         """
         Returns the set of guest permissions.
         """
@@ -63,7 +62,7 @@ class AppPermission(str, Enum):
         }
 
     @classmethod
-    def get_admin_permissions(cls) -> Set[str]:
+    def get_admin_permissions(cls) -> set[str]:
         """
         Returns the set of admin permissions.
         """

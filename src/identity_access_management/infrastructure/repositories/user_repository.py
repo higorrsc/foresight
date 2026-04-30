@@ -29,7 +29,7 @@ class UserRepository(
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, UserModel, mapper=UserMapper)
+        super().__init__(session, UserModel, UserMapper())
 
     def get_by_username(
         self,
@@ -64,7 +64,7 @@ class UserRepository(
                 .filter(RoleModel.name.in_(entity.roles))
                 .all()
             )
-            model.roles = role_models
+            model.roles_rel = role_models
 
         self._session.add(model)
         self._session.commit()

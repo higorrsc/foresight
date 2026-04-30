@@ -5,7 +5,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.core.infrastructure.config import GUID_Type, settings
+from src.core.infrastructure.config import GUIDType, settings
 from src.core.infrastructure.config.base import Base
 
 project_root = os.path.realpath(
@@ -94,17 +94,17 @@ def process_revision_directives(context, revision, directives):
 
 def render_item(type_, obj, autogen_context):
     """
-    Renderiza o tipo GUID_Type customizado corretamente no ficheiro de migração,
+    Renderiza o tipo GUIDType customizado corretamente no ficheiro de migração,
     adicionando o import necessário.
     """
     # Verifica se é o nosso tipo customizado
-    if type_ == "type" and isinstance(obj, GUID_Type):
+    if type_ == "type" and isinstance(obj, GUIDType):
         # Adiciona o import no topo do ficheiro de migração gerado
         autogen_context.imports.add(
-            "from src.core.infrastructure.config.custom_types import GUID_Type"
+            "from src.core.infrastructure.config.custom_types import GUIDType"
         )
-        # Renderiza o tipo como "GUID_Type()"
-        return "GUID_Type()"
+        # Renderiza o tipo como "GUIDType()"
+        return "GUIDType()"
 
     # Deixa o Alembic lidar com todos os outros tipos
     return False

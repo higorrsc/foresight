@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from src.identity_access_management.application.use_cases.user.exceptions import (
@@ -106,10 +106,10 @@ class OnboardingUseCase:
         )
 
         if hasattr(new_user, "created_at"):
-            new_user.created_at = datetime.now(timezone.utc)
+            new_user.created_at = datetime.now(UTC)
 
         if hasattr(new_user, "updated_at"):
-            new_user.updated_at = datetime.now(timezone.utc)
+            new_user.updated_at = datetime.now(UTC)
 
         self._user_repo.save(new_user)
 

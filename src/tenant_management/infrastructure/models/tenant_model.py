@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.core.infrastructure.config import GUID_Type, SQLAlchemyBase
+from src.core.infrastructure.config import GUIDType, SQLAlchemyBase
 from src.core.infrastructure.config.mixins import (
     SQLAlchemyUserAuditMixin,
 )
@@ -25,7 +25,7 @@ class TenantModel(SQLAlchemyBase, SQLAlchemyUserAuditMixin):
         default=TenantStatus.TRIAL,
     )
     plan_id = Column(
-        GUID_Type,
+        GUIDType,
         ForeignKey("plans.id"),
         nullable=False,
     )

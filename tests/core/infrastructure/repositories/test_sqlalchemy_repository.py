@@ -14,7 +14,7 @@ def repository(db_session_for_test):
     return SQLAlchemyRepository(
         db_session_for_test,
         AreaModel,
-        AreaMapper,
+        AreaMapper(),
     )
 
 

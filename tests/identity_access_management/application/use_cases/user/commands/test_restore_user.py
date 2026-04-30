@@ -1,5 +1,5 @@
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -57,7 +57,7 @@ class TestRestoreUserUseCase:
         admin_actor.permissions.add(AppPermission.USER_DELETE)
         user_repo.save(deepcopy(admin_actor))
         guest_actor.is_active = False
-        guest_actor.deleted_at = datetime.now(timezone.utc)
+        guest_actor.deleted_at = datetime.now(UTC)
         user_repo.save(deepcopy(guest_actor))
 
         input_dto = RestoreRequestInputDTO(actor=admin_actor, id=guest_actor.id)
@@ -82,7 +82,7 @@ class TestRestoreUserUseCase:
         """
 
         admin_actor.is_active = False
-        admin_actor.deleted_at = datetime.now(timezone.utc)
+        admin_actor.deleted_at = datetime.now(UTC)
         user_repo.save(deepcopy(admin_actor))
         user_repo.save(deepcopy(guest_actor))
 

@@ -1,9 +1,9 @@
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.infrastructure.models import TenantModel
 
 
-class TenantMapper:
+class TenantMapper(AbstractMapper[Tenant, TenantModel]):
     """
     Mapper class to convert between Tenant entity and TenantModel.
     """

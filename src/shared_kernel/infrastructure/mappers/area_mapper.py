@@ -1,9 +1,9 @@
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.infrastructure.models import AreaModel
 
 
-class AreaMapper:
+class AreaMapper(AbstractMapper[Area, AreaModel]):
     """
     Mapper class to convert between Area entity and AreaModel.
     """

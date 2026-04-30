@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any
 from uuid import UUID
-
-T = TypeVar("T")
 
 
 @dataclass
-class PaginatedResult(Generic[T]):
+class PaginatedResult[T]:
     """
     Paginated result of list operations.
     """
@@ -16,7 +14,7 @@ class PaginatedResult(Generic[T]):
     total: int
 
 
-class AbstractRepository(ABC, Generic[T]):
+class AbstractRepository[T](ABC):
     """
     Abstract base class for a repository that handles entities of type T.
     """

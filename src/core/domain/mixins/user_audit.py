@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 
@@ -10,9 +10,9 @@ class UserAuditMixin:
     """
 
     created_by: UUID | None = field(default=None)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_by: UUID | None = field(default=None)
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def update_audit_info(self, user_id: UUID) -> None:
         """
@@ -22,4 +22,4 @@ class UserAuditMixin:
             user_id (UUID): The ID of the user performing the update.
         """
         self.updated_by = user_id
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)

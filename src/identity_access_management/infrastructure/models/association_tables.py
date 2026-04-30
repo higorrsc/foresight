@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Table
 
-from src.core.infrastructure.config import GUID_Type
+from src.core.infrastructure.config import GUIDType
 from src.core.infrastructure.config.base import Base
 
 # Tabela de associação para User <-> Role
@@ -9,13 +9,13 @@ user_roles = Table(
     Base.metadata,
     Column(
         "user_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("users.id"),
         primary_key=True,
     ),
     Column(
         "role_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("roles.id"),
         primary_key=True,
     ),
@@ -27,13 +27,13 @@ user_permissions = Table(
     Base.metadata,
     Column(
         "user_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("users.id"),
         primary_key=True,
     ),
     Column(
         "permission_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("permissions.id"),
         primary_key=True,
     ),
@@ -45,13 +45,13 @@ role_permissions = Table(
     Base.metadata,
     Column(
         "role_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("roles.id"),
         primary_key=True,
     ),
     Column(
         "permission_id",
-        GUID_Type,
+        GUIDType,
         ForeignKey("permissions.id"),
         primary_key=True,
     ),

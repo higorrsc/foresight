@@ -22,4 +22,4 @@ class AreaRepository(
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, AreaModel, mapper=AreaMapper)
+        super().__init__(session, AreaModel, AreaMapper())

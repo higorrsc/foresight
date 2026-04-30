@@ -1,11 +1,11 @@
 from decimal import Decimal
 
-from src.core.infrastructure.mappers import BaseMapper
+from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.tenant_management.domain.entities import Plan
 from src.tenant_management.infrastructure.models import PlanModel
 
 
-class PlanMapper:
+class PlanMapper(AbstractMapper[Plan, PlanModel]):
     """
     Mapper class to convert between Plan entity and PlanModel.
     """

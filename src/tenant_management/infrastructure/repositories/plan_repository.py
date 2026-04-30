@@ -20,7 +20,7 @@ class PlanRepository(SQLAlchemyRepository[Plan, PlanModel], IPlanRepository):
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, PlanModel, mapper=PlanMapper)
+        super().__init__(session, PlanModel, mapper=PlanMapper())
 
     def get_by_name(self, name: str) -> Plan | None:
         """

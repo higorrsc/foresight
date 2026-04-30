@@ -1,8 +1,9 @@
+from src.core.infrastructure.mappers import AbstractMapper
 from src.identity_access_management.domain.entities import Permission
 from src.identity_access_management.infrastructure.models import PermissionModel
 
 
-class PermissionMapper:
+class PermissionMapper(AbstractMapper[Permission, PermissionModel]):
     """
     Mapper class to convert between Permission entity and PermissionModel.
     """
