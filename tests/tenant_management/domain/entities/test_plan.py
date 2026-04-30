@@ -95,7 +95,7 @@ class TestPlan:
         plan_id = uuid4()
         plan = Plan(id=plan_id, name="Test Plan", price=Decimal("1.00"))
 
-        assert str(plan) == f"Plan(id={plan.id}, name='{plan.name}')"
+        assert str(plan) == f"Plan (id={plan.id}, name='{plan.name}')"
 
     def test_plan_detailed_representation(self) -> None:
         """
@@ -105,4 +105,4 @@ class TestPlan:
         plan_id = uuid4()
         plan = Plan(id=plan_id, name="Test Plan", price=Decimal("1.00"))
 
-        assert repr(plan) == f"<Plan {plan.name} ({plan.id})>"
+        assert repr(plan) == f"<Plan id={plan.id}>"

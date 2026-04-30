@@ -10,7 +10,7 @@ from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class User(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing a user in the system.
@@ -23,6 +23,13 @@ class User(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     first_name: str | None = None
     last_name: str | None = None
     email: str | None = None
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the User entity.
+        """
+
+        return f"id={self.id}, username='{self.username}'"
 
     def verify_password(self, plain_password: str) -> bool:
         """
@@ -65,20 +72,6 @@ class User(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the User entity.
-        """
-
-        return f"User(id={self.id}, username='{self.username}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the User entity.
-        """
-
-        return f"<User {self.username} ({self.id})>"
 
 
 def hash_password(password: str) -> str:

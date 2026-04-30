@@ -7,7 +7,7 @@ from src.core.domain.mixins import UserAuditMixin
 from src.tenant_management.domain.value_objects import TenantStatus
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class Tenant(AbstractEntity, UserAuditMixin):
     """
     Entity representing a Tenant in the system.
@@ -16,6 +16,13 @@ class Tenant(AbstractEntity, UserAuditMixin):
     name: str
     status: TenantStatus = field(default=TenantStatus.TRIAL)
     plan_id: UUID
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the Tenant entity.
+        """
+
+        return f"id={self.id}, name='{self.name}'"
 
     def validate(self) -> None:
         """
@@ -39,17 +46,3 @@ class Tenant(AbstractEntity, UserAuditMixin):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Tenant entity.
-        """
-
-        return f"Tenant(id={self.id}, name='{self.name}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Tenant entity.
-        """
-
-        return f"<Tenant {self.name} ({self.id})>"

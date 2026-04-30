@@ -6,7 +6,7 @@ from src.core.domain.exceptions import EntityValidationError
 from src.core.domain.mixins import UserAuditMixin
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class Plan(AbstractEntity, UserAuditMixin):
     """
     Entity representing a Plan in the system.
@@ -14,6 +14,13 @@ class Plan(AbstractEntity, UserAuditMixin):
 
     name: str
     price: Decimal
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the Plan entity.
+        """
+
+        return f"id={self.id}, name='{self.name}'"
 
     def validate(self) -> None:
         """
@@ -34,17 +41,3 @@ class Plan(AbstractEntity, UserAuditMixin):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Plan entity.
-        """
-
-        return f"Plan(id={self.id}, name='{self.name}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Plan entity.
-        """
-
-        return f"<Plan {self.name} ({self.id})>"

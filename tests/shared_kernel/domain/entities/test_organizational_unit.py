@@ -72,7 +72,7 @@ class TestOrganizationalUnitEntity:
             description="Org Unit 1",
         )
 
-        assert str(org_unit) == f"OrganizationalUnit(id={org_unit_id}, code='OU1')"
+        assert str(org_unit) == f"OrganizationalUnit (id={org_unit_id}, code='OU1')"
 
     def test_organizational_unit_repr(self):
         """
@@ -85,7 +85,7 @@ class TestOrganizationalUnitEntity:
             description="Org Unit 1",
         )
 
-        assert repr(org_unit) == f"<OrganizationalUnit OU1 ({org_unit_id})>"
+        assert repr(org_unit) == f"<OrganizationalUnit id={org_unit_id}>"
 
     def test_organizational_unit_creation(self):
         """

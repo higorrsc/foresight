@@ -5,7 +5,7 @@ from src.core.domain.entities import DescribedEntity
 from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class OrganizationalUnit(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing an organizational unit within the system.
@@ -14,16 +14,9 @@ class OrganizationalUnit(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     code: str
     parent_id: UUID | None = field(default=None, repr=False)
 
-    def __str__(self) -> str:
+    def _str_fields(self) -> str:
         """
-        Returns a string representation of the OrganizationalUnit entity.
-        """
-
-        return f"OrganizationalUnit(id={self.id}, code='{self.code}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the OrganizationalUnit entity.
+        Returns a string representation of the fields of the OrganizationalUnit entity.
         """
 
-        return f"<OrganizationalUnit {self.code} ({self.id})>"
+        return f"id={self.id}, code='{self.code}'"

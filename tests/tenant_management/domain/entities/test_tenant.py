@@ -102,7 +102,7 @@ class TestTenant:
         tenant_id = uuid4()
         tenant = Tenant(id=tenant_id, name="Test Tenant", plan_id=uuid4())
 
-        assert str(tenant) == f"Tenant(id={tenant.id}, name='{tenant.name}')"
+        assert str(tenant) == f"Tenant (id={tenant.id}, name='{tenant.name}')"
 
     def test_tenant_detailed_representation(self) -> None:
         """
@@ -112,4 +112,4 @@ class TestTenant:
         tenant_id = uuid4()
         tenant = Tenant(id=tenant_id, name="Test Tenant", plan_id=uuid4())
 
-        assert repr(tenant) == f"<Tenant {tenant.name} ({tenant.id})>"
+        assert repr(tenant) == f"<Tenant id={tenant.id}>"

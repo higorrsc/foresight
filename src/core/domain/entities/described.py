@@ -5,7 +5,7 @@ from src.core.domain import EntityValidationError
 from .tenant_aware import TenantAwareEntity
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class DescribedEntity(TenantAwareEntity):
     """
     Base class for entities with only description field and default validations

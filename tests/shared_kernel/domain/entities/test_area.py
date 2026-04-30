@@ -67,7 +67,7 @@ class TestCreateAreaEntity:
         description = "Test Area"
         area = Area(description=description)
 
-        expected_repr = f"<Area {description} ({area.id})>"
+        expected_repr = f"<Area id={area.id}>"
         assert repr(area) == expected_repr
 
     def test_area_str(self):
@@ -78,7 +78,7 @@ class TestCreateAreaEntity:
         description = "Test Area"
         area = Area(description=description)
 
-        expected_str = f"Area(id={area.id}, description='{description}')"
+        expected_str = f"Area (id={area.id}, description='{description}')"
         assert str(area) == expected_str
 
 

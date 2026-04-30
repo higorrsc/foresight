@@ -4,7 +4,7 @@ from src.core.domain import EntityValidationError
 from src.core.domain.entities import AbstractEntity
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class Permission(AbstractEntity):
     """
     Entity representing a permission in the system.
@@ -12,6 +12,13 @@ class Permission(AbstractEntity):
 
     codename: str
     description: str
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the Permission entity.
+        """
+
+        return f"id={self.id}, codename='{self.codename}'"
 
     def update_permission(
         self,
@@ -53,17 +60,3 @@ class Permission(AbstractEntity):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Permission entity.
-        """
-
-        return f"Permission(id={self.id}, codename='{self.codename}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Permission entity.
-        """
-
-        return f"<Permission {self.codename} ({self.id})>"

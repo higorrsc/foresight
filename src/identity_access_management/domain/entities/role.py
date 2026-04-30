@@ -5,7 +5,7 @@ from src.core.domain.entities import TenantAwareEntity
 from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class Role(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     """
     Entity representing a role in the system.
@@ -14,6 +14,13 @@ class Role(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
     name: str
     description: str
     permissions: set[str] = field(default_factory=set)
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the Role entity.
+        """
+
+        return f"id={self.id}, name='{self.name}'"
 
     def update_role(self, new_name: str, new_description: str | None = None) -> None:
         """
@@ -39,17 +46,3 @@ class Role(TenantAwareEntity, SoftDeletableMixin, UserAuditMixin):
 
         if self.notification.has_errors:
             raise EntityValidationError(self.notification.messages)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Role entity.
-        """
-
-        return f"Role(id={self.id}, name='{self.name}')"
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Role entity.
-        """
-
-        return f"<Role {self.name} ({self.id})>"

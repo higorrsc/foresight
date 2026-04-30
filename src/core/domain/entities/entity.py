@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from src.core.domain import Notification
 
 
-@dataclass(kw_only=True, eq=False)
+@dataclass(kw_only=True, eq=False, repr=False)
 class AbstractEntity(ABC):
     """
     Abstract base class for entities in the domain layer.
@@ -13,6 +13,26 @@ class AbstractEntity(ABC):
 
     id: UUID = field(default_factory=uuid4)
     notification: Notification = field(default_factory=Notification, init=False)
+
+    def _repr_fields(self) -> str:
+        """
+        Returns a string representation of the entity's fields.
+
+        Returns:
+            str: A string representation of the entity's fields.
+        """
+
+        return f"id={self.id}"
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the entity's fields.
+
+        Returns:
+            str: A string representation of the entity's fields.
+        """
+
+        return f"id={self.id}"
 
     def __eq__(self, other) -> bool:
         """
@@ -38,6 +58,20 @@ class AbstractEntity(ABC):
         """
 
         self.validate()
+
+    def __repr__(self) -> str:
+        """
+        Returns a detailed string representation of the OrganizationalUnit entity.
+        """
+
+        return f"<{self.__class__.__name__} {self._repr_fields()}>"
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the OrganizationalUnit entity.
+        """
+
+        return f"{self.__class__.__name__} ({self._str_fields()})"
 
     @abstractmethod
     def validate(self) -> None:
