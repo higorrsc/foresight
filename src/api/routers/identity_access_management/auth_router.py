@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 
@@ -26,9 +27,9 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def login_for_access_token(
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
     username: str = Form(...),
     password: str = Form(...),
-    repo: IUserRepository = Depends(get_user_repository),
 ):
     """
     Create JWT token for user.

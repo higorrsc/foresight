@@ -1,4 +1,5 @@
-from typing import Generator
+from collections.abc import Generator
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -45,7 +46,7 @@ def get_db_session() -> Generator:  # pragma: no cover
 
 
 def get_area_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IAreaRepository:
     """
     Return an AreaRepository instance with database session.
@@ -55,7 +56,7 @@ def get_area_repository(
 
 
 def get_user_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IUserRepository:
     """
     Return an UserRepository instance with database session.
@@ -65,7 +66,7 @@ def get_user_repository(
 
 
 def get_role_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IRoleRepository:
     """
     Return an RoleRepository instance with database session.
@@ -75,7 +76,7 @@ def get_role_repository(
 
 
 def get_permission_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IPermissionRepository:
     """
     Return an PermissionRepository instance with database session.
@@ -85,7 +86,7 @@ def get_permission_repository(
 
 
 def get_tenant_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> ITenantRepository:
     """
     Return an TenantRepository instance with database session.
@@ -95,7 +96,7 @@ def get_tenant_repository(
 
 
 def get_plan_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IPlanRepository:
     """
     Return an PlanRepository instance with database session.
@@ -105,7 +106,7 @@ def get_plan_repository(
 
 
 def get_organizational_unit_repository(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> IOrganizationalUnitRepository:
     """
     Return an OrganizationalUnitRepository instance with database session.

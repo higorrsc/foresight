@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -66,8 +67,8 @@ router = APIRouter(prefix="/plans", tags=["Plans"])
 )
 def create_plan_endpoint(
     body: PlanCreateBody,
-    repo: IPlanRepository = Depends(get_plan_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Create a new subscription plan (Super Admin only).
@@ -99,8 +100,8 @@ def create_plan_endpoint(
     dependencies=[Depends(require_plan_read)],
 )
 def list_plans_endpoint(
-    repo: IPlanRepository = Depends(get_plan_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     List all available plans.

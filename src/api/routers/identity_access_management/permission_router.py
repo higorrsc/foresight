@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
@@ -44,8 +45,8 @@ router = APIRouter(
     response_model=PaginatedPermissionResponse,
 )
 def list_permissions_endpoint(
-    repo: IPermissionRepository = Depends(get_permission_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),
 ):

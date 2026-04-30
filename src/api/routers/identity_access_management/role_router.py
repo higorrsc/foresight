@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -132,9 +133,11 @@ router = APIRouter(
 )
 def create_role_endpoint(
     request_body: RoleCreateBody,
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    permission_repo: IPermissionRepository = Depends(get_permission_repository),
-    actor: User = Depends(get_current_user),
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    permission_repo: Annotated[
+        IPermissionRepository, Depends(get_permission_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Create a new role in the current tenant.
@@ -184,8 +187,8 @@ def create_role_endpoint(
     dependencies=[Depends(require_role_read)],
 )
 def list_roles_endpoint(
-    repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
     name: str | None = Query(None, description="Filter by part of the name"),
     sort_by: str | None = Query("name", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
@@ -222,8 +225,8 @@ def list_roles_endpoint(
 )
 def get_role_by_id_endpoint(
     role_id: UUID,
-    repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Get a role by its ID.
@@ -248,8 +251,8 @@ def get_role_by_id_endpoint(
 def update_role_endpoint(
     role_id: UUID,
     request_body: RoleCreateBody,
-    repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Update an existing role.
@@ -287,9 +290,9 @@ def update_role_endpoint(
 )
 def delete_role_endpoint(
     role_id: UUID,
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    user_repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Delete an existing role.
@@ -330,9 +333,11 @@ def delete_role_endpoint(
 def set_role_permissions_endpoint(
     role_id: UUID,
     request_body: SetRolePermissionsBody,
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    permission_repo: IPermissionRepository = Depends(get_permission_repository),
-    actor: User = Depends(get_current_user),
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    permission_repo: Annotated[
+        IPermissionRepository, Depends(get_permission_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Set (overwrite) the permissions for a specific role. (Admin only)
@@ -373,8 +378,8 @@ def set_role_permissions_endpoint(
 )
 def restore_user_endpoint(
     role_id: UUID,
-    repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Restore a soft-deleted user.

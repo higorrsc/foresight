@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -107,11 +108,11 @@ router = APIRouter(prefix="/tenants", tags=["Tenant Management"])
 )
 def signup_endpoint(
     request: SignupRequest,
-    plan_repo: IPlanRepository = Depends(get_plan_repository),
-    tenant_repo: ITenantRepository = Depends(get_tenant_repository),
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    user_repo: IUserRepository = Depends(get_user_repository),
-    perm_repo: IPermissionRepository = Depends(get_permission_repository),
+    plan_repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
+    tenant_repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    perm_repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
 ):
     """
     Register a new tenant and admin user.
@@ -162,8 +163,8 @@ def signup_endpoint(
     dependencies=[Depends(require_tenant_read)],
 )
 def list_tenants_endpoint(
-    repo: ITenantRepository = Depends(get_tenant_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     List all tenants (Super Admin only).
@@ -188,8 +189,8 @@ def list_tenants_endpoint(
 def update_tenant_status_endpoint(
     tenant_id: UUID,
     body: TenantStatusUpdateBody,
-    repo: ITenantRepository = Depends(get_tenant_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Update a tenant's status (e.g., suspend/activate) (Super Admin only).

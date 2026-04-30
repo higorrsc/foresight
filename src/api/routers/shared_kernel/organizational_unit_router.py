@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -132,8 +133,10 @@ router = APIRouter(
 )
 def create_organizational_unit(
     request_body: OrganizationalUnitCreateBody,
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Create a new organizational unit.
@@ -164,8 +167,10 @@ def create_organizational_unit(
     dependencies=[Depends(require_organizational_unit_read)],
 )
 def list_organizational_units_endpoint(
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
     description: str | None = Query(None, description="Filter by description"),
     sort_by: str | None = Query("description", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
@@ -202,8 +207,10 @@ def list_organizational_units_endpoint(
 )
 def get_organizational_unit_by_id_endpoint(
     organizational_unit_id: UUID,
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Get an organizational unit by its ID.
@@ -235,8 +242,10 @@ def get_organizational_unit_by_id_endpoint(
 def update_organizational_unit_endpoint(
     organizational_unit_id: UUID,
     request_body: OrganizationalUnitUpdateBody,
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Update an existing organizational_unit.
@@ -275,8 +284,10 @@ def update_organizational_unit_endpoint(
 )
 def delete_organizational_unit_endpoint(
     organizational_unit_id: UUID,
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Delete an existing organizational_unit (soft delete).
@@ -299,8 +310,10 @@ def delete_organizational_unit_endpoint(
 )
 def restore_organizational_unit_endpoint(
     organizational_unit_id: UUID,
-    repo: IOrganizationalUnitRepository = Depends(get_organizational_unit_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[
+        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Restore a soft-deleted organizational_unit.

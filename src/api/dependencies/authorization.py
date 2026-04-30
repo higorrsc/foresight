@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, HTTPException, status
 
 from src.identity_access_management.domain.entities import User
@@ -17,7 +19,7 @@ class RoleChecker:
 
         self._allowed_roles = allowed_roles
 
-    def __call__(self, current_user: User = Depends(get_current_user)):
+    def __call__(self, current_user: Annotated[User, Depends(get_current_user)]):
         """
         Check if the current user has any of the allowed roles.
         """
@@ -41,7 +43,7 @@ class PermissionChecker:
 
         self._required_permissions = set(required_permissions)
 
-    def __call__(self, current_user: User = Depends(get_current_user)):
+    def __call__(self, current_user: Annotated[User, Depends(get_current_user)]):
         """
         Check if the current user has any of the required permissions.
         """

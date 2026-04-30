@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -14,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_auth_provider(
-    session: Session = Depends(get_db_session),
+    session: Annotated[Session, Depends(get_db_session)],
 ) -> AbstractAuthenticationProvider:
     """
     Reads config and return correct instance of authentication provider.
@@ -30,8 +32,8 @@ def get_auth_provider(
 
 
 async def get_current_user(
+    provider: Annotated[AbstractAuthenticationProvider, Depends(get_auth_provider)],
     token: str = Depends(oauth2_scheme),
-    provider: AbstractAuthenticationProvider = Depends(get_auth_provider),
 ) -> User:
     """
     Main security dependency. Uses injected authentication provider to validate token.

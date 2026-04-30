@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -111,8 +112,8 @@ router = APIRouter(
 )
 def create_area_endpoint(
     request_body: AreaCreateBody,
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Create a new area.
@@ -141,8 +142,8 @@ def create_area_endpoint(
     dependencies=[Depends(require_area_read)],
 )
 def list_areas_endpoint(
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
     description: str | None = Query(None, description="Filter by description"),
     sort_by: str | None = Query("description", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
@@ -179,8 +180,8 @@ def list_areas_endpoint(
 )
 def get_area_by_id_endpoint(
     area_id: UUID,
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Get an area by its ID.
@@ -211,8 +212,8 @@ def get_area_by_id_endpoint(
 def update_area_endpoint(
     area_id: UUID,
     request_body: AreaUpdateBody,
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Update an existing area.
@@ -251,8 +252,8 @@ def update_area_endpoint(
 )
 def delete_area_endpoint(
     area_id: UUID,
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Delete an existing area (soft delete).
@@ -275,8 +276,8 @@ def delete_area_endpoint(
 )
 def restore_area_endpoint(
     area_id: UUID,
-    repo: IAreaRepository = Depends(get_area_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Restore a soft-deleted area.

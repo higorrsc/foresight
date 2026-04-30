@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -110,7 +111,7 @@ class UserCreateBody(BaseModel):
 
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8)
-    roles: list[str] | None = Field(default_factory=list)
+    roles: list[str] | None = Field(default_factory=list)  # type:ignore
 
 
 class ChangePasswordBody(BaseModel):
@@ -163,9 +164,9 @@ router = APIRouter(
 )
 def create_user_endpoint(
     request_body: UserCreateBody,
-    user_repo: IUserRepository = Depends(get_user_repository),
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Create a new user in the current tenant (Admin only).
@@ -215,7 +216,7 @@ def create_user_endpoint(
     response_model=UserDetailResponse,
     dependencies=[Depends(require_user_me)],
 )
-def get_current_user_me(actor: User = Depends(get_current_user)):
+def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]):
     """
     Get the details of the currently authenticated user.
     """
@@ -230,8 +231,8 @@ def get_current_user_me(actor: User = Depends(get_current_user)):
     dependencies=[Depends(require_user_read)],
 )
 def list_users_endpoint(
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
     username: str | None = Query(None, description="Filter by part of the username"),
     sort_by: str | None = Query("username", description="Sort field"),
     sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
@@ -268,8 +269,8 @@ def list_users_endpoint(
 )
 def get_user_by_id_endpoint(
     user_id: UUID,
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Get a specific user by their ID.
@@ -294,8 +295,8 @@ def get_user_by_id_endpoint(
 )
 def delete_user_endpoint(
     user_id: UUID,
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Delete an existing user (soft delete).
@@ -329,8 +330,8 @@ def delete_user_endpoint(
 def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Change a user's password.
@@ -376,9 +377,11 @@ def change_password_endpoint(
 def set_user_permissions_endpoint(
     user_id: UUID,
     request_body: SetUserPermissionsBody,
-    user_repo: IUserRepository = Depends(get_user_repository),
-    permission_repo: IPermissionRepository = Depends(get_permission_repository),
-    actor: User = Depends(get_current_user),
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    permission_repo: Annotated[
+        IPermissionRepository, Depends(get_permission_repository)
+    ],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Set (overwrite) the permissions for a specific user. (Admin only)
@@ -420,8 +423,8 @@ def set_user_permissions_endpoint(
 def update_user_profile_endpoint(
     user_id: UUID,
     request_body: UpdateUserProfileBody,
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Partially update a user's profile.
@@ -469,9 +472,9 @@ def update_user_profile_endpoint(
 def set_user_roles_endpoint(
     user_id: UUID,
     request_body: SetUserRolesBody,
-    user_repo: IUserRepository = Depends(get_user_repository),
-    role_repo: IRoleRepository = Depends(get_role_repository),
-    actor: User = Depends(get_current_user),
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Set (overwrite) the roles for a specific user. (Admin only)
@@ -512,8 +515,8 @@ def set_user_roles_endpoint(
 )
 def restore_user_endpoint(
     user_id: UUID,
-    repo: IUserRepository = Depends(get_user_repository),
-    actor: User = Depends(get_current_user),
+    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    actor: Annotated[User, Depends(get_current_user)],
 ):
     """
     Restore a soft-deleted user.
