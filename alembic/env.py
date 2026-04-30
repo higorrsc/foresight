@@ -101,7 +101,7 @@ def render_item(type_, obj, autogen_context):
     if type_ == "type" and isinstance(obj, GUID_Type):
         # Adiciona o import no topo do ficheiro de migração gerado
         autogen_context.imports.add(
-            "from src.shared_kernel.infrastructure.config.custom_types import GUID_Type"
+            "from src.core.infrastructure.config.custom_types import GUID_Type"
         )
         # Renderiza o tipo como "GUID_Type()"
         return "GUID_Type()"
