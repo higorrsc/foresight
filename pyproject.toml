@@ -58,65 +58,25 @@ exclude = [
 line-length = 88
 target-version = "py313"
 
-[tool.ruff.lint]
-# E: pycodestyle errors
-# F: Pyflakes
-# I: isort (ordenação de imports)
-# W: pycodestyle warnings
-select = ["E", "F", "I", "W"]
-ignore = []
-
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-# ------------------------------------------------------
-# Pylint
-# ------------------------------------------------------
+[tool.ruff.lint]
+# E: pycodestyle errors
+# F: Pyflakes
+# I: import sort
+# W: warnings
+# B: bugbear
+# UP: pyupgrade
+# N: naming
+select = ["E", "F", "I", "W", "B", "UP", "N"]
+ignore = []
 
-[tool.pylint.main]
-py-version = "3.13"
-jobs = 0
-ignore-patterns = ["test_.*\\.py"]
-extension-pkg-allow-list = ["pyodbc"]
-
-[tool.pylint.messages_control]
-disable = [
-  "too-few-public-methods",
-  "duplicate-code",
-  "missing-module-docstring",
-]
-
-[tool.pylint.basic]
-# Permite:
-# - _ (descartáveis)
-# - i, j, k (loops)
-# - TEntity, TId, TSearch (Type Parameters - PEP 695)
-good-names-rgx = "^(_|i|j|k|T[A-Z][a-zA-Z0-9]*)$"
-argument-naming-style = "snake_case"
-attr-naming-style = "snake_case"
-function-naming-style = "snake_case"
-method-naming-style = "snake_case"
-variable-naming-style = "snake_case"
-class-naming-style = "PascalCase"
-const-naming-style = "UPPER_CASE"
-
-[tool.pylint.design]
-min-public-methods = 1
-max-attributes = 30
-
-[tool.pylint.typecheck]
-ignore-none = true
-ignore-mixin-members = true
-
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pylint.reports]
-reports = false
-output-format = "colorized"
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100
 
 # ------------------------------------------------------
 # Pytest
