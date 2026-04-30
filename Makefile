@@ -17,11 +17,11 @@ endif
 
 # === Server ===
 
-run-uvicorn: check-python
+run-u: check-python
 	@echo "Starting API server at http://127.0.0.1:8000 with Uvicorn..."
 	$(RUN_TOOL) uvicorn src.api.main:app --reload
 
-run-fastapi: check-python
+run-f: check-python
 	@echo "Starting API server at http://127.0.0.1:8000 with FastAPI..."
 	$(RUN_TOOL) uv run fastapi dev -e src.api.main:app
 
@@ -105,7 +105,8 @@ help:
 	@echo "Available commands:"
 	@echo ""
 	@echo "Server:"
-	@echo "  make run                - Start the API server in development mode"
+	@echo "  make run-f              - Start the API server in development mode (FastAPI)"
+	@echo "  make run-u              - Start the API server in development mode (Uvicorn)"
 	@echo ""
 	@echo "Quality & Testing:"
 	@echo "  make check              - Run lint, type-check and tests"
