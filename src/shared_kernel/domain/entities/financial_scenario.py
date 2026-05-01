@@ -25,6 +25,20 @@ class FinancialScenario(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     is_locked: bool = False
     assumptions: str | None
 
+    def lock(self) -> None:
+        """
+        Locks the financial scenario.
+        """
+
+        self.is_locked = True
+
+    def unlock(self) -> None:
+        """
+        Unlocks the financial scenario.
+        """
+
+        self.is_locked = False
+
     def _str_fields(self) -> str:
         """
         Returns a string representation of the fields of the FinancialScenario entity.
