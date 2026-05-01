@@ -5,6 +5,7 @@ from src.core.application.use_cases.queries import (
     ListRequestInputDTO,
 )
 from src.core.infrastructure.repository import InMemoryRepository
+from src.identity_access_management.domain.constants import AppPermission
 from tests.fakes import DummyEntity
 
 
@@ -23,7 +24,10 @@ def list_use_case(repository):
     Fixture for a list use case.
     """
 
-    return GenericListUseCase[DummyEntity](repository=repository)
+    return GenericListUseCase[DummyEntity](
+        repository,
+        AppPermission.USER_READ,
+    )
 
 
 class TestGenericListUseCase:
