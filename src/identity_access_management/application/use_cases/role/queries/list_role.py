@@ -1,4 +1,5 @@
 from src.core.application.use_cases.queries import GenericListUseCase
+from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.repositories import IRoleRepository
 
@@ -15,4 +16,7 @@ class ListRoleUseCase(GenericListUseCase[Role]):
         :param repository: The repository to use for listing roleRoles.
         """
 
-        super().__init__(repository)
+        super().__init__(
+            repository,
+            AppPermission.ROLE_READ,
+        )

@@ -1,5 +1,6 @@
 from src.core.application.use_cases.queries import GenericListUseCase
 from src.core.domain.repository import AbstractRepository
+from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import User
 
 
@@ -15,4 +16,7 @@ class ListUserUseCase(GenericListUseCase[User]):
         :param repository: The repository to use for listing users.
         """
 
-        super().__init__(repository)
+        super().__init__(
+            repository,
+            AppPermission.USER_READ,
+        )
