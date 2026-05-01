@@ -19,9 +19,6 @@ class RoleMapper(AbstractMapper[Role, RoleModel]):
             tenant_id=entity.tenant_id,
             name=entity.name,
             description=entity.description,
-            is_active=entity.is_active,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -43,9 +40,6 @@ class RoleMapper(AbstractMapper[Role, RoleModel]):
             tenant_id=model.tenant_id,  # type: ignore
             name=model.name,  # type: ignore
             description=model.description,  # type: ignore
-            is_active=model.is_active,
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
             permissions=permission_codes,  # type: ignore
         )
 

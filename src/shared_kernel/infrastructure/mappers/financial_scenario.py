@@ -24,9 +24,6 @@ class FinancialScenarioMapper(
             scenario_type=entity.scenario_type,
             is_locked=entity.is_locked,
             assumptions=entity.assumptions,
-            is_active=entity.is_active,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -45,9 +42,6 @@ class FinancialScenarioMapper(
             scenario_type=model.scenario_type,  # type: ignore
             is_locked=model.is_locked,  # type: ignore
             assumptions=model.assumptions,  # type: ignore
-            is_active=model.is_active,  # type: ignore
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
         )
 
         BaseMapper.map_auditing_fields_to_entity(model, entity)

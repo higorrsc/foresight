@@ -19,8 +19,6 @@ class TenantMapper(AbstractMapper[Tenant, TenantModel]):
             name=entity.name,
             status=entity.status,
             plan_id=entity.plan_id,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -37,8 +35,6 @@ class TenantMapper(AbstractMapper[Tenant, TenantModel]):
             name=model.name,  # type: ignore
             status=model.status,  # type: ignore
             plan_id=model.plan_id,  # type: ignore
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
         )
 
         BaseMapper.map_auditing_fields_to_entity(model, entity)

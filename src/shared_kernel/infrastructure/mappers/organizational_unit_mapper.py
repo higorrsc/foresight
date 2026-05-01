@@ -23,9 +23,6 @@ class OrganizationalUnitMapper(
             code=entity.code,
             description=entity.description,
             parent_id=entity.parent_id,
-            is_active=entity.is_active,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -43,9 +40,6 @@ class OrganizationalUnitMapper(
             code=model.code,  # type: ignore
             description=model.description,  # type: ignore
             parent_id=model.parent_id,  # type: ignore
-            is_active=model.is_active,  # type: ignore
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
         )
 
         BaseMapper.map_auditing_fields_to_entity(model, entity)

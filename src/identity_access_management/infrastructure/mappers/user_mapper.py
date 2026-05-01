@@ -22,9 +22,6 @@ class UserMapper(AbstractMapper[User, UserModel]):
             first_name=entity.first_name,
             last_name=entity.last_name,
             email=entity.email,
-            is_active=entity.is_active,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -58,9 +55,6 @@ class UserMapper(AbstractMapper[User, UserModel]):
             first_name=model.first_name,  # type: ignore
             last_name=model.last_name,  # type: ignore
             email=model.email if model.email else None,  # type: ignore
-            is_active=model.is_active,  # type: ignore
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
             roles=role_names,  # type: ignore
             permissions=effective_permissions,  # type: ignore
         )

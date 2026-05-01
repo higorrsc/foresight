@@ -20,8 +20,6 @@ class PlanMapper(AbstractMapper[Plan, PlanModel]):
             id=entity.id,
             name=entity.name,
             price=entity.price,
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
@@ -37,8 +35,6 @@ class PlanMapper(AbstractMapper[Plan, PlanModel]):
             id=model.id,  # type: ignore
             name=model.name,  # type: ignore
             price=Decimal(model.price),  # type: ignore
-            created_at=model.created_at,  # type: ignore
-            updated_at=model.updated_at,  # type: ignore
         )
 
         BaseMapper.map_auditing_fields_to_entity(model, entity)
