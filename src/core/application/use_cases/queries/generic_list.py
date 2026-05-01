@@ -33,7 +33,11 @@ class GenericListUseCase[T]:
     Use case for listing entities of type T.
     """
 
-    def __init__(self, repository: AbstractRepository[T]) -> None:
+    def __init__(
+        self,
+        repository: AbstractRepository[T],
+        required_permission: AppPermission,
+    ) -> None:
         """
         Initialize the list use case.
 
@@ -41,6 +45,7 @@ class GenericListUseCase[T]:
         """
 
         self._repository = repository
+        self._required_permission = required_permission
 
     def execute(self, input_dto: ListRequestInputDTO) -> PaginatedResponseDTO[T]:
         """
@@ -49,7 +54,7 @@ class GenericListUseCase[T]:
         :return: A list of entities.
         """
 
-        if AppPermission.USER_READ not in input_dto.actor.permissions:
+        if self._required_permission not in input_dto.actor.permissions:
             raise InsufficientPermissionError(
                 "User does not have permission to list data."
             )
