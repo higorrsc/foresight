@@ -1,4 +1,5 @@
 from src.core.application.use_cases.queries import GenericGetByIdUseCase
+from src.identity_access_management.domain.constants import AppPermission
 from src.shared_kernel.application.use_cases.financial_scenario import (
     FinancialScenarioNotFoundError,
 )
@@ -18,6 +19,7 @@ class GetFinancialScenarioByIdUseCase(GenericGetByIdUseCase[FinancialScenario]):
 
         super().__init__(
             repository,
+            AppPermission.FINANCIAL_SCENARIO_READ,
             FinancialScenarioNotFoundError,
             "Financial Scenario with given ID not found.",
         )

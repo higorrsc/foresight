@@ -4,6 +4,10 @@ from uuid import UUID
 
 from src.core.domain import AbstractRepository, EntityValidationError
 from src.core.domain.entities import DescribedEntity
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.constants import AppPermission
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -38,6 +42,7 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
     def __init__(
         self,
         repository: AbstractRepository[T],
+        required_permission: AppPermission,
         not_found_exception: type[Exception],
         invalid_data_exception: type[Exception],
     ) -> None:
@@ -46,6 +51,7 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
         """
 
         self._repository = repository
+        self._required_permission = required_permission
         self._not_found_exception = not_found_exception
         self._invalid_data_exception = invalid_data_exception
 
@@ -56,6 +62,11 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
         """
         Execute the use case to update a existent entity.
         """
+
+        if self._required_permission not in input_dto.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to update data."
+            )
 
         entity = self._repository.get_by_id(
             input_dto.id,

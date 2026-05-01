@@ -8,6 +8,7 @@ from src.core.application.use_cases.queries import (
 )
 from src.core.domain import EntityNotFoundError
 from src.core.infrastructure.repository import InMemoryRepository
+from src.identity_access_management.domain.constants import AppPermission
 from tests.fakes import DummyEntity
 
 
@@ -27,9 +28,10 @@ def get_by_id_use_case(repository):
     """
 
     return GenericGetByIdUseCase[DummyEntity](
-        repository=repository,
-        not_found_exception=EntityNotFoundError,
-        not_found_message="DummyEntity with id={id} not found",
+        repository,
+        AppPermission.USER_READ,
+        EntityNotFoundError,
+        "DummyEntity with id={id} not found",
     )
 
 

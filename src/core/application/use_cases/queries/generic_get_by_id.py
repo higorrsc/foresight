@@ -3,6 +3,10 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import AbstractRepository
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.constants import AppPermission
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -26,6 +30,7 @@ class GenericGetByIdUseCase[T]:
     def __init__(
         self,
         repository: AbstractRepository[T],
+        required_permission: AppPermission,
         not_found_exception: type[Exception],
         not_found_message: str = "Entity with id={id} not found",
     ):
@@ -38,6 +43,7 @@ class GenericGetByIdUseCase[T]:
         """
 
         self._repository = repository
+        self._required_permission = required_permission
         self._not_found_exception = not_found_exception
         self._not_found_message = not_found_message
 
@@ -49,6 +55,11 @@ class GenericGetByIdUseCase[T]:
                         of the entity to get.
         :return: The entity with the given ID.
         """
+
+        if self._required_permission not in request.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to read data."
+            )
 
         entity = self._repository.get_by_id(
             request.id,

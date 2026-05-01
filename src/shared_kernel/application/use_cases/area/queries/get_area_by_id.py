@@ -1,4 +1,5 @@
 from src.core.application.use_cases.queries import GenericGetByIdUseCase
+from src.identity_access_management.domain.constants import AppPermission
 from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.domain.repositories import IAreaRepository
@@ -16,6 +17,7 @@ class GetAreaByIdUseCase(GenericGetByIdUseCase[Area]):
 
         super().__init__(
             repository,
+            AppPermission.AREA_READ,
             AreaNotFoundError,
             "Area with given ID not found.",
         )

@@ -4,6 +4,10 @@ from uuid import UUID, uuid4
 
 from src.core.domain import AbstractRepository, EntityValidationError
 from src.core.domain.entities import DescribedEntity
+from src.identity_access_management.application.use_cases.permission import (
+    InsufficientPermissionError,
+)
+from src.identity_access_management.domain.constants import AppPermission
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
@@ -37,6 +41,7 @@ class CreateDescribedEntityUseCase[T: DescribedEntity]:
     def __init__(
         self,
         repository: AbstractRepository[T],
+        required_permission: AppPermission,
         entity_cls: type[T],
         invalid_data_exception: type[Exception],
     ) -> None:
@@ -45,6 +50,7 @@ class CreateDescribedEntityUseCase[T: DescribedEntity]:
         """
 
         self._repository = repository
+        self._required_permission = required_permission
         self._entity_cls = entity_cls
         self._invalid_data_exception = invalid_data_exception
 
@@ -55,6 +61,11 @@ class CreateDescribedEntityUseCase[T: DescribedEntity]:
         """
         Execute the use case to create a new entity.
         """
+
+        if self._required_permission not in input_dto.actor.permissions:
+            raise InsufficientPermissionError(
+                "User does not have permission to list data."
+            )
 
         try:
             entity = self._entity_cls(
