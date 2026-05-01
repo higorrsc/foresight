@@ -1,8 +1,4 @@
-from typing import TypeVar
-
 from pydantic import BaseModel, ConfigDict
-
-T = TypeVar("T")
 
 
 class PaginationMetaResponse(BaseModel):
