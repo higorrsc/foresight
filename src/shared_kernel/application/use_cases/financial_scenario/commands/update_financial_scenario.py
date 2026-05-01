@@ -4,6 +4,7 @@ from uuid import UUID
 
 from src.core.domain.exceptions import EntityValidationError
 from src.shared_kernel.application.use_cases.financial_scenario import (
+    CannotUpdateLockedFinancialScenarioError,
     FinancialScenarioNotFoundError,
     InvalidFinancialScenarioError,
 )
@@ -65,6 +66,11 @@ class UpdateFinancialScenarioUseCase:
         if not entity:
             raise FinancialScenarioNotFoundError(
                 "Financial Scenario with given ID not found"
+            )
+
+        if entity.is_locked:
+            raise CannotUpdateLockedFinancialScenarioError(
+                "Cannot update a locked Financial Scenario"
             )
 
         try:
