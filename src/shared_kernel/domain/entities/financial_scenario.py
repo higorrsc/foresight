@@ -1,0 +1,33 @@
+from dataclasses import dataclass
+from enum import StrEnum
+
+from src.core.domain.entities import DescribedEntity
+from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
+
+
+class ScenarioType(StrEnum):
+    """
+    Enum representing the types of financial scenarios.
+    """
+
+    BUDGET = "BUDGET"
+    ACTUAL = "ACTUAL"
+    FORECAST = "FORECAST"
+
+
+@dataclass(kw_only=True, eq=False, repr=False)
+class FinancialScenario(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
+    """
+    Entity representing a financial scenario within the system.
+    """
+
+    scenario_type: ScenarioType
+    is_locked: bool = False
+    assumptions: str | None
+
+    def _str_fields(self) -> str:
+        """
+        Returns a string representation of the fields of the FinancialScenario entity.
+        """
+
+        return f"id={self.id}, description='{self.description}'"
