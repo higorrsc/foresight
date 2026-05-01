@@ -16,6 +16,11 @@ class AppPermission(str, Enum):
     ORGANIZATIONAL_UNIT_READ = "organizational_unit:read"
     ORGANIZATIONAL_UNIT_UPDATE = "organizational_unit:update"
 
+    FINANCIAL_SCENARIO_CREATE = "financial_scenario:create"
+    FINANCIAL_SCENARIO_DELETE = "financial_scenario:delete"
+    FINANCIAL_SCENARIO_READ = "financial_scenario:read"
+    FINANCIAL_SCENARIO_UPDATE = "financial_scenario:update"
+
     PLAN_CREATE = "plan:create"
     PLAN_DELETE = "plan:delete"
     PLAN_READ = "plan:read"
