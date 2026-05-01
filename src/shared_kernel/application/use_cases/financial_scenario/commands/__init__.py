@@ -4,7 +4,15 @@ from .create_financial_scenario import (
     CreateFinancialScenarioUseCase,
 )
 from .delete_financial_scenario import DeleteFinancialScenarioUseCase
+from .lock_financial_scenario import (
+    LockFinancialScenarioInputDTO,
+    LockFinancialScenarioUseCase,
+)
 from .restore_financial_scenario import RestoreFinancialScenarioUseCase
+from .unlock_financial_scenario import (
+    UnlockFinancialScenarioInputDTO,
+    UnlockFinancialScenarioUseCase,
+)
 from .update_financial_scenario import (
     UpdateFinancialScenarioInputDTO,
     UpdateFinancialScenarioOutputDTO,
@@ -16,7 +24,11 @@ __all__ = [
     "CreateFinancialScenarioOutputDTO",
     "CreateFinancialScenarioUseCase",
     "DeleteFinancialScenarioUseCase",
+    "LockFinancialScenarioInputDTO",
+    "LockFinancialScenarioUseCase",
     "RestoreFinancialScenarioUseCase",
+    "UnlockFinancialScenarioInputDTO",
+    "UnlockFinancialScenarioUseCase",
     "UpdateFinancialScenarioInputDTO",
     "UpdateFinancialScenarioOutputDTO",
     "UpdateFinancialScenarioUseCase",
