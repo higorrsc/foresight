@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AppPermission(str, Enum):
+class AppPermission(StrEnum):
     """
     Application permissions
     """
@@ -46,30 +46,32 @@ class AppPermission(str, Enum):
     USER_UPDATE_PROFILE = "user:update_profile"
 
     @classmethod
-    def get_all_permissions(cls) -> set[str]:
+    def get_all_permissions(cls) -> set["AppPermission"]:
         """
         Get all permissions
         """
 
-        return {permission.value for permission in cls}
+        return set(cls)
 
     @classmethod
-    def get_guest_permissions(cls) -> set[str]:
+    def get_permissions_by_action(cls, action: str) -> set["AppPermission"]:
+        """
+        Returns permissions filtered by action.
+        """
+
+        suffix = f":{action}"
+
+        return {permission for permission in cls if permission.value.endswith(suffix)}
+
+    @classmethod
+    def get_guest_permissions(cls) -> set["AppPermission"]:
         """
         Returns the set of guest permissions.
         """
 
         return {
-            cls.USER_ME.value,
-            cls.USER_UPDATE_PROFILE.value,
-            cls.USER_CHANGE_PASSWORD.value,
+            cls.USER_ME,
+            cls.USER_UPDATE_PROFILE,
+            cls.USER_CHANGE_PASSWORD,
             cls.PLAN_READ,
         }
-
-    @classmethod
-    def get_admin_permissions(cls) -> set[str]:
-        """
-        Returns the set of admin permissions.
-        """
-
-        return cls.get_all_permissions()
