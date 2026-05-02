@@ -46,6 +46,7 @@
     "Pylint",
     "pyodbc",
     "pyproject",
+    "pysqlite",
     "pytest",
     "PYTHONDONTWRITEBYTECODE",
     "pythonpath",
