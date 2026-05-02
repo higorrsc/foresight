@@ -14,29 +14,39 @@ from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 
-def test_get_financial_scenario_by_id_success(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    scenario = FinancialScenario(
-        description="Found me",
-        scenario_type=ScenarioType.ACTUAL,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    repository.save(scenario)
+class TestGetFinancialScenarioByIdUseCase:
+    """
+    Test suite for the GetFinancialScenarioByIdUseCase.
+    """
 
-    use_case = GetFinancialScenarioByIdUseCase(repository)
-    input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=scenario.id)
+    def test_get_financial_scenario_by_id_success(self, admin_actor: User):
+        """
+        Test successful retrieval of a financial scenario by its ID.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        scenario = FinancialScenario(
+            description="Found me",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        repository.save(scenario)
 
-    result = use_case.execute(input_dto)
+        use_case = GetFinancialScenarioByIdUseCase(repository)
+        input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=scenario.id)
 
-    assert result.id == scenario.id
-    assert result.description == "Found me"
+        result = use_case.execute(input_dto)
 
+        assert result.id == scenario.id
+        assert result.description == "Found me"
 
-def test_get_financial_scenario_by_id_not_found(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    use_case = GetFinancialScenarioByIdUseCase(repository)
-    input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=uuid4())
+    def test_get_financial_scenario_by_id_not_found(self, admin_actor: User):
+        """
+        Test that retrieving a non-existent financial scenario raises an error.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        use_case = GetFinancialScenarioByIdUseCase(repository)
+        input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=uuid4())
 
-    with pytest.raises(FinancialScenarioNotFoundError):
-        use_case.execute(input_dto)
+        with pytest.raises(FinancialScenarioNotFoundError):
+            use_case.execute(input_dto)

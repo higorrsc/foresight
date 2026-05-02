@@ -10,7 +10,14 @@ from src.tenant_management.infrastructure.models import PlanModel, TenantModel
 
 
 class TestSeeding:
+    """
+    Test suite for the database seeding process.
+    """
+
     def test_seed_initial_data(self, db_session_for_test: Session):
+        """
+        Test that seed_initial_data correctly populates the database with initial records.
+        """
         # The fixture already calls seed_initial_data,
         # but let's clear it and call it again to be sure,
         # OR just verify what's already there.
@@ -80,6 +87,9 @@ class TestSeeding:
         assert guest_role in guest_user.roles_rel
 
     def test_seeding_idempotency(self, db_session_for_test: Session):
+        """
+        Test that multiple calls to seed_initial_data do not create duplicate records.
+        """
         # Call seeding again
         seed_initial_data(db_session_for_test)
 

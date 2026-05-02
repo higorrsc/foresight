@@ -5,7 +5,14 @@ from src.core.infrastructure.config.custom_types import GUIDType
 
 
 class TestGUIDType:
+    """
+    Test suite for the custom GUIDType SQLAlchemy type.
+    """
+
     def test_load_dialect_impl(self):
+        """
+        Test that load_dialect_impl correctly delegates to the dialect's type descriptor.
+        """
         guid_type = GUIDType()
 
         # Test Postgres
@@ -27,6 +34,9 @@ class TestGUIDType:
         assert dialect_sqlite.type_descriptor.called
 
     def test_process_bind_param(self):
+        """
+        Test that process_bind_param correctly formats UUID values for different dialects.
+        """
         guid_type = GUIDType()
         value = uuid.uuid4()
 
@@ -42,6 +52,9 @@ class TestGUIDType:
         assert guid_type.process_bind_param(None, dialect_sqlite) is None
 
     def test_process_result_value(self):
+        """
+        Test that process_result_value correctly converts stored values back to UUID objects.
+        """
         guid_type = GUIDType()
         value_uuid = uuid.uuid4()
         value_str = str(value_uuid)

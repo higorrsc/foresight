@@ -7,23 +7,31 @@ from src.shared_kernel.domain.entities import ScenarioType
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 
-def test_create_financial_scenario_success(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    use_case = CreateFinancialScenarioUseCase(repository)
+class TestCreateFinancialScenarioUseCase:
+    """
+    Test suite for the CreateFinancialScenarioUseCase.
+    """
 
-    input_dto = CreateFinancialScenarioInputDTO(
-        actor=admin_actor,
-        description="New Scenario",
-        scenario_type=ScenarioType.BUDGET,
-        assumptions="Some assumptions",
-    )
+    def test_create_financial_scenario_success(self, admin_actor: User):
+        """
+        Test successful creation of a financial scenario.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        use_case = CreateFinancialScenarioUseCase(repository)
 
-    result = use_case.execute(input_dto)
+        input_dto = CreateFinancialScenarioInputDTO(
+            actor=admin_actor,
+            description="New Scenario",
+            scenario_type=ScenarioType.BUDGET,
+            assumptions="Some assumptions",
+        )
 
-    assert result.id is not None
-    saved_scenario = repository.get_by_id(result.id, admin_actor.tenant_id)
-    assert saved_scenario.description == "New Scenario"  # type: ignore
-    assert saved_scenario.scenario_type == ScenarioType.BUDGET  # type: ignore
-    assert saved_scenario.assumptions == "Some assumptions"  # type: ignore
-    assert saved_scenario.tenant_id == admin_actor.tenant_id  # type: ignore
-    assert saved_scenario.created_by == admin_actor.id  # type: ignore
+        result = use_case.execute(input_dto)
+
+        assert result.id is not None
+        saved_scenario = repository.get_by_id(result.id, admin_actor.tenant_id)
+        assert saved_scenario.description == "New Scenario"  # type: ignore
+        assert saved_scenario.scenario_type == ScenarioType.BUDGET  # type: ignore
+        assert saved_scenario.assumptions == "Some assumptions"  # type: ignore
+        assert saved_scenario.tenant_id == admin_actor.tenant_id  # type: ignore
+        assert saved_scenario.created_by == admin_actor.id  # type: ignore

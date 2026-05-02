@@ -5,11 +5,21 @@ from src.core.infrastructure.config.settings import Settings
 
 
 class TestSettings:
+    """
+    Test suite for the application settings.
+    """
+
     def test_settings_default_sqlite(self):
+        """
+        Test that settings correctly configure a default SQLite database.
+        """
         settings = Settings(DB_DRIVER="sqlite", DB_DATABASE="test.sqlite3")
         assert settings.DATABASE_URL == "sqlite:///test.sqlite3"
 
     def test_settings_cockroachdb_success(self):
+        """
+        Test successful configuration of a CockroachDB connection string.
+        """
         settings = Settings(
             DB_DRIVER="cockroachdb",
             DB_USER="user",
@@ -24,6 +34,9 @@ class TestSettings:
         assert "sslrootcert=cert.pem" in settings.DATABASE_URL  # type: ignore
 
     def test_settings_cockroachdb_missing_vars(self, monkeypatch):
+        """
+        Test that settings validation fails when required CockroachDB variables are missing.
+        """
         # Ensure environment is clean
         monkeypatch.delenv("DB_DRIVER", raising=False)
         monkeypatch.delenv("DB_USER", raising=False)
@@ -41,6 +54,9 @@ class TestSettings:
             )
 
     def test_settings_postgresql(self):
+        """
+        Test configuration of a PostgreSQL connection string.
+        """
         settings = Settings(
             _env_file=None,  # type: ignore
             DB_DRIVER="postgresql",
@@ -54,6 +70,9 @@ class TestSettings:
         assert settings.DATABASE_URL == "postgresql://user:***@host:5432/db"
 
     def test_settings_explicit_database_url(self):
+        """
+        Test that an explicitly provided DATABASE_URL takes precedence.
+        """
         url = "postgresql://other:pass@otherhost:5432/otherdb"
         settings = Settings(DATABASE_URL=url)
         assert settings.DATABASE_URL == url

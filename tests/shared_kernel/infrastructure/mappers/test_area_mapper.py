@@ -6,48 +6,58 @@ from src.shared_kernel.infrastructure.mappers.area_mapper import AreaMapper
 from src.shared_kernel.infrastructure.models import AreaModel
 
 
-def test_area_to_model():
-    tenant_id = uuid4()
-    entity_id = uuid4()
-    created_by = uuid4()
-    created_at = datetime.now()
+class TestAreaMapper:
+    """
+    Test suite for the AreaMapper.
+    """
 
-    entity = Area(
-        id=entity_id,
-        tenant_id=tenant_id,
-        description="Test Area",
-    )
-    # Add auditing fields
-    entity.created_at = created_at
-    entity.created_by = created_by
+    def test_area_to_model(self):
+        """
+        Test mapping of an Area entity to an AreaModel.
+        """
+        tenant_id = uuid4()
+        entity_id = uuid4()
+        created_by = uuid4()
+        created_at = datetime.now()
 
-    model = AreaMapper.to_model(entity)
+        entity = Area(
+            id=entity_id,
+            tenant_id=tenant_id,
+            description="Test Area",
+        )
+        # Add auditing fields
+        entity.created_at = created_at
+        entity.created_by = created_by
 
-    assert model.id == entity_id
-    assert model.tenant_id == tenant_id
-    assert model.description == "Test Area"
-    assert model.created_at == created_at
-    assert model.created_by == created_by
+        model = AreaMapper.to_model(entity)
 
+        assert model.id == entity_id
+        assert model.tenant_id == tenant_id
+        assert model.description == "Test Area"
+        assert model.created_at == created_at
+        assert model.created_by == created_by
 
-def test_area_to_entity():
-    tenant_id = uuid4()
-    model_id = uuid4()
-    created_by = uuid4()
-    created_at = datetime.now()
+    def test_area_to_entity(self):
+        """
+        Test mapping of an AreaModel to an Area entity.
+        """
+        tenant_id = uuid4()
+        model_id = uuid4()
+        created_by = uuid4()
+        created_at = datetime.now()
 
-    model = AreaModel(
-        id=model_id,
-        tenant_id=tenant_id,
-        description="Test Area Model",
-        created_by=created_by,
-        created_at=created_at,
-    )
+        model = AreaModel(
+            id=model_id,
+            tenant_id=tenant_id,
+            description="Test Area Model",
+            created_by=created_by,
+            created_at=created_at,
+        )
 
-    entity = AreaMapper.to_entity(model)
+        entity = AreaMapper.to_entity(model)
 
-    assert entity.id == model_id
-    assert entity.tenant_id == tenant_id
-    assert entity.description == "Test Area Model"
-    assert entity.created_by == created_by
-    assert entity.created_at == created_at
+        assert entity.id == model_id
+        assert entity.tenant_id == tenant_id
+        assert entity.description == "Test Area Model"
+        assert entity.created_by == created_by
+        assert entity.created_at == created_at

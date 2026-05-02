@@ -14,11 +14,22 @@ from src.identity_access_management.application.use_cases.permission import (
 
 
 class MockEntity(DescribedEntity):
+    """
+    A mock entity for testing purposes.
+    """
+
     pass
 
 
 class TestCreateDescribedEntityUseCase:
+    """
+    Test suite for the CreateDescribedEntityUseCase.
+    """
+
     def test_execute_success(self):
+        """
+        Test successful execution of the create described entity use case.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:create"}
@@ -46,6 +57,9 @@ class TestCreateDescribedEntityUseCase:
         assert saved_entity.tenant_id == actor.tenant_id
 
     def test_execute_insufficient_permission(self):
+        """
+        Test that execution fails when the actor has insufficient permissions.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"other:permission"}
@@ -66,6 +80,9 @@ class TestCreateDescribedEntityUseCase:
             use_case.execute(input_dto)
 
     def test_execute_invalid_data(self):
+        """
+        Test that execution fails when provided with invalid data.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:create"}

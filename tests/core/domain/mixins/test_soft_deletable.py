@@ -4,7 +4,15 @@ from src.core.domain.mixins.soft_deletable import SoftDeletableMixin
 
 
 class TestSoftDeletableMixin:
+    """
+    Test suite for the SoftDeletableMixin.
+    """
+
     def test_soft_delete(self):
+        """
+        Test that soft_delete correctly sets is_active to False and deleted_at to the current time.
+        """
+
         class MyEntity(SoftDeletableMixin):
             pass
 
@@ -20,6 +28,10 @@ class TestSoftDeletableMixin:
         assert (datetime.now(UTC) - entity.deleted_at).total_seconds() < 1
 
     def test_restore(self):
+        """
+        Test that restore correctly sets is_active back to True and clears deleted_at.
+        """
+
         class MyEntity(SoftDeletableMixin):
             pass
 

@@ -14,13 +14,24 @@ from src.identity_access_management.application.use_cases.permission import (
 
 
 class MockEntity(DescribedEntity):
+    """
+    A mock entity for testing purposes.
+    """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.updated_by = None
 
 
 class TestUpdateDescribedEntityUseCase:
+    """
+    Test suite for the UpdateDescribedEntityUseCase.
+    """
+
     def test_execute_success(self):
+        """
+        Test successful update of a described entity.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:update"}
@@ -53,6 +64,9 @@ class TestUpdateDescribedEntityUseCase:
         assert repository.update.called
 
     def test_execute_insufficient_permission(self):
+        """
+        Test that update fails when the actor has insufficient permissions.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = set()
@@ -74,6 +88,9 @@ class TestUpdateDescribedEntityUseCase:
             use_case.execute(input_dto)
 
     def test_execute_not_found(self):
+        """
+        Test that update fails when the entity is not found.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:update"}
@@ -99,6 +116,9 @@ class TestUpdateDescribedEntityUseCase:
         assert f"Entity with id {entity_id} not found" in str(excinfo.value)
 
     def test_execute_invalid_data(self):
+        """
+        Test that update fails when provided with invalid data.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:update"}

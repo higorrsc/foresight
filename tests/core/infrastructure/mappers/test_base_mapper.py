@@ -7,6 +7,10 @@ from src.core.infrastructure.mappers.base_mapper import BaseMapper
 
 @dataclass
 class DummyEntity:
+    """
+    A dummy entity for testing auditing field mapping.
+    """
+
     created_by: str | None = None
     created_at: datetime | None = None
     updated_by: str | None = None
@@ -16,6 +20,10 @@ class DummyEntity:
 
 
 class DummyModel:
+    """
+    A dummy model for testing auditing field mapping.
+    """
+
     def __init__(self):
         self.created_by: str | None = None
         self.created_at: datetime | None = None
@@ -26,7 +34,14 @@ class DummyModel:
 
 
 class TestBaseMapper:
+    """
+    Test suite for the BaseMapper.
+    """
+
     def test_map_auditing_fields_to_model(self):
+        """
+        Test mapping of auditing fields from an entity to a model.
+        """
         entity = DummyEntity(
             created_by=str(uuid4()),
             created_at=datetime.now(UTC),
@@ -47,6 +62,9 @@ class TestBaseMapper:
         assert model.deleted_at == entity.deleted_at
 
     def test_map_auditing_fields_to_entity(self):
+        """
+        Test mapping of auditing fields from a model to an entity.
+        """
         model = DummyModel()
         model.created_by = str(uuid4())
         model.created_at = datetime.now(UTC)
@@ -67,6 +85,10 @@ class TestBaseMapper:
         assert entity.deleted_at == model.deleted_at
 
     def test_map_auditing_fields_partial(self):
+        """
+        Test mapping of auditing fields when some fields are missing in the target object.
+        """
+
         @dataclass
         class PartialEntity:
             created_by: str | None = None

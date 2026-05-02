@@ -16,31 +16,41 @@ from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 
-def test_restore_financial_scenario_success(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    scenario = FinancialScenario(
-        description="To be restored",
-        scenario_type=ScenarioType.ACTUAL,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    scenario.soft_delete()
-    repository.save(scenario)
+class TestRestoreFinancialScenarioUseCase:
+    """
+    Test suite for the RestoreFinancialScenarioUseCase.
+    """
 
-    use_case = RestoreFinancialScenarioUseCase(repository)
-    input_dto = RestoreRequestInputDTO(actor=admin_actor, id=scenario.id)
+    def test_restore_financial_scenario_success(self, admin_actor: User):
+        """
+        Test successful restoration of a soft-deleted financial scenario.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        scenario = FinancialScenario(
+            description="To be restored",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        scenario.soft_delete()
+        repository.save(scenario)
 
-    use_case.execute(input_dto)
+        use_case = RestoreFinancialScenarioUseCase(repository)
+        input_dto = RestoreRequestInputDTO(actor=admin_actor, id=scenario.id)
 
-    restored_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
-    assert restored_scenario is not None
-    assert restored_scenario.is_active is True
-
-
-def test_restore_financial_scenario_not_found(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    use_case = RestoreFinancialScenarioUseCase(repository)
-    input_dto = RestoreRequestInputDTO(actor=admin_actor, id=uuid4())
-
-    with pytest.raises(FinancialScenarioNotFoundError):
         use_case.execute(input_dto)
+
+        restored_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        assert restored_scenario is not None
+        assert restored_scenario.is_active is True
+
+    def test_restore_financial_scenario_not_found(self, admin_actor: User):
+        """
+        Test that restoring a non-existent financial scenario raises an error.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        use_case = RestoreFinancialScenarioUseCase(repository)
+        input_dto = RestoreRequestInputDTO(actor=admin_actor, id=uuid4())
+
+        with pytest.raises(FinancialScenarioNotFoundError):
+            use_case.execute(input_dto)

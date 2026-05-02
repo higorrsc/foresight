@@ -7,38 +7,58 @@ from src.api.auth.security import create_access_token
 from src.core.infrastructure.config import settings
 
 
-def test_create_access_token_success():
-    data = {"sub": "testuser"}
-    tenant_id = uuid4()
+class TestSecurity:
+    """
+    Test suite for security-related utilities.
+    """
 
-    token = create_access_token(data=data, tenant_id=tenant_id)
+    def test_create_access_token_success(self):
+        """
+        Test successful access token creation.
+        """
+        data = {"sub": "testuser"}
+        tenant_id = uuid4()
 
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        token = create_access_token(data=data, tenant_id=tenant_id)
 
-    assert payload["sub"] == "testuser"
-    assert payload["tenant_id"] == str(tenant_id)
-    assert "exp" in payload
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
 
+        assert payload["sub"] == "testuser"
+        assert payload["tenant_id"] == str(tenant_id)
+        assert "exp" in payload
 
-def test_create_access_token_no_tenant():
-    data = {"sub": "testuser"}
+    def test_create_access_token_no_tenant(self):
+        """
+        Test access token creation without a tenant ID.
+        """
+        data = {"sub": "testuser"}
 
-    token = create_access_token(data=data, tenant_id=None)
+        token = create_access_token(data=data, tenant_id=None)
 
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
 
-    assert payload["sub"] == "testuser"
-    assert payload["tenant_id"] is None
+        assert payload["sub"] == "testuser"
+        assert payload["tenant_id"] is None
 
+    def test_create_access_token_custom_expiry(self):
+        """
+        Test access token creation with a custom expiration delta.
+        """
+        data = {"sub": "testuser"}
+        expires_delta = timedelta(minutes=30)
 
-def test_create_access_token_custom_expiry():
-    data = {"sub": "testuser"}
-    expires_delta = timedelta(minutes=30)
+        token = create_access_token(
+            data=data, tenant_id=None, expires_delta=expires_delta
+        )
 
-    token = create_access_token(data=data, tenant_id=None, expires_delta=expires_delta)
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
 
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-
-    assert payload["sub"] == "testuser"
-    # Testing exact expiry is tricky due to timing, but we can check if it exists
-    assert "exp" in payload
+        assert payload["sub"] == "testuser"
+        # Testing exact expiry is tricky due to timing, but we can check if it exists
+        assert "exp" in payload

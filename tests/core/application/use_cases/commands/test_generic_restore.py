@@ -14,6 +14,10 @@ from src.identity_access_management.application.use_cases.permission import (
 
 
 class MockSoftDeletableEntity(SoftDeletableMixin):
+    """
+    A mock entity that implements SoftDeletableMixin for testing purposes.
+    """
+
     def __init__(self):
         self.id = uuid4()
         self.updated_by = None
@@ -21,7 +25,14 @@ class MockSoftDeletableEntity(SoftDeletableMixin):
 
 
 class TestGenericRestoreUseCase:
+    """
+    Test suite for the GenericRestoreUseCase.
+    """
+
     def test_execute_success(self):
+        """
+        Test successful restoration of a soft-deleted entity.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:restore"}
@@ -51,6 +62,9 @@ class TestGenericRestoreUseCase:
         assert repository.update.called
 
     def test_execute_insufficient_permission(self):
+        """
+        Test that restoration fails when the actor has insufficient permissions.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = set()
@@ -70,6 +84,9 @@ class TestGenericRestoreUseCase:
             use_case.execute(input_dto)
 
     def test_execute_not_found(self):
+        """
+        Test that restoration fails when the entity is not found.
+        """
         repository = MagicMock()
         actor = MagicMock()
         actor.permissions = {"test:restore"}

@@ -7,7 +7,14 @@ from src.core.domain.entities.described import DescribedEntity
 
 
 class TestDescribedEntity:
+    """
+    Test suite for the DescribedEntity.
+    """
+
     def test_described_entity_initialization(self):
+        """
+        Test that DescribedEntity initializes correctly with valid data.
+        """
         tenant_id = uuid4()
         entity_id = uuid4()
         description = "Valid description"
@@ -22,6 +29,10 @@ class TestDescribedEntity:
         assert entity.description == description
 
     def test_update_description(self):
+        """
+        Test that update_description correctly updates the description.
+        """
+
         class MyEntity(DescribedEntity):
             pass
 
@@ -33,6 +44,10 @@ class TestDescribedEntity:
         assert entity.description == new_description
 
     def test_validate_empty_description(self):
+        """
+        Test that an empty description raises an EntityValidationError.
+        """
+
         class MyEntity(DescribedEntity):
             pass
 
@@ -42,6 +57,10 @@ class TestDescribedEntity:
         assert "Description must be a non-empty string." in str(excinfo.value)
 
     def test_validate_whitespace_description(self):
+        """
+        Test that a whitespace-only description raises an EntityValidationError.
+        """
+
         class MyEntity(DescribedEntity):
             pass
 
@@ -51,6 +70,10 @@ class TestDescribedEntity:
         assert "Description must be a non-empty string." in str(excinfo.value)
 
     def test_validate_too_long_description(self):
+        """
+        Test that a description exceeding the maximum length raises an EntityValidationError.
+        """
+
         class MyEntity(DescribedEntity):
             pass
 

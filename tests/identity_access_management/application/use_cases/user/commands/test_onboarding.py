@@ -72,6 +72,9 @@ def onboarding_use_case(
     user_repo,
     perm_repo,
 ):
+    """
+    Fixture that provides an instance of OnboardingUseCase with mocked repositories.
+    """
     return OnboardingUseCase(
         plan_repository=plan_repo,
         tenant_repository=tenant_repo,

@@ -4,7 +4,15 @@ from src.core.types.guards import has_tenant, is_soft_deletable, is_user_auditab
 
 
 class TestGuards:
+    """
+    Test suite for the core type guards.
+    """
+
     def test_has_tenant(self):
+        """
+        Test the has_tenant guard.
+        """
+
         class TenantObj:
             tenant_id = uuid4()
 
@@ -16,6 +24,10 @@ class TestGuards:
         assert has_tenant({}) is False
 
     def test_is_soft_deletable(self):
+        """
+        Test the is_soft_deletable guard.
+        """
+
         class SoftDeletableObj:
             is_active = True
 
@@ -27,6 +39,10 @@ class TestGuards:
         assert is_soft_deletable({}) is False
 
     def test_is_user_auditable(self):
+        """
+        Test the is_user_auditable guard.
+        """
+
         class UserAuditableObj:
             created_by = uuid4()
             updated_by = uuid4()

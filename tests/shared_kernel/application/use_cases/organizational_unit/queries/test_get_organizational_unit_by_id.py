@@ -22,16 +22,25 @@ from tests.fakes.in_memory_repository import OrganizationalUnitInMemoryRepositor
 
 @pytest.fixture
 def repository():
+    """
+    Fixture for an OrganizationalUnitInMemoryRepository.
+    """
     return OrganizationalUnitInMemoryRepository()
 
 
 @pytest.fixture
 def use_case(repository):
+    """
+    Fixture for a GetOrganizationalUnitByIdUseCase.
+    """
     return GetOrganizationalUnitByIdUseCase(repository)
 
 
 @pytest.fixture
 def actor():
+    """
+    Fixture for a mock actor (User) with read permissions.
+    """
     return User(
         id=uuid4(),
         username="test_user",
@@ -42,53 +51,67 @@ def actor():
     )
 
 
-def test_get_organizational_unit_by_id_success(use_case, repository, actor):
-    entity_id = uuid4()
-    entity = OrganizationalUnit(
-        id=entity_id,
-        tenant_id=actor.tenant_id,
-        description="Test Unit",
-        code="TU001",
-        created_by=actor.id,
-        updated_by=actor.id,
-    )
-    repository.save(entity)
+class TestGetOrganizationalUnitByIdUseCase:
+    """
+    Test suite for the GetOrganizationalUnitByIdUseCase.
+    """
 
-    input_dto = GetByIdRequestInputDTO(
-        actor=actor,
-        id=entity_id,
-    )
+    def test_get_organizational_unit_by_id_success(self, use_case, repository, actor):
+        """
+        Test successful retrieval of an organizational unit by its ID.
+        """
+        entity_id = uuid4()
+        entity = OrganizationalUnit(
+            id=entity_id,
+            tenant_id=actor.tenant_id,
+            description="Test Unit",
+            code="TU001",
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        repository.save(entity)
 
-    result = use_case.execute(input_dto)
+        input_dto = GetByIdRequestInputDTO(
+            actor=actor,
+            id=entity_id,
+        )
 
-    assert result == entity
-    assert result.id == entity_id
+        result = use_case.execute(input_dto)
 
+        assert result == entity
+        assert result.id == entity_id
 
-def test_get_organizational_unit_by_id_insufficient_permission(use_case, actor):
-    actor_no_perm = User(
-        id=uuid4(),
-        username="no_perm",
-        email="no_perm@example.com",
-        hashed_password="hashed_password",
-        tenant_id=actor.tenant_id,
-        permissions=[],  # type: ignore
-    )
+    def test_get_organizational_unit_by_id_insufficient_permission(
+        self, use_case, actor
+    ):
+        """
+        Test that retrieval fails when the actor has insufficient permissions.
+        """
+        actor_no_perm = User(
+            id=uuid4(),
+            username="no_perm",
+            email="no_perm@example.com",
+            hashed_password="hashed_password",
+            tenant_id=actor.tenant_id,
+            permissions=[],  # type: ignore
+        )
 
-    input_dto = GetByIdRequestInputDTO(
-        actor=actor_no_perm,
-        id=uuid4(),
-    )
+        input_dto = GetByIdRequestInputDTO(
+            actor=actor_no_perm,
+            id=uuid4(),
+        )
 
-    with pytest.raises(InsufficientPermissionError):
-        use_case.execute(input_dto)
+        with pytest.raises(InsufficientPermissionError):
+            use_case.execute(input_dto)
 
+    def test_get_organizational_unit_by_id_not_found(self, use_case, actor):
+        """
+        Test that retrieval fails when the organizational unit is not found.
+        """
+        input_dto = GetByIdRequestInputDTO(
+            actor=actor,
+            id=uuid4(),
+        )
 
-def test_get_organizational_unit_by_id_not_found(use_case, actor):
-    input_dto = GetByIdRequestInputDTO(
-        actor=actor,
-        id=uuid4(),
-    )
-
-    with pytest.raises(OrganizationalUnitNotFoundError):
-        use_case.execute(input_dto)
+        with pytest.raises(OrganizationalUnitNotFoundError):
+            use_case.execute(input_dto)

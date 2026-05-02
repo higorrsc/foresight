@@ -246,6 +246,46 @@ def default_tenant_id(default_tenant: TenantModel) -> str:
 
 
 @pytest.fixture(scope="function")
+def admin_role_model(
+    db_session_for_test: Session,
+    default_tenant: TenantModel,
+) -> RoleModel:
+    """
+    Provides the 'admin' RoleModel created by seeding.
+    """
+    role = (
+        db_session_for_test.query(RoleModel)
+        .filter_by(
+            name="admin",
+            tenant_id=default_tenant.id,
+        )
+        .first()
+    )
+    assert role is not None, "Seeding of 'admin' role failed."
+    return role
+
+
+@pytest.fixture(scope="function")
+def guest_role_model(
+    db_session_for_test: Session,
+    default_tenant: TenantModel,
+) -> RoleModel:
+    """
+    Provides the 'guest' RoleModel created by seeding.
+    """
+    role = (
+        db_session_for_test.query(RoleModel)
+        .filter_by(
+            name="guest",
+            tenant_id=default_tenant.id,
+        )
+        .first()
+    )
+    assert role is not None, "Seeding of 'guest' role failed."
+    return role
+
+
+@pytest.fixture(scope="function")
 def admin_role(admin_role_model: RoleModel) -> RoleEntity:
     """
     Returns the 'admin' Role (Domain Entity) to be used as an role in use cases.

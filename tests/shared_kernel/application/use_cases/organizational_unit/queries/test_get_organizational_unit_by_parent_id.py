@@ -12,70 +12,88 @@ from tests.fakes import OrganizationalUnitInMemoryRepository
 
 @pytest.fixture
 def repository():
+    """
+    Fixture for an OrganizationalUnitInMemoryRepository.
+    """
     return OrganizationalUnitInMemoryRepository()
 
 
 @pytest.fixture
 def use_case(repository):
+    """
+    Fixture for a GetOrganizationalUnitByParentIdUseCase.
+    """
     return GetOrganizationalUnitByParentIdUseCase(repository)
 
 
-def test_get_organizational_unit_by_parent_id_success(
-    use_case, repository, admin_actor
-):
-    parent_id = uuid4()
+class TestGetOrganizationalUnitByParentIdUseCase:
+    """
+    Test suite for the GetOrganizationalUnitByParentIdUseCase.
+    """
 
-    unit1 = OrganizationalUnit(
-        id=uuid4(),
-        tenant_id=admin_actor.tenant_id,
-        description="Child Unit 1",
-        code="CU001",
-        parent_id=parent_id,
-        created_by=admin_actor.id,
-        updated_by=admin_actor.id,
-    )
-    unit2 = OrganizationalUnit(
-        id=uuid4(),
-        tenant_id=admin_actor.tenant_id,
-        description="Child Unit 2",
-        code="CU002",
-        parent_id=parent_id,
-        created_by=admin_actor.id,
-        updated_by=admin_actor.id,
-    )
-    unit3 = OrganizationalUnit(
-        id=uuid4(),
-        tenant_id=admin_actor.tenant_id,
-        description="Other Unit",
-        code="OU001",
-        parent_id=uuid4(),
-        created_by=admin_actor.id,
-        updated_by=admin_actor.id,
-    )
+    def test_get_organizational_unit_by_parent_id_success(
+        self, use_case, repository, admin_actor
+    ):
+        """
+        Test successful retrieval of organizational units by their parent ID.
+        """
+        parent_id = uuid4()
 
-    repository.save(unit1)
-    repository.save(unit2)
-    repository.save(unit3)
+        unit1 = OrganizationalUnit(
+            id=uuid4(),
+            tenant_id=admin_actor.tenant_id,
+            description="Child Unit 1",
+            code="CU001",
+            parent_id=parent_id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        unit2 = OrganizationalUnit(
+            id=uuid4(),
+            tenant_id=admin_actor.tenant_id,
+            description="Child Unit 2",
+            code="CU002",
+            parent_id=parent_id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        unit3 = OrganizationalUnit(
+            id=uuid4(),
+            tenant_id=admin_actor.tenant_id,
+            description="Other Unit",
+            code="OU001",
+            parent_id=uuid4(),
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
 
-    input_dto = GetOrganizationalUnitByParentIdInputDTO(
-        actor=admin_actor,
-        parent_id=parent_id,
-    )
+        repository.save(unit1)
+        repository.save(unit2)
+        repository.save(unit3)
 
-    result = use_case.execute(input_dto)
+        input_dto = GetOrganizationalUnitByParentIdInputDTO(
+            actor=admin_actor,
+            parent_id=parent_id,
+        )
 
-    assert len(result) == 2
-    assert any(r.id == unit1.id for r in result)
-    assert any(r.id == unit2.id for r in result)
-    assert all(r.is_active is True for r in result)
+        result = use_case.execute(input_dto)
 
+        assert len(result) == 2
+        assert any(r.id == unit1.id for r in result)
+        assert any(r.id == unit2.id for r in result)
+        assert all(r.is_active is True for r in result)
 
-def test_get_organizational_unit_by_parent_id_empty(use_case, repository, admin_actor):
-    input_dto = GetOrganizationalUnitByParentIdInputDTO(
-        actor=admin_actor,
-        parent_id=uuid4(),
-    )
+    def test_get_organizational_unit_by_parent_id_empty(
+        self, use_case, repository, admin_actor
+    ):
+        """
+        Test that an empty list is returned when no organizational units have the given parent ID.
+        """
+        input_dto = GetOrganizationalUnitByParentIdInputDTO(
+            actor=admin_actor,
+            parent_id=uuid4(),
+        )
 
-    result = use_case.execute(input_dto)
+        result = use_case.execute(input_dto)
 
-    assert result == []
+        assert result == []

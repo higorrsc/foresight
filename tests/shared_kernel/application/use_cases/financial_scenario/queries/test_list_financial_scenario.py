@@ -7,58 +7,68 @@ from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 
-def test_list_financial_scenarios_success(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    scenario1 = FinancialScenario(
-        description="Scenario A",
-        scenario_type=ScenarioType.ACTUAL,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    scenario2 = FinancialScenario(
-        description="Scenario B",
-        scenario_type=ScenarioType.BUDGET,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    repository.save(scenario1)
-    repository.save(scenario2)
+class TestListFinancialScenarioUseCase:
+    """
+    Test suite for the ListFinancialScenarioUseCase.
+    """
 
-    use_case = ListFinancialScenarioUseCase(repository)
-    input_dto = ListRequestInputDTO(actor=admin_actor)
+    def test_list_financial_scenarios_success(self, admin_actor: User):
+        """
+        Test successful listing of financial scenarios.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        scenario1 = FinancialScenario(
+            description="Scenario A",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        scenario2 = FinancialScenario(
+            description="Scenario B",
+            scenario_type=ScenarioType.BUDGET,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        repository.save(scenario1)
+        repository.save(scenario2)
 
-    result = use_case.execute(input_dto)
+        use_case = ListFinancialScenarioUseCase(repository)
+        input_dto = ListRequestInputDTO(actor=admin_actor)
 
-    assert result.meta.total_items == 2
-    assert len(result.data) == 2
-    assert result.data[0].description == "Scenario A"
-    assert result.data[1].description == "Scenario B"
+        result = use_case.execute(input_dto)
 
+        assert result.meta.total_items == 2
+        assert len(result.data) == 2
+        assert result.data[0].description == "Scenario A"
+        assert result.data[1].description == "Scenario B"
 
-def test_list_financial_scenarios_filter_by_description(admin_actor: User):
-    repository = FinancialScenarioInMemoryRepository()
-    scenario1 = FinancialScenario(
-        description="Target",
-        scenario_type=ScenarioType.ACTUAL,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    scenario2 = FinancialScenario(
-        description="Other",
-        scenario_type=ScenarioType.BUDGET,
-        tenant_id=admin_actor.tenant_id,
-        assumptions=None,
-    )
-    repository.save(scenario1)
-    repository.save(scenario2)
+    def test_list_financial_scenarios_filter_by_description(self, admin_actor: User):
+        """
+        Test listing financial scenarios with a description filter.
+        """
+        repository = FinancialScenarioInMemoryRepository()
+        scenario1 = FinancialScenario(
+            description="Target",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        scenario2 = FinancialScenario(
+            description="Other",
+            scenario_type=ScenarioType.BUDGET,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        repository.save(scenario1)
+        repository.save(scenario2)
 
-    use_case = ListFinancialScenarioUseCase(repository)
-    input_dto = ListRequestInputDTO(
-        actor=admin_actor, filters={"description": "Target"}
-    )
+        use_case = ListFinancialScenarioUseCase(repository)
+        input_dto = ListRequestInputDTO(
+            actor=admin_actor, filters={"description": "Target"}
+        )
 
-    result = use_case.execute(input_dto)
+        result = use_case.execute(input_dto)
 
-    assert result.meta.total_items == 1
-    assert len(result.data) == 1
-    assert result.data[0].description == "Target"
+        assert result.meta.total_items == 1
+        assert len(result.data) == 1
+        assert result.data[0].description == "Target"
