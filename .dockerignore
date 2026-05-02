@@ -4,63 +4,86 @@
 # For more help, visit the .dockerignore file reference guide at
 # https://docs.docker.com/go/build-context-dockerignore/
 
-**/.DS_Store
-**/__pycache__
-**/.venv
-**/.classpath
-**/.dockerignore
-**/.env
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
-**/bin
-**/charts
-**/docker-compose*
-**/compose.y*ml
-**/Dockerfile*
-**/node_modules
-**/npm-debug.log
-**/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
-LICENSE
-README.md
-
 # Git
 .git
 .gitignore
 
 # Docker
-Dockerfile
-.dockerignore
+docker-compose*
+compose.y*ml
 
-# Ambiente Virtual e Dependências
-.venv
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.ruff_cache/
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Testes e Cobertura
-tests/
-htmlcov/
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / coverage
 .pytest_cache/
 .coverage*
-*.sqlite3*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
 
-# Configurações Locais
-.env
+# Type checker / linters
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs / databases
+*.log
+*.sqlite3
+*.sqlite3-journal
+
+# Node
+node_modules/
+npm-debug.log*
+
+# IDE / editors
 .vscode/
 .idea/
-
-# Ficheiros de OS/Editor
-*.DS_Store
 *.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Documentation build
+docs/_build/
+
+# Local configs
+local_settings.py
+
+# Temporary files
+.cache/
+tmp/
+temp/
+
+# Kubernetes / Helm
+charts/
+
+# Optional
+tests/
+README.md
+LICENSE
