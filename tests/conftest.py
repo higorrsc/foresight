@@ -21,7 +21,6 @@ from src.core.application.use_cases.queries import (
 )
 from src.core.domain import EntityNotFoundError
 from src.core.infrastructure.config import Base
-from src.core.infrastructure.db import seed_initial_data
 from src.core.infrastructure.repository import InMemoryRepository, SQLAlchemyRepository
 from src.identity_access_management.application.use_cases.permission.queries import (
     ListPermissionsUseCase,
@@ -69,6 +68,7 @@ from src.identity_access_management.infrastructure.repositories import (
     RoleRepository,
     UserRepository,
 )
+from src.scripts import seed_initial_data
 from src.shared_kernel.application.use_cases.area.commands import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
@@ -123,6 +123,7 @@ from src.tenant_management.infrastructure.models import TenantModel
 from tests.fakes import (
     AreaInMemoryRepository,
     DummyEntity,
+    FinancialScenarioInMemoryRepository,
     OrganizationalUnitInMemoryRepository,
     PermissionInMemoryRepository,
     PlanInMemoryRepository,
@@ -130,7 +131,6 @@ from tests.fakes import (
     TenantInMemoryRepository,
     UserInMemoryRepository,
 )
-from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 # --- ENVIRONMENT VARIABLE LOGIC ---
 

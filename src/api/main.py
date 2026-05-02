@@ -15,7 +15,7 @@ from src.api.routers.shared_kernel import (
 )
 from src.api.routers.tenant_management import plan_router, tenant_router
 from src.core.infrastructure.config import SessionLocal
-from src.core.infrastructure.db import seed_initial_data
+from src.scripts import seed_initial_data
 
 
 @asynccontextmanager

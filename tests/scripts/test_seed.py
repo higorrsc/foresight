@@ -1,15 +1,15 @@
 from sqlalchemy.orm import Session
 
-from src.core.infrastructure.db.seeding import seed_initial_data
 from src.identity_access_management.infrastructure.models import (
     PermissionModel,
     RoleModel,
     UserModel,
 )
+from src.scripts.seed import seed_initial_data
 from src.tenant_management.infrastructure.models import PlanModel, TenantModel
 
 
-class TestSeeding:
+class TestSeed:
     """
     Test suite for the database seeding process.
     """
