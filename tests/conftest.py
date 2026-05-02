@@ -42,7 +42,37 @@ else:
     SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_FILE_PATH}"
     print(f"\n--- Running tests with FILE database ({DB_FILE_PATH}) (from .env) ---")
 
-# --- END OF LOGIC ---
+from unittest.mock import MagicMock  # noqa: E402
+
+# ... (rest of imports)
+
+
+@pytest.fixture(autouse=True)
+def mock_email_validator(monkeypatch):
+    """
+    Mock email_validator.validate_email to bypass
+    DNS checks and return the input email as normalized.
+    """
+
+    def mock_validate(email, **kwargs):
+        mock_result = MagicMock()
+        mock_result.normalized = email
+        return mock_result
+
+    monkeypatch.setattr(
+        "src.identity_access_management.domain.entities.user.validate_email",
+        mock_validate,
+    )
+    return mock_validate
+
+
+@pytest.fixture
+def anyio_backend():
+    """
+    Fixture to specify the backend for anyio tests.
+    """
+    return "asyncio"
+
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
