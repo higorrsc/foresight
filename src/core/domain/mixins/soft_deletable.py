@@ -16,6 +16,9 @@ class SoftDeletableMixin:
         Soft delete the entity.
         """
 
+        if not self.is_active:
+            return
+
         self.is_active = False
         self.deleted_at = datetime.now(UTC)
 
@@ -23,6 +26,9 @@ class SoftDeletableMixin:
         """
         Restore the entity.
         """
+
+        if self.is_active:
+            return
 
         self.is_active = True
         self.deleted_at = None
