@@ -1,29 +1,9 @@
 from uuid import uuid4
 
-import pytest
-
 from src.shared_kernel.application.use_cases.organizational_unit.queries import (
     GetOrganizationalUnitByParentIdInputDTO,
-    GetOrganizationalUnitByParentIdUseCase,
 )
 from src.shared_kernel.domain.entities import OrganizationalUnit
-from tests.fakes import OrganizationalUnitInMemoryRepository
-
-
-@pytest.fixture
-def repository():
-    """
-    Fixture for an OrganizationalUnitInMemoryRepository.
-    """
-    return OrganizationalUnitInMemoryRepository()
-
-
-@pytest.fixture
-def use_case(repository):
-    """
-    Fixture for a GetOrganizationalUnitByParentIdUseCase.
-    """
-    return GetOrganizationalUnitByParentIdUseCase(repository)
 
 
 class TestGetOrganizationalUnitByParentIdUseCase:
@@ -32,7 +12,10 @@ class TestGetOrganizationalUnitByParentIdUseCase:
     """
 
     def test_get_organizational_unit_by_parent_id_success(
-        self, use_case, repository, admin_actor
+        self,
+        get_organizational_unit_by_parent_id_use_case,
+        organizational_unit_in_memory_repo,
+        admin_actor,
     ):
         """
         Test successful retrieval of organizational units by their parent ID.
@@ -67,16 +50,16 @@ class TestGetOrganizationalUnitByParentIdUseCase:
             updated_by=admin_actor.id,
         )
 
-        repository.save(unit1)
-        repository.save(unit2)
-        repository.save(unit3)
+        organizational_unit_in_memory_repo.save(unit1)
+        organizational_unit_in_memory_repo.save(unit2)
+        organizational_unit_in_memory_repo.save(unit3)
 
         input_dto = GetOrganizationalUnitByParentIdInputDTO(
             actor=admin_actor,
             parent_id=parent_id,
         )
 
-        result = use_case.execute(input_dto)
+        result = get_organizational_unit_by_parent_id_use_case.execute(input_dto)
 
         assert len(result) == 2
         assert any(r.id == unit1.id for r in result)
@@ -84,7 +67,7 @@ class TestGetOrganizationalUnitByParentIdUseCase:
         assert all(r.is_active is True for r in result)
 
     def test_get_organizational_unit_by_parent_id_empty(
-        self, use_case, repository, admin_actor
+        self, get_organizational_unit_by_parent_id_use_case, admin_actor
     ):
         """
         Test that an empty list is returned when no organizational units have the given parent ID.
@@ -94,6 +77,6 @@ class TestGetOrganizationalUnitByParentIdUseCase:
             parent_id=uuid4(),
         )
 
-        result = use_case.execute(input_dto)
+        result = get_organizational_unit_by_parent_id_use_case.execute(input_dto)
 
         assert result == []

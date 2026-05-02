@@ -12,7 +12,6 @@ from src.identity_access_management.application.use_cases.role.commands import (
     RestoreRoleUseCase,
 )
 from src.identity_access_management.domain.entities import Role
-from tests.fakes import RoleInMemoryRepository, UserInMemoryRepository
 
 
 class TestRestoreRoleUseCase:
@@ -20,38 +19,19 @@ class TestRestoreRoleUseCase:
     Test the RestoreRoleUseCase.
     """
 
-    @pytest.fixture
-    def role_in_memory_repository(self):
-        """
-        Fixture that represents an in-memory repository for testing purposes.
-        """
-
-        return RoleInMemoryRepository()
-
-    @pytest.fixture
-    def user_in_memory_repository(self):
-        """
-        Fixture that represents an in-memory repository for testing purposes.
-        """
-
-        return UserInMemoryRepository()
-
     def test_restore_role(
         self,
-        role_in_memory_repository,
-        user_in_memory_repository,
+        role_in_memory_repo,
+        user_in_memory_repo,
         admin_actor,
     ):
         """
         Test deleting an existing role.
         """
 
-        role_repo = role_in_memory_repository
-        user_repo = user_in_memory_repository
-
         delete_use_case = DeleteRoleUseCase(
-            role_repo,
-            user_repo,
+            role_in_memory_repo,
+            user_in_memory_repo,
         )
 
         role_to_delete = Role(
@@ -59,7 +39,7 @@ class TestRestoreRoleUseCase:
             description="Description",
             tenant_id=admin_actor.tenant_id,
         )
-        role_repo.save(role_to_delete)
+        role_in_memory_repo.save(role_to_delete)
 
         delete_use_case.execute(
             DeleteRequestInputDTO(
@@ -68,7 +48,7 @@ class TestRestoreRoleUseCase:
             )
         )
 
-        found_role = role_repo.get_by_id(
+        found_role = role_in_memory_repo.get_by_id(
             role_to_delete.id,
             admin_actor.tenant_id,
         )
@@ -76,7 +56,7 @@ class TestRestoreRoleUseCase:
         assert found_role.deleted_at is not None
 
         # Restore the role
-        restore_use_case = RestoreRoleUseCase(role_repo)
+        restore_use_case = RestoreRoleUseCase(role_in_memory_repo)
         restore_use_case.execute(
             RestoreRequestInputDTO(
                 id=role_to_delete.id,
@@ -84,7 +64,7 @@ class TestRestoreRoleUseCase:
             )
         )
 
-        found_role = role_repo.get_by_id(
+        found_role = role_in_memory_repo.get_by_id(
             role_to_delete.id,
             admin_actor.tenant_id,
         )
@@ -93,16 +73,14 @@ class TestRestoreRoleUseCase:
 
     def test_restore_non_existent_role_raises_error(
         self,
-        role_in_memory_repository,
+        role_in_memory_repo,
         admin_actor,
     ):
         """
         Test deleting a non-existent role raises RoleNotFoundError.
         """
 
-        role_repo = role_in_memory_repository
-
-        use_case = RestoreRoleUseCase(role_repo)
+        use_case = RestoreRoleUseCase(role_in_memory_repo)
 
         non_existent_id = uuid4()
         input_dto = RestoreRequestInputDTO(

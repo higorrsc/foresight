@@ -1,6 +1,8 @@
 import os
 from collections.abc import Generator
 from typing import Any
+from unittest.mock import AsyncMock, MagicMock, Mock  # noqa: E402
+from uuid import uuid4
 
 import pytest
 from dotenv import load_dotenv
@@ -9,17 +11,126 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, Pool, StaticPool
 
+from src.api.auth.local_provider import LocalAuthenticationProvider
 from src.api.dependencies import get_db_session
 from src.api.main import app
+from src.core.application.use_cases.commands import GenericDeleteUseCase
+from src.core.application.use_cases.queries import (
+    GenericGetByIdUseCase,
+    GenericListUseCase,
+)
+from src.core.domain import EntityNotFoundError
 from src.core.infrastructure.config import Base
 from src.core.infrastructure.db import seed_initial_data
+from src.core.infrastructure.repository import InMemoryRepository, SQLAlchemyRepository
+from src.identity_access_management.application.use_cases.permission.queries import (
+    ListPermissionsUseCase,
+)
+from src.identity_access_management.application.use_cases.role.commands import (
+    CreateRoleUseCase,
+    SetRolePermissionsUseCase,
+)
+from src.identity_access_management.application.use_cases.role.commands import (
+    DeleteRoleUseCase as DeleteRoleUseCase_IAM,
+)
+from src.identity_access_management.application.use_cases.role.commands import (
+    RestoreRoleUseCase as RestoreRoleUseCase_IAM,
+)
+from src.identity_access_management.application.use_cases.role.commands import (
+    UpdateRoleUseCase as UpdateRoleUseCase_IAM,
+)
+from src.identity_access_management.application.use_cases.role.queries import (
+    GetRoleByIdUseCase,
+    ListRoleUseCase,
+)
+from src.identity_access_management.application.use_cases.user.commands import (
+    AuthenticateUserUseCase,
+    ChangePasswordUseCase,
+    CreateUserUseCase,
+    DeleteUserUseCase,
+    OnboardingUseCase,
+    RestoreUserUseCase,
+    SetUserPermissionsUseCase,
+    SetUserRolesUseCase,
+    UpdateUserProfileUseCase,
+)
+from src.identity_access_management.application.use_cases.user.queries import (
+    GetUserByIdUseCase,
+    ListUserUseCase,
+)
+from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role as RoleEntity
+from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.entities import User as UserEntity
 from src.identity_access_management.infrastructure.mappers import RoleMapper, UserMapper
 from src.identity_access_management.infrastructure.models import RoleModel, UserModel
-
-# Imports needed for new data fixtures
+from src.identity_access_management.infrastructure.repositories import (
+    PermissionRepository,
+    RoleRepository,
+    UserRepository,
+)
+from src.shared_kernel.application.use_cases.area.commands import (
+    CreateAreaUseCase,
+    DeleteAreaUseCase,
+    RestoreAreaUseCase,
+    UpdateAreaUseCase,
+)
+from src.shared_kernel.application.use_cases.area.queries import (
+    GetAreaByIdUseCase,
+    ListAreaUseCase,
+)
+from src.shared_kernel.application.use_cases.financial_scenario.commands import (
+    CreateFinancialScenarioUseCase,
+    DeleteFinancialScenarioUseCase,
+    LockFinancialScenarioUseCase,
+    RestoreFinancialScenarioUseCase,
+    UnlockFinancialScenarioUseCase,
+    UpdateFinancialScenarioUseCase,
+)
+from src.shared_kernel.application.use_cases.financial_scenario.queries import (
+    GetFinancialScenarioByIdUseCase,
+    ListFinancialScenarioUseCase,
+)
+from src.shared_kernel.application.use_cases.organizational_unit.commands import (
+    CreateOrganizationalUnitUseCase,
+    DeleteOrganizationalUnitUseCase,
+    RestoreOrganizationalUnitUseCase,
+    UpdateOrganizationalUnitUseCase,
+)
+from src.shared_kernel.application.use_cases.organizational_unit.queries import (
+    GetOrganizationalUnitByIdUseCase,
+    GetOrganizationalUnitByParentIdUseCase,
+    ListOrganizationalUnitUseCase,
+)
+from src.shared_kernel.infrastructure.mappers import (
+    AreaMapper,
+)
+from src.shared_kernel.infrastructure.models import AreaModel
+from src.shared_kernel.infrastructure.repositories import (
+    OrganizationalUnitRepository,
+)
+from src.tenant_management.application.use_cases.plan.commands import CreatePlanUseCase
+from src.tenant_management.application.use_cases.plan.queries import ListPlansUseCase
+from src.tenant_management.application.use_cases.tenant.commands import (
+    UpdateTenantStatusUseCase,
+)
+from src.tenant_management.application.use_cases.tenant.queries import (
+    ListTenantsUseCase,
+)
+from src.tenant_management.domain.entities import Tenant
+from src.tenant_management.domain.value_objects import TenantStatus
 from src.tenant_management.infrastructure.models import TenantModel
+from tests.fakes import (
+    AreaInMemoryRepository,
+    DummyEntity,
+    OrganizationalUnitInMemoryRepository,
+    PermissionInMemoryRepository,
+    PlanInMemoryRepository,
+    RoleInMemoryRepository,
+    TenantInMemoryRepository,
+    UserInMemoryRepository,
+)
+from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 # --- ENVIRONMENT VARIABLE LOGIC ---
 
@@ -41,10 +152,6 @@ if USE_IN_MEMORY_DB:
 else:
     SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_FILE_PATH}"
     print(f"\n--- Running tests with FILE database ({DB_FILE_PATH}) (from .env) ---")
-
-from unittest.mock import MagicMock  # noqa: E402
-
-# ... (rest of imports)
 
 
 @pytest.fixture(autouse=True)
@@ -301,3 +408,529 @@ def guest_role(guest_role_model: RoleModel) -> RoleEntity:
     """
 
     return RoleMapper.to_entity(guest_role_model)
+
+
+# --- CONSOLIDATED FIXTURES ---
+
+
+# API Auth Dependency Fixtures
+@pytest.fixture
+def auth_dependency_mock_session():
+    """
+    Fixture for a mock database session.
+    """
+    return Mock()
+
+
+@pytest.fixture
+def auth_dependency_mock_provider():
+    """
+    Fixture for a mock authentication provider.
+    """
+    provider = Mock()
+    provider.get_user_from_token = AsyncMock()
+    return provider
+
+
+# API Authorization Dependency Fixtures
+@pytest.fixture
+def authorization_dependency_mock_user():
+    """
+    Fixture for a mock user.
+    """
+    return Mock(spec=User)
+
+
+# API Local Provider Fixtures
+@pytest.fixture
+def local_auth_provider_mock_repo():
+    """
+    Fixture for a mock repository.
+    """
+    return Mock()
+
+
+@pytest.fixture
+def local_auth_provider(local_auth_provider_mock_repo):
+    """
+    Fixture for the LocalAuthenticationProvider.
+    """
+    return LocalAuthenticationProvider(local_auth_provider_mock_repo)
+
+
+# Core Repository Fixtures
+@pytest.fixture
+def sqlalchemy_area_repository(db_session_for_test):
+    """
+    Fixture to provide a repository instance for testing.
+    """
+    return SQLAlchemyRepository(
+        db_session_for_test,
+        AreaModel,
+        AreaMapper(),
+    )
+
+
+@pytest.fixture
+def dummy_in_memory_repository():
+    """
+    Fixture for an in-memory repository.
+    """
+    return InMemoryRepository()
+
+
+# Core Generic Use Case Fixtures
+@pytest.fixture
+def generic_delete_entity_id():
+    """
+    Fixture for an entity ID.
+    """
+    return uuid4()
+
+
+@pytest.fixture
+def generic_delete_use_case(dummy_in_memory_repository, generic_delete_entity_id):
+    """
+    Fixture for a delete use case.
+    """
+    return GenericDeleteUseCase[DummyEntity](
+        dummy_in_memory_repository,
+        AppPermission.USER_DELETE,
+        EntityNotFoundError,
+        f"DummyEntity with id={generic_delete_entity_id} not found",
+    )
+
+
+@pytest.fixture
+def generic_get_by_id_use_case(dummy_in_memory_repository):
+    """
+    Fixture for a get by id use case.
+    """
+    return GenericGetByIdUseCase[DummyEntity](
+        dummy_in_memory_repository,
+        AppPermission.USER_READ,
+        EntityNotFoundError,
+        "DummyEntity with id={id} not found",
+    )
+
+
+@pytest.fixture
+def generic_list_use_case(dummy_in_memory_repository):
+    """
+    Fixture for a list use case.
+    """
+    return GenericListUseCase[DummyEntity](
+        dummy_in_memory_repository,
+        AppPermission.USER_READ,
+    )
+
+
+# --- COMMON REPOSITORY FIXTURES ---
+
+
+@pytest.fixture
+def user_in_memory_repo():
+    """Fixture that returns a UserInMemoryRepository."""
+    return UserInMemoryRepository()
+
+
+@pytest.fixture
+def role_in_memory_repo():
+    """Fixture that returns a RoleInMemoryRepository."""
+    return RoleInMemoryRepository()
+
+
+@pytest.fixture
+def permission_in_memory_repo():
+    """Fixture that returns a PermissionInMemoryRepository."""
+    return PermissionInMemoryRepository()
+
+
+@pytest.fixture
+def plan_in_memory_repo():
+    """Fixture that returns a PlanInMemoryRepository."""
+    return PlanInMemoryRepository()
+
+
+@pytest.fixture
+def tenant_in_memory_repo():
+    """Fixture that returns a TenantInMemoryRepository."""
+    return TenantInMemoryRepository()
+
+
+@pytest.fixture
+def area_in_memory_repo():
+    """Fixture that returns an AreaInMemoryRepository."""
+    return AreaInMemoryRepository()
+
+
+@pytest.fixture
+def financial_scenario_in_memory_repo():
+    """Fixture that returns a FinancialScenarioInMemoryRepository."""
+    return FinancialScenarioInMemoryRepository()
+
+
+@pytest.fixture
+def organizational_unit_in_memory_repo():
+    """Fixture that returns an OrganizationalUnitInMemoryRepository."""
+    return OrganizationalUnitInMemoryRepository()
+
+
+@pytest.fixture(scope="function")
+def permission_sqlalchemy_repo(db_session_for_test):
+    """Fixture that returns a PermissionRepository."""
+    return PermissionRepository(db_session_for_test)
+
+
+@pytest.fixture(scope="function")
+def user_sqlalchemy_repo(db_session_for_test):
+    """Fixture that returns a UserRepository."""
+    return UserRepository(db_session_for_test)
+
+
+@pytest.fixture(scope="function")
+def role_sqlalchemy_repo(db_session_for_test):
+    """Fixture that returns a RoleRepository."""
+    return RoleRepository(db_session_for_test)
+
+
+# --- IAM USER USE CASE FIXTURES ---
+
+
+@pytest.fixture
+def authenticate_user_use_case(user_in_memory_repo):
+    """Fixture for AuthenticateUserUseCase."""
+    return AuthenticateUserUseCase(repository=user_in_memory_repo)
+
+
+@pytest.fixture
+def update_user_profile_use_case(user_in_memory_repo):
+    """Fixture for UpdateUserProfileUseCase."""
+    return UpdateUserProfileUseCase(user_in_memory_repo)
+
+
+@pytest.fixture
+def create_user_use_case(user_in_memory_repo, role_in_memory_repo):
+    """Fixture for CreateUserUseCase."""
+    return CreateUserUseCase(user_in_memory_repo, role_in_memory_repo)
+
+
+@pytest.fixture
+def restore_user_use_case(user_in_memory_repo):
+    """Fixture for RestoreUserUseCase."""
+    return RestoreUserUseCase(repository=user_in_memory_repo)
+
+
+@pytest.fixture
+def set_user_roles_use_case(user_in_memory_repo, role_in_memory_repo):
+    """Fixture for SetUserRolesUseCase."""
+    return SetUserRolesUseCase(
+        user_repository=user_in_memory_repo, role_repository=role_in_memory_repo
+    )
+
+
+@pytest.fixture
+def delete_user_use_case(user_in_memory_repo):
+    """Fixture for DeleteUserUseCase."""
+    return DeleteUserUseCase(repository=user_in_memory_repo)
+
+
+@pytest.fixture
+def change_password_use_case(user_in_memory_repo):
+    """Fixture for ChangePasswordUseCase."""
+    return ChangePasswordUseCase(user_in_memory_repo)
+
+
+@pytest.fixture
+def get_user_by_id_use_case(user_in_memory_repo):
+    """Fixture for GetUserByIdUseCase."""
+    return GetUserByIdUseCase(repository=user_in_memory_repo)
+
+
+@pytest.fixture
+def list_user_use_case(user_in_memory_repo):
+    """Fixture for ListUserUseCase."""
+    return ListUserUseCase(repository=user_in_memory_repo)
+
+
+@pytest.fixture
+def set_user_permissions_use_case(user_in_memory_repo, permission_in_memory_repo):
+    """Fixture for SetUserPermissionsUseCase."""
+    return SetUserPermissionsUseCase(
+        user_repository=user_in_memory_repo,
+        permission_repository=permission_in_memory_repo,
+    )
+
+
+@pytest.fixture
+def onboarding_use_case(
+    plan_in_memory_repo,
+    tenant_in_memory_repo,
+    role_in_memory_repo,
+    user_in_memory_repo,
+    permission_in_memory_repo,
+):
+    """Fixture for OnboardingUseCase."""
+    return OnboardingUseCase(
+        plan_repository=plan_in_memory_repo,
+        tenant_repository=tenant_in_memory_repo,
+        role_repository=role_in_memory_repo,
+        user_repository=user_in_memory_repo,
+        permission_repository=permission_in_memory_repo,
+    )
+
+
+# --- SHARED KERNEL USE CASE FIXTURES ---
+
+
+@pytest.fixture
+def create_area_use_case(area_in_memory_repo):
+    """Fixture for CreateAreaUseCase."""
+    return CreateAreaUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def delete_area_use_case(area_in_memory_repo):
+    """Fixture for DeleteAreaUseCase."""
+    return DeleteAreaUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def restore_area_use_case(area_in_memory_repo):
+    """Fixture for RestoreAreaUseCase."""
+    return RestoreAreaUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def update_area_use_case(area_in_memory_repo):
+    """Fixture for UpdateAreaUseCase."""
+    return UpdateAreaUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def get_area_by_id_use_case(area_in_memory_repo):
+    """Fixture for GetAreaByIdUseCase."""
+    return GetAreaByIdUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def list_area_use_case(area_in_memory_repo):
+    """Fixture for ListAreaUseCase."""
+    return ListAreaUseCase(area_in_memory_repo)
+
+
+@pytest.fixture
+def create_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for CreateFinancialScenarioUseCase."""
+    return CreateFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def delete_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for DeleteFinancialScenarioUseCase."""
+    return DeleteFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def lock_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for LockFinancialScenarioUseCase."""
+    return LockFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def restore_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for RestoreFinancialScenarioUseCase."""
+    return RestoreFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def unlock_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for UnlockFinancialScenarioUseCase."""
+    return UnlockFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def update_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for UpdateFinancialScenarioUseCase."""
+    return UpdateFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def get_financial_scenario_by_id_use_case(financial_scenario_in_memory_repo):
+    """Fixture for GetFinancialScenarioByIdUseCase."""
+    return GetFinancialScenarioByIdUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def list_financial_scenario_use_case(financial_scenario_in_memory_repo):
+    """Fixture for ListFinancialScenarioUseCase."""
+    return ListFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+
+
+@pytest.fixture
+def create_organizational_unit_use_case(organizational_unit_in_memory_repo):
+    """Fixture for CreateOrganizationalUnitUseCase."""
+    return CreateOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def delete_organizational_unit_use_case(organizational_unit_in_memory_repo):
+    """Fixture for DeleteOrganizationalUnitUseCase."""
+    return DeleteOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def restore_organizational_unit_use_case(organizational_unit_in_memory_repo):
+    """Fixture for RestoreOrganizationalUnitUseCase."""
+    return RestoreOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def update_organizational_unit_use_case(organizational_unit_in_memory_repo):
+    """Fixture for UpdateOrganizationalUnitUseCase."""
+    return UpdateOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def get_organizational_unit_by_id_use_case(organizational_unit_in_memory_repo):
+    """Fixture for GetOrganizationalUnitByIdUseCase."""
+    return GetOrganizationalUnitByIdUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def get_organizational_unit_by_parent_id_use_case(organizational_unit_in_memory_repo):
+    """Fixture for GetOrganizationalUnitByParentIdUseCase."""
+    return GetOrganizationalUnitByParentIdUseCase(organizational_unit_in_memory_repo)
+
+
+@pytest.fixture
+def list_organizational_unit_use_case(organizational_unit_in_memory_repo):
+    """Fixture for ListOrganizationalUnitUseCase."""
+    return ListOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
+
+
+# --- TENANT MANAGEMENT USE CASE FIXTURES ---
+
+
+@pytest.fixture
+def create_plan_use_case(plan_in_memory_repo):
+    """Fixture for CreatePlanUseCase."""
+    return CreatePlanUseCase(plan_in_memory_repo)
+
+
+@pytest.fixture
+def list_plans_use_case(plan_in_memory_repo):
+    """Fixture for ListPlansUseCase."""
+    return ListPlansUseCase(plan_in_memory_repo)
+
+
+@pytest.fixture
+def update_tenant_status_use_case(tenant_in_memory_repo):
+    """Fixture for UpdateTenantStatusUseCase."""
+    return UpdateTenantStatusUseCase(tenant_in_memory_repo)
+
+
+@pytest.fixture
+def list_tenants_use_case(tenant_in_memory_repo):
+    """Fixture for ListTenantsUseCase."""
+    return ListTenantsUseCase(tenant_in_memory_repo)
+
+
+# --- GENERIC MOCK FIXTURES ---
+
+
+@pytest.fixture
+def mock_user_repository():
+    """Fixture that returns a mock user repository."""
+    return Mock()
+
+
+@pytest.fixture
+def mock_role_repository():
+    """Fixture that returns a mock role repository."""
+    return Mock()
+
+
+@pytest.fixture
+def mock_permission_repository():
+    """Fixture that returns a mock permission repository."""
+    return Mock()
+
+
+# --- IAM ROLE AND PERMISSION USE CASE FIXTURES ---
+
+
+@pytest.fixture
+def create_role_use_case(role_in_memory_repo, permission_in_memory_repo):
+    """Fixture for CreateRoleUseCase."""
+    return CreateRoleUseCase(role_in_memory_repo, permission_in_memory_repo)
+
+
+@pytest.fixture
+def delete_role_use_case_iam(role_in_memory_repo, user_in_memory_repo):
+    """Fixture for DeleteRoleUseCase (IAM)."""
+    return DeleteRoleUseCase_IAM(role_in_memory_repo, user_in_memory_repo)
+
+
+@pytest.fixture
+def restore_role_use_case_iam(role_in_memory_repo):
+    """Fixture for RestoreRoleUseCase (IAM)."""
+    return RestoreRoleUseCase_IAM(role_in_memory_repo)
+
+
+@pytest.fixture
+def update_role_use_case_iam(role_in_memory_repo):
+    """Fixture for UpdateRoleUseCase (IAM)."""
+    return UpdateRoleUseCase_IAM(repository=role_in_memory_repo)
+
+
+@pytest.fixture
+def get_role_by_id_use_case(role_in_memory_repo):
+    """Fixture for GetRoleByIdUseCase."""
+    return GetRoleByIdUseCase(repository=role_in_memory_repo)
+
+
+@pytest.fixture
+def list_role_use_case(role_in_memory_repo):
+    """Fixture for ListRoleUseCase."""
+    return ListRoleUseCase(repository=role_in_memory_repo)
+
+
+@pytest.fixture
+def set_role_permissions_use_case(role_in_memory_repo, permission_in_memory_repo):
+    """Fixture for SetRolePermissionsUseCase."""
+    return SetRolePermissionsUseCase(role_in_memory_repo, permission_in_memory_repo)
+
+
+@pytest.fixture
+def list_permissions_use_case(permission_in_memory_repo):
+    """Fixture for ListPermissionsUseCase."""
+    return ListPermissionsUseCase(repository=permission_in_memory_repo)
+
+
+# --- REMAINING SPECIFIC FIXTURES ---
+
+
+@pytest.fixture
+def mock_tenant_entity():
+    """Provides a valid Tenant entity mock for tests."""
+    tenant = Mock(spec=Tenant)
+    tenant.id = uuid4()
+    tenant.name = "Test Tenant"
+    tenant.plan_id = uuid4()
+    tenant.status = TenantStatus.ACTIVE
+    return tenant
+
+
+@pytest.fixture(scope="function")
+def organizational_unit_sqlalchemy_repo(db_session_for_test):
+    """Fixture that returns an OrganizationalUnitRepository."""
+    return OrganizationalUnitRepository(
+        session=db_session_for_test,
+    )
+
+
+@pytest.fixture
+def create_user_use_case_mocked(mock_user_repository, mock_role_repository):
+    """Fixture for CreateUserUseCase initialized with mock repositories."""
+    return CreateUserUseCase(mock_user_repository, mock_role_repository)

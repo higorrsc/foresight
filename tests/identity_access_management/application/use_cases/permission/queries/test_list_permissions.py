@@ -1,29 +1,5 @@
-import pytest
-
 from src.core.application.use_cases.queries import ListRequestInputDTO
-from src.identity_access_management.application.use_cases.permission.queries import (
-    ListPermissionsUseCase,
-)
 from src.identity_access_management.domain.entities import Permission, User
-from tests.fakes import PermissionInMemoryRepository
-
-
-@pytest.fixture
-def permission_repo():
-    """
-    Fixture that returns a PermissionInMemoryRepository.
-    """
-
-    return PermissionInMemoryRepository()
-
-
-@pytest.fixture
-def list_permissions_use_case(permission_repo):
-    """
-    Fixture that returns a ListPermissionsUseCase.
-    """
-
-    return ListPermissionsUseCase(repository=permission_repo)
 
 
 class TestListPermissionsUseCase:
@@ -34,7 +10,7 @@ class TestListPermissionsUseCase:
     def test_should_return_all_permissions(
         self,
         list_permissions_use_case,
-        permission_repo,
+        permission_in_memory_repo,
         admin_actor: User,
     ):
         """
@@ -47,7 +23,7 @@ class TestListPermissionsUseCase:
         ]
 
         for p in perms:
-            permission_repo.save(p)
+            permission_in_memory_repo.save(p)
 
         input_dto = ListRequestInputDTO(actor=admin_actor)
         result = list_permissions_use_case.execute(input_dto)

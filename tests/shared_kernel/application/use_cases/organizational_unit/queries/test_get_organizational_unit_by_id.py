@@ -9,46 +9,10 @@ from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
 from src.identity_access_management.domain.constants import AppPermission
-from src.identity_access_management.domain.entities import User
 from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
     OrganizationalUnitNotFoundError,
 )
-from src.shared_kernel.application.use_cases.organizational_unit.queries import (
-    GetOrganizationalUnitByIdUseCase,
-)
 from src.shared_kernel.domain.entities import OrganizationalUnit
-from tests.fakes.in_memory_repository import OrganizationalUnitInMemoryRepository
-
-
-@pytest.fixture
-def repository():
-    """
-    Fixture for an OrganizationalUnitInMemoryRepository.
-    """
-    return OrganizationalUnitInMemoryRepository()
-
-
-@pytest.fixture
-def use_case(repository):
-    """
-    Fixture for a GetOrganizationalUnitByIdUseCase.
-    """
-    return GetOrganizationalUnitByIdUseCase(repository)
-
-
-@pytest.fixture
-def actor():
-    """
-    Fixture for a mock actor (User) with read permissions.
-    """
-    return User(
-        id=uuid4(),
-        username="test_user",
-        email="test@example.com",
-        hashed_password="hashed_password",
-        tenant_id=uuid4(),
-        permissions=[AppPermission.ORGANIZATIONAL_UNIT_READ],  # type: ignore
-    )
 
 
 class TestGetOrganizationalUnitByIdUseCase:
@@ -56,45 +20,50 @@ class TestGetOrganizationalUnitByIdUseCase:
     Test suite for the GetOrganizationalUnitByIdUseCase.
     """
 
-    def test_get_organizational_unit_by_id_success(self, use_case, repository, actor):
+    def test_get_organizational_unit_by_id_success(
+        self,
+        get_organizational_unit_by_id_use_case,
+        organizational_unit_in_memory_repo,
+        admin_actor,
+    ):
         """
         Test successful retrieval of an organizational unit by its ID.
         """
+        admin_actor.permissions.add(AppPermission.ORGANIZATIONAL_UNIT_READ)
+
         entity_id = uuid4()
         entity = OrganizationalUnit(
             id=entity_id,
-            tenant_id=actor.tenant_id,
+            tenant_id=admin_actor.tenant_id,
             description="Test Unit",
             code="TU001",
-            created_by=actor.id,
-            updated_by=actor.id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
         )
-        repository.save(entity)
+        organizational_unit_in_memory_repo.save(entity)
 
         input_dto = GetByIdRequestInputDTO(
-            actor=actor,
+            actor=admin_actor,
             id=entity_id,
         )
 
-        result = use_case.execute(input_dto)
+        result = get_organizational_unit_by_id_use_case.execute(input_dto)
 
         assert result == entity
         assert result.id == entity_id
 
     def test_get_organizational_unit_by_id_insufficient_permission(
-        self, use_case, actor
+        self, get_organizational_unit_by_id_use_case, admin_actor
     ):
         """
         Test that retrieval fails when the actor has insufficient permissions.
         """
-        actor_no_perm = User(
-            id=uuid4(),
-            username="no_perm",
-            email="no_perm@example.com",
-            hashed_password="hashed_password",
-            tenant_id=actor.tenant_id,
-            permissions=[],  # type: ignore
-        )
+        # Create an actor without the required permission
+        from copy import deepcopy
+
+        actor_no_perm = deepcopy(admin_actor)
+        if AppPermission.ORGANIZATIONAL_UNIT_READ in actor_no_perm.permissions:
+            actor_no_perm.permissions.remove(AppPermission.ORGANIZATIONAL_UNIT_READ)
 
         input_dto = GetByIdRequestInputDTO(
             actor=actor_no_perm,
@@ -102,16 +71,20 @@ class TestGetOrganizationalUnitByIdUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            use_case.execute(input_dto)
+            get_organizational_unit_by_id_use_case.execute(input_dto)
 
-    def test_get_organizational_unit_by_id_not_found(self, use_case, actor):
+    def test_get_organizational_unit_by_id_not_found(
+        self, get_organizational_unit_by_id_use_case, admin_actor
+    ):
         """
         Test that retrieval fails when the organizational unit is not found.
         """
+        admin_actor.permissions.add(AppPermission.ORGANIZATIONAL_UNIT_READ)
+
         input_dto = GetByIdRequestInputDTO(
-            actor=actor,
+            actor=admin_actor,
             id=uuid4(),
         )
 
         with pytest.raises(OrganizationalUnitNotFoundError):
-            use_case.execute(input_dto)
+            get_organizational_unit_by_id_use_case.execute(input_dto)

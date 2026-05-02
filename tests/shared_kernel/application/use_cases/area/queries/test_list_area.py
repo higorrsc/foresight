@@ -1,8 +1,6 @@
 from src.core.application.dto import PaginatedResponseDTO
 from src.core.application.use_cases.queries import ListRequestInputDTO
-from src.shared_kernel.application.use_cases.area.queries import ListAreaUseCase
 from src.shared_kernel.domain.entities import Area
-from tests.fakes import AreaInMemoryRepository
 
 
 class TestListArea:
@@ -10,13 +8,10 @@ class TestListArea:
     Test the ListArea use case.
     """
 
-    def test_list_areas(self, admin_actor):
+    def test_list_areas(self, admin_actor, area_in_memory_repo, list_area_use_case):
         """
         Test listing areas.
         """
-
-        repository = AreaInMemoryRepository()
-        use_case = ListAreaUseCase(repository)
 
         area1 = Area(
             description="Area 1",
@@ -27,10 +22,10 @@ class TestListArea:
             tenant_id=admin_actor.tenant_id,
         )
 
-        repository.save(area1)
-        repository.save(area2)
+        area_in_memory_repo.save(area1)
+        area_in_memory_repo.save(area2)
 
-        areas: PaginatedResponseDTO[Area] = use_case.execute(
+        areas: PaginatedResponseDTO[Area] = list_area_use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 
@@ -40,15 +35,12 @@ class TestListArea:
         assert areas.data[1].id is not None
         assert areas.data[1].description == "Area 2"
 
-    def test_empty_list_area(self, admin_actor):
+    def test_empty_list_area(self, admin_actor, list_area_use_case):
         """
         Test listing areas when there are no areas.
         """
 
-        repository = AreaInMemoryRepository()
-        use_case = ListAreaUseCase(repository)
-
-        areas: PaginatedResponseDTO[Area] = use_case.execute(
+        areas: PaginatedResponseDTO[Area] = list_area_use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 

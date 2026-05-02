@@ -10,54 +10,10 @@ from src.identity_access_management.domain.constants import AppPermission
 from src.tenant_management.application.use_cases.tenant import TenantNotFoundError
 from src.tenant_management.application.use_cases.tenant.commands import (
     UpdateTenantStatusInputDTO,
-    UpdateTenantStatusUseCase,
 )
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.entities.plan import Plan
 from src.tenant_management.domain.value_objects import TenantStatus
-from tests.fakes import PlanInMemoryRepository, TenantInMemoryRepository
-
-
-@pytest.fixture
-def plan_repo():
-    """
-    Fixture for PlanInMemoryRepository.
-    """
-
-    return PlanInMemoryRepository(
-        [
-            Plan(
-                name="Pro Plan",
-                price=Decimal(99.90),
-            ),
-            Plan(
-                name="Light Plan",
-                price=Decimal(9.90),
-            ),
-            Plan(
-                name="Free Plan",
-                price=Decimal(0.01),
-            ),
-        ]
-    )
-
-
-@pytest.fixture
-def tenant_repo():
-    """
-    Fixture for TenantInMemoryRepository.
-    """
-
-    return TenantInMemoryRepository()
-
-
-@pytest.fixture
-def update_tenant_status_use_case(tenant_repo):
-    """
-    Fixture for UpdateTenantStatusUseCase.
-    """
-
-    return UpdateTenantStatusUseCase(tenant_repo)
 
 
 class TestUpdateTenantStatusUseCase:
@@ -68,21 +24,25 @@ class TestUpdateTenantStatusUseCase:
     def test_user_with_permission_can_update_tenant_status(
         self,
         update_tenant_status_use_case,
-        tenant_repo,
+        tenant_in_memory_repo,
         admin_actor,
-        plan_repo,
+        plan_in_memory_repo,
     ):
         """
         Test if a user with TENANT_UPDATE permission can update a tenant's status.
         """
+        # Pre-seed plan repo
+        plan_in_memory_repo.save(Plan(name="Pro Plan", price=Decimal(99.90)))
+        plan_in_memory_repo.save(Plan(name="Light Plan", price=Decimal(9.90)))
+        plan_in_memory_repo.save(Plan(name="Free Plan", price=Decimal(0.01)))
 
-        plans = plan_repo.search(tenant_id=None).data
+        plans = plan_in_memory_repo.search(tenant_id=None).data
         tenant = Tenant(
             name="Test Tenant",
             created_by=admin_actor.id,
             plan_id=plans[0].id,
         )
-        tenant_repo.save(tenant)
+        tenant_in_memory_repo.save(tenant)
 
         admin_actor.permissions.add(AppPermission.TENANT_UPDATE)
         input_dto = UpdateTenantStatusInputDTO(
@@ -93,7 +53,7 @@ class TestUpdateTenantStatusUseCase:
 
         update_tenant_status_use_case.execute(input_dto)
 
-        updated_tenant = tenant_repo.get_by_id_global(tenant.id)
+        updated_tenant = tenant_in_memory_repo.get_by_id_global(tenant.id)
         assert updated_tenant is not None
         assert updated_tenant.status == TenantStatus.INACTIVE
         assert updated_tenant.updated_by == admin_actor.id

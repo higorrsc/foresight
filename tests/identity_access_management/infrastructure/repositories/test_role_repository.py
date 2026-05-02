@@ -1,15 +1,4 @@
-import pytest
-
 from src.identity_access_management.domain.entities import Role
-from src.identity_access_management.infrastructure.repositories import RoleRepository
-
-
-@pytest.fixture(scope="function")
-def role_repository(db_session_for_test):
-    """
-    Create a RoleRepository instance for testing.
-    """
-    return RoleRepository(db_session_for_test)
 
 
 class TestRoleRepository:
@@ -19,7 +8,7 @@ class TestRoleRepository:
 
     def test_save_and_get_by_id(
         self,
-        role_repository,
+        role_sqlalchemy_repo,
         default_tenant_id,
     ):
         """
@@ -31,12 +20,12 @@ class TestRoleRepository:
             description="Administrator role",
             tenant_id=default_tenant_id,
         )
-        saved_role = role_repository.save(role)
+        saved_role = role_sqlalchemy_repo.save(role)
 
         assert saved_role is not None
         assert saved_role.id == role.id
 
-        found_role = role_repository.get_by_id(
+        found_role = role_sqlalchemy_repo.get_by_id(
             entity_id=saved_role.id,
             tenant_id=default_tenant_id,
         )
@@ -45,7 +34,7 @@ class TestRoleRepository:
 
     def test_get_by_name_found(
         self,
-        role_repository,
+        role_sqlalchemy_repo,
         default_tenant_id,
     ):
         """
@@ -57,9 +46,9 @@ class TestRoleRepository:
             description="Viewer role",
             tenant_id=default_tenant_id,
         )
-        role_repository.save(role)
+        role_sqlalchemy_repo.save(role)
 
-        found_role = role_repository.get_by_name(
+        found_role = role_sqlalchemy_repo.get_by_name(
             name="viewer",
             tenant_id=default_tenant_id,
         )
@@ -70,14 +59,14 @@ class TestRoleRepository:
 
     def test_get_by_name_not_found(
         self,
-        role_repository,
+        role_sqlalchemy_repo,
         default_tenant_id,
     ):
         """
         Test retrieving a role by name when it does not exist.
         """
 
-        found_role = role_repository.get_by_name(
+        found_role = role_sqlalchemy_repo.get_by_name(
             name="non_existent_role",
             tenant_id=default_tenant_id,
         )

@@ -7,37 +7,8 @@ from src.identity_access_management.application.use_cases.role import InvalidRol
 from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleOutputDTO,
-    CreateRoleUseCase,
 )
 from src.identity_access_management.domain.entities.permission import Permission
-from src.identity_access_management.domain.repositories import (
-    IPermissionRepository,
-    IRoleRepository,
-)
-from tests.fakes import PermissionInMemoryRepository, RoleInMemoryRepository
-
-
-@pytest.fixture()
-def role_repository() -> IRoleRepository:
-    """
-    Fixture that represents an in-memory repository for testing purposes.
-    """
-
-    return RoleInMemoryRepository()
-
-
-@pytest.fixture()
-def permission_repository() -> IPermissionRepository:
-    """
-    Fixture that represents an in-memory repository for testing purposes.
-    """
-
-    return PermissionInMemoryRepository(
-        [
-            Permission(codename="area:read", description="Read area"),
-            Permission(codename="area:create", description="Create area"),
-        ]
-    )
 
 
 class TestCreateRoleUseCase:
@@ -48,18 +19,13 @@ class TestCreateRoleUseCase:
     def test_create_role_with_valid_data(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        create_role_use_case,
     ):
         """
         Test the creation of a role with valid data.
         """
 
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
-        )
-        output = use_case.execute(
+        output = create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -73,22 +39,17 @@ class TestCreateRoleUseCase:
     def test_create_role_with_empty_name(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        create_role_use_case,
     ):
         """
         Test the creation of a role with invalid data.
         """
 
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
-        )
         with pytest.raises(
             InvalidRoleError,
             match="Invalid input data: Role name is required.",
         ):
-            use_case.execute(
+            create_role_use_case.execute(
                 CreateRoleInputDTO(
                     actor=admin_actor,
                     name="",
@@ -99,22 +60,17 @@ class TestCreateRoleUseCase:
     def test_create_role_with_long_name(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        create_role_use_case,
     ):
         """
         Test the creation of a role with invalid data.
         """
 
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
-        )
         with pytest.raises(
             InvalidRoleError,
             match="Role name must be at most 100 characters long.",
         ):
-            use_case.execute(
+            create_role_use_case.execute(
                 CreateRoleInputDTO(
                     actor=admin_actor,
                     name="A" * 101,
@@ -125,18 +81,13 @@ class TestCreateRoleUseCase:
     def test_create_role_without_description(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        create_role_use_case,
     ):
         """
         Test the creation of a role without description.
         """
 
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
-        )
-        output = use_case.execute(
+        output = create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -149,18 +100,20 @@ class TestCreateRoleUseCase:
     def test_create_role_with_valid_permission(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        permission_in_memory_repo,
+        create_role_use_case,
     ):
         """
         Test the creation of a role with valid permission.
         """
-
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
+        permission_in_memory_repo.save(
+            Permission(codename="area:read", description="Read area")
         )
-        output = use_case.execute(
+        permission_in_memory_repo.save(
+            Permission(codename="area:create", description="Create area")
+        )
+
+        output = create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -177,23 +130,17 @@ class TestCreateRoleUseCase:
     def test_create_role_with_invalid_permission(
         self,
         admin_actor,
-        role_repository,
-        permission_repository,
+        create_role_use_case,
     ):
         """
         Test the creation of a role with valid permission.
         """
 
-        use_case = CreateRoleUseCase(
-            role_repository,
-            permission_repository,
-        )
-
         with pytest.raises(
             PermissionNotFoundError,
             match="Permission 'area:reader' not found.",
         ):
-            use_case.execute(
+            create_role_use_case.execute(
                 CreateRoleInputDTO(
                     actor=admin_actor,
                     name="Test Role",

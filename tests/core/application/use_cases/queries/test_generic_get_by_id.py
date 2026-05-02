@@ -2,37 +2,9 @@ from uuid import UUID
 
 import pytest
 
-from src.core.application.use_cases.queries import (
-    GenericGetByIdUseCase,
-    GetByIdRequestInputDTO,
-)
+from src.core.application.use_cases.queries import GetByIdRequestInputDTO
 from src.core.domain import EntityNotFoundError
-from src.core.infrastructure.repository import InMemoryRepository
-from src.identity_access_management.domain.constants import AppPermission
 from tests.fakes import DummyEntity
-
-
-@pytest.fixture
-def repository():
-    """
-    Fixture for an in-memory repository.
-    """
-
-    return InMemoryRepository()
-
-
-@pytest.fixture
-def get_by_id_use_case(repository):
-    """
-    Fixture for a get by id use case.
-    """
-
-    return GenericGetByIdUseCase[DummyEntity](
-        repository,
-        AppPermission.USER_READ,
-        EntityNotFoundError,
-        "DummyEntity with id={id} not found",
-    )
 
 
 class TestGenericGetByIdUseCase:
@@ -42,8 +14,8 @@ class TestGenericGetByIdUseCase:
 
     def test_get_by_id_existing_entity(
         self,
-        repository,
-        get_by_id_use_case,
+        dummy_in_memory_repository,
+        generic_get_by_id_use_case,
         admin_actor,
     ):
         """
@@ -51,20 +23,20 @@ class TestGenericGetByIdUseCase:
         """
 
         entity = DummyEntity(name="Test Entity", tenant_id=admin_actor.tenant_id)
-        repository.save(entity)
+        dummy_in_memory_repository.save(entity)
 
         request = GetByIdRequestInputDTO(
             id=entity.id,
             actor=admin_actor,
         )
-        result = get_by_id_use_case.execute(request=request)
+        result = generic_get_by_id_use_case.execute(request=request)
 
         assert result.id == entity.id
         assert result.name == entity.name  # type: ignore
 
     def test_get_by_id_non_existing_entity_raises_exception(
         self,
-        get_by_id_use_case,
+        generic_get_by_id_use_case,
         admin_actor,
     ):
         """
@@ -78,6 +50,6 @@ class TestGenericGetByIdUseCase:
         )
 
         with pytest.raises(EntityNotFoundError) as exc_info:
-            get_by_id_use_case.execute(request=request)
+            generic_get_by_id_use_case.execute(request=request)
 
         assert str(exc_info.value) == f"DummyEntity with id={invalid_id} not found"

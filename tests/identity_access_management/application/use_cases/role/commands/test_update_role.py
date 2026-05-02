@@ -8,10 +8,8 @@ from src.identity_access_management.application.use_cases.role import (
 )
 from src.identity_access_management.application.use_cases.role.commands import (
     UpdateRoleInputDTO,
-    UpdateRoleUseCase,
 )
 from src.identity_access_management.domain.entities import Role
-from tests.fakes import RoleInMemoryRepository
 
 
 class TestUpdateRoleUseCase:
@@ -19,28 +17,19 @@ class TestUpdateRoleUseCase:
     Test suite for the UpdateRoleUseCase.
     """
 
-    @pytest.fixture
-    def role_in_memory_repository(self):
-        """
-        Fixture that represents an in-memory repository for testing purposes.
-        """
-
-        return RoleInMemoryRepository()
-
-    def test_update_role(self, role_in_memory_repository, admin_actor):
+    def test_update_role(
+        self, role_in_memory_repo, update_role_use_case_iam, admin_actor
+    ):
         """
         Test update role.
         """
-
-        repo = role_in_memory_repository
-        use_case = UpdateRoleUseCase(repository=repo)
 
         role = Role(
             name="Test",
             description="Test role",
             tenant_id=admin_actor.tenant_id,
         )
-        repo.save(role)
+        role_in_memory_repo.save(role)
 
         input_dto = UpdateRoleInputDTO(
             id=role.id,
@@ -49,29 +38,27 @@ class TestUpdateRoleUseCase:
             actor=admin_actor,
         )
 
-        output = use_case.execute(input_dto)
+        output = update_role_use_case_iam.execute(input_dto)
 
         assert output.name == "Updated"
         assert output.description == "Updated role"
 
     def test_update_role_with_invalid_name(
         self,
-        role_in_memory_repository,
+        role_in_memory_repo,
+        update_role_use_case_iam,
         admin_actor,
     ):
         """
         Test update role with invalid name.
         """
 
-        repo = role_in_memory_repository
-        use_case = UpdateRoleUseCase(repository=repo)
-
         role = Role(
             name="Test",
             description="Test role",
             tenant_id=admin_actor.tenant_id,
         )
-        repo.save(role)
+        role_in_memory_repo.save(role)
 
         input_dto = UpdateRoleInputDTO(
             id=role.id,
@@ -84,18 +71,17 @@ class TestUpdateRoleUseCase:
             InvalidRoleError,
             match="Role name must be at most 100 characters long.",
         ):
-            use_case.execute(input_dto)
+            update_role_use_case_iam.execute(input_dto)
 
-    def test_update_role_with_invalid_id(self, role_in_memory_repository, admin_actor):
+    def test_update_role_with_invalid_id(
+        self, role_in_memory_repo, update_role_use_case_iam, admin_actor
+    ):
         """ ""
         Test update role with invalid id.
         """
 
-        repo = role_in_memory_repository
-        use_case = UpdateRoleUseCase(repository=repo)
-
         role = Role(name="Test", description="Test role")
-        repo.save(role)
+        role_in_memory_repo.save(role)
 
         invalid_id = uuid4()
 
@@ -110,4 +96,4 @@ class TestUpdateRoleUseCase:
             RoleNotFoundError,
             match=f"Role with id {invalid_id} not found.",
         ):
-            use_case.execute(input_dto)
+            update_role_use_case_iam.execute(input_dto)

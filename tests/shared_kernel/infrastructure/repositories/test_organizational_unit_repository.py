@@ -1,18 +1,6 @@
 from uuid import uuid4
 
-import pytest
-
 from src.shared_kernel.infrastructure.models import OrganizationalUnitModel
-from src.shared_kernel.infrastructure.repositories import OrganizationalUnitRepository
-
-
-@pytest.fixture
-def repository(db_session_for_test):
-    """
-    Fixture to provide a repository instance for testing.
-    """
-
-    return OrganizationalUnitRepository(db_session_for_test)
 
 
 class TestOrganizationalUnitRepository:
@@ -20,7 +8,12 @@ class TestOrganizationalUnitRepository:
     Test suite for OrganizationalUnitRepository.
     """
 
-    def test_get_by_parent_id(self, repository, db_session_for_test, default_tenant_id):
+    def test_get_by_parent_id(
+        self,
+        organizational_unit_sqlalchemy_repo,
+        db_session_for_test,
+        default_tenant_id,
+    ):
         """
         Test retrieving organizational units by parent_id.
         """
@@ -68,7 +61,7 @@ class TestOrganizationalUnitRepository:
         db_session_for_test.flush()
 
         # 2. Test fetching children of a specific parent
-        children = repository.get_by_parent_id(
+        children = organizational_unit_sqlalchemy_repo.get_by_parent_id(
             parent_id,
             tenant_id=default_tenant_id,
         )
@@ -80,14 +73,16 @@ class TestOrganizationalUnitRepository:
         assert children[1].description == "Child Unit 2"
 
         # 3. Test fetching top-level units (parent_id is None)
-        top_level_units = repository.get_by_parent_id(None, default_tenant_id)
+        top_level_units = organizational_unit_sqlalchemy_repo.get_by_parent_id(
+            None, default_tenant_id
+        )
 
         assert len(top_level_units) == 2
         assert top_level_units[0].code == "1"
         assert top_level_units[1].code == "2"
 
         # 4. Test fetching for a parent with no children
-        no_children = repository.get_by_parent_id(
+        no_children = organizational_unit_sqlalchemy_repo.get_by_parent_id(
             other_parent_unit.id,
             tenant_id=default_tenant_id,
         )

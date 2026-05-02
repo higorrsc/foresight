@@ -8,28 +8,8 @@ from src.identity_access_management.application.use_cases.permission import (
 from src.identity_access_management.domain.constants import AppPermission
 from src.tenant_management.application.use_cases.plan.queries import (
     ListPlansInputDTO,
-    ListPlansUseCase,
 )
 from src.tenant_management.domain.entities import Plan
-from tests.fakes import PlanInMemoryRepository
-
-
-@pytest.fixture
-def plan_repo():
-    """
-    Fixture for PlanInMemoryRepository.
-    """
-
-    return PlanInMemoryRepository()
-
-
-@pytest.fixture
-def list_plans_use_case(plan_repo):
-    """
-    Fixture for ListPlansUseCase.
-    """
-
-    return ListPlansUseCase(plan_repo)
 
 
 class TestListPlansUseCase:
@@ -40,7 +20,7 @@ class TestListPlansUseCase:
     def test_user_with_permission_can_list_plans(
         self,
         list_plans_use_case,
-        plan_repo,
+        plan_in_memory_repo,
         admin_actor,
     ):
         """
@@ -49,8 +29,8 @@ class TestListPlansUseCase:
 
         plan1 = Plan(name="Basic", price=Decimal("10.00"), created_by=admin_actor.id)
         plan2 = Plan(name="Premium", price=Decimal("20.00"), created_by=admin_actor.id)
-        plan_repo.save(plan1)
-        plan_repo.save(plan2)
+        plan_in_memory_repo.save(plan1)
+        plan_in_memory_repo.save(plan2)
 
         admin_actor.permissions.add(AppPermission.PLAN_READ)
         input_dto = ListPlansInputDTO(actor=admin_actor)

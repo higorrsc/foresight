@@ -8,44 +8,9 @@ from src.identity_access_management.application.use_cases.permission import (
 from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.user.commands import (
     SetUserRolesInputDTO,
-    SetUserRolesUseCase,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role, User
-from tests.fakes.in_memory_repository import (
-    RoleInMemoryRepository,
-    UserInMemoryRepository,
-)
-
-
-@pytest.fixture
-def user_repo():
-    """
-    Fixture that represents a user repository.
-    """
-
-    return UserInMemoryRepository()
-
-
-@pytest.fixture
-def role_repo():
-    """
-    Fixture that represents a role repository.
-    """
-
-    return RoleInMemoryRepository()
-
-
-@pytest.fixture
-def set_user_roles_use_case(user_repo, role_repo):
-    """
-    Fixture that represents a SetUserRolesUseCase.
-    """
-
-    return SetUserRolesUseCase(
-        user_repository=user_repo,
-        role_repository=role_repo,
-    )
 
 
 class TestSetUserRolesUseCase:
@@ -56,8 +21,8 @@ class TestSetUserRolesUseCase:
     def test_admin_can_set_roles_for_user(
         self,
         set_user_roles_use_case,
-        user_repo,
-        role_repo,
+        user_in_memory_repo,
+        role_in_memory_repo,
         admin_actor: User,
         guest_actor: User,
     ):
@@ -66,7 +31,7 @@ class TestSetUserRolesUseCase:
         """
         admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
 
-        role_repo.save(
+        role_in_memory_repo.save(
             Role(
                 name="editor",
                 description="Editor role",
@@ -74,8 +39,8 @@ class TestSetUserRolesUseCase:
             )
         )
 
-        user_repo.save(deepcopy(admin_actor))
-        user_repo.save(deepcopy(guest_actor))
+        user_in_memory_repo.save(deepcopy(admin_actor))
+        user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = SetUserRolesInputDTO(
             actor=admin_actor,
@@ -85,20 +50,22 @@ class TestSetUserRolesUseCase:
 
         set_user_roles_use_case.execute(input_dto)
 
-        updated_guest = user_repo.get_by_id(guest_actor.id, admin_actor.tenant_id)
+        updated_guest = user_in_memory_repo.get_by_id(
+            guest_actor.id, admin_actor.tenant_id
+        )
         assert updated_guest.roles == {"editor"}
         assert updated_guest.updated_by == admin_actor.id
 
     def test_guest_cannot_set_roles(
         self,
         set_user_roles_use_case,
-        user_repo,
+        user_in_memory_repo,
         guest_actor: User,
     ):
         """
         Test if a guest user cannot set roles.
         """
-        user_repo.save(deepcopy(guest_actor))  # Não tem a permissão
+        user_in_memory_repo.save(deepcopy(guest_actor))  # Não tem a permissão
 
         input_dto = SetUserRolesInputDTO(
             actor=guest_actor, user_id_to_update=guest_actor.id, role_names=["admin"]
@@ -113,7 +80,7 @@ class TestSetUserRolesUseCase:
     def test_set_non_existent_role_raises_error(
         self,
         set_user_roles_use_case,
-        user_repo,
+        user_in_memory_repo,
         admin_actor: User,
     ):
         """
@@ -121,7 +88,7 @@ class TestSetUserRolesUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
-        user_repo.save(deepcopy(admin_actor))
+        user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = SetUserRolesInputDTO(
             actor=admin_actor,

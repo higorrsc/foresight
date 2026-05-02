@@ -7,30 +7,8 @@ from src.core.application.use_cases.queries import ListRequestInputDTO
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
-from src.identity_access_management.application.use_cases.user.queries import (
-    ListUserUseCase,
-)
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities.user import User
-from tests.fakes import UserInMemoryRepository
-
-
-@pytest.fixture
-def user_repo():
-    """
-    Fixture that represents an in-memory repository for testing purposes.
-    """
-
-    return UserInMemoryRepository()
-
-
-@pytest.fixture
-def list_user_use_case(user_repo):
-    """
-    Fixture that represents a ListUserUseCase for testing purposes.
-    """
-
-    return ListUserUseCase(repository=user_repo)
 
 
 class TestListUserUseCase:
@@ -41,7 +19,7 @@ class TestListUserUseCase:
     def test_list_users_with_permission(
         self,
         list_user_use_case,
-        user_repo,
+        user_in_memory_repo,
         admin_actor: User,
         guest_actor: User,
     ):
@@ -50,15 +28,15 @@ class TestListUserUseCase:
         """
         admin_actor.permissions.add(AppPermission.USER_READ)
 
-        user_repo.save(deepcopy(admin_actor))
-        user_repo.save(deepcopy(guest_actor))
+        user_in_memory_repo.save(deepcopy(admin_actor))
+        user_in_memory_repo.save(deepcopy(guest_actor))
 
         other_tenant_user = User(
             username="other_tenant_user",
             hashed_password="pw",
             tenant_id=uuid4(),
         )
-        user_repo.save(other_tenant_user)
+        user_in_memory_repo.save(other_tenant_user)
 
         input_dto = ListRequestInputDTO(actor=admin_actor)
         result = list_user_use_case.execute(input_dto)

@@ -1,10 +1,6 @@
 from src.core.application.dto import PaginatedResponseDTO
 from src.core.application.use_cases.queries import ListRequestInputDTO
-from src.shared_kernel.application.use_cases.organizational_unit.queries import (
-    ListOrganizationalUnitUseCase,
-)
 from src.shared_kernel.domain.entities import OrganizationalUnit
-from tests.fakes.in_memory_repository import OrganizationalUnitInMemoryRepository
 
 
 class TestListOrganizationalUnit:
@@ -12,13 +8,15 @@ class TestListOrganizationalUnit:
     Test the ListOrganizationalUnit use case.
     """
 
-    def test_list_organizational_units(self, admin_actor):
+    def test_list_organizational_units(
+        self,
+        admin_actor,
+        organizational_unit_in_memory_repo,
+        list_organizational_unit_use_case,
+    ):
         """
         Test listing organizational units.
         """
-
-        repository = OrganizationalUnitInMemoryRepository()
-        use_case = ListOrganizationalUnitUseCase(repository)
 
         unit1 = OrganizationalUnit(
             description="Unit 1",
@@ -31,11 +29,13 @@ class TestListOrganizationalUnit:
             tenant_id=admin_actor.tenant_id,
         )
 
-        repository.save(unit1)
-        repository.save(unit2)
+        organizational_unit_in_memory_repo.save(unit1)
+        organizational_unit_in_memory_repo.save(unit2)
 
-        units: PaginatedResponseDTO[OrganizationalUnit] = use_case.execute(
-            ListRequestInputDTO(actor=admin_actor)
+        units: PaginatedResponseDTO[OrganizationalUnit] = (
+            list_organizational_unit_use_case.execute(
+                ListRequestInputDTO(actor=admin_actor)
+            )
         )
 
         assert len(units.data) == 2
@@ -44,16 +44,17 @@ class TestListOrganizationalUnit:
         assert units.data[1].id is not None
         assert units.data[1].description == "Unit 2"
 
-    def test_empty_list_organizational_unit(self, admin_actor):
+    def test_empty_list_organizational_unit(
+        self, admin_actor, list_organizational_unit_use_case
+    ):
         """
         Test listing organizational units when there are no units.
         """
 
-        repository = OrganizationalUnitInMemoryRepository()
-        use_case = ListOrganizationalUnitUseCase(repository)
-
-        units: PaginatedResponseDTO[OrganizationalUnit] = use_case.execute(
-            ListRequestInputDTO(actor=admin_actor)
+        units: PaginatedResponseDTO[OrganizationalUnit] = (
+            list_organizational_unit_use_case.execute(
+                ListRequestInputDTO(actor=admin_actor)
+            )
         )
 
         assert len(units.data) == 0

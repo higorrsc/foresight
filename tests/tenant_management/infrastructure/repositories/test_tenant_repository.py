@@ -1,11 +1,9 @@
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-import pytest
 from sqlalchemy.orm import Session
 
 from src.tenant_management.domain.entities.tenant import Tenant
-from src.tenant_management.domain.value_objects import TenantStatus
 from src.tenant_management.infrastructure.mappers.tenant_mapper import TenantMapper
 from src.tenant_management.infrastructure.models.tenant_model import TenantModel
 from src.tenant_management.infrastructure.repositories.tenant_repository import (
@@ -17,16 +15,6 @@ class TestTenantRepository:
     """
     Test suite for the TenantRepository.
     """
-
-    @pytest.fixture
-    def mock_tenant_entity(self) -> Tenant:
-        """Provides a valid Tenant entity mock for tests."""
-        tenant = Mock(spec=Tenant)
-        tenant.id = uuid4()
-        tenant.name = "Test Tenant"
-        tenant.plan_id = uuid4()
-        tenant.status = TenantStatus.ACTIVE
-        return tenant
 
     def test_save_tenant(self, mock_tenant_entity: Tenant) -> None:
         """
