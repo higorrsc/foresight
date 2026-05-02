@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     db_password: str | None = Field(default=None, validate_default=True)
     db_host: str | None = Field(default=None, validate_default=True)
     db_port: int | None = Field(default=None, validate_default=True)
-    db_database: str = "./foresight.db"
+    db_database: str = "./foresight.sqlite3"
     db_ssl_root_cert: str | None = Field(default=None, validate_default=True)
 
     test_in_memory: bool = True
