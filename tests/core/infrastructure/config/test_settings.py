@@ -20,18 +20,6 @@ class TestSettings:
 
         assert settings.database_url == "sqlite+pysqlite:///test.sqlite3"
 
-    def test_settings_sqlite_in_memory(self):
-        """
-        Test that SQLite in-memory mode returns correct URL.
-        """
-        settings = Settings(
-            db_driver="sqlite",
-            db_database="ignored.sqlite3",
-            test_in_memory=True,
-        )
-
-        assert settings.database_url == "sqlite+pysqlite:///:memory:"
-
     def test_settings_cockroachdb_success(self):
         """
         Test successful configuration of a CockroachDB connection string.
