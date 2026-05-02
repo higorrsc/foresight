@@ -22,7 +22,9 @@ class TestSecurity:
         token = create_access_token(data=data, tenant_id=tenant_id)
 
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
         )
 
         assert payload["sub"] == "testuser"
@@ -38,7 +40,9 @@ class TestSecurity:
         token = create_access_token(data=data, tenant_id=None)
 
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
         )
 
         assert payload["sub"] == "testuser"
@@ -52,11 +56,15 @@ class TestSecurity:
         expires_delta = timedelta(minutes=30)
 
         token = create_access_token(
-            data=data, tenant_id=None, expires_delta=expires_delta
+            data=data,
+            tenant_id=None,
+            expires_delta=expires_delta,
         )
 
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
         )
 
         assert payload["sub"] == "testuser"

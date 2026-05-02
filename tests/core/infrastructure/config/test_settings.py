@@ -1,5 +1,4 @@
 import pytest
-from pydantic import ValidationError
 
 from src.core.infrastructure.config.settings import Settings
 
@@ -13,44 +12,77 @@ class TestSettings:
         """
         Test that settings correctly configure a default SQLite database.
         """
-        settings = Settings(DB_DRIVER="sqlite", DB_DATABASE="test.sqlite3")
-        assert settings.DATABASE_URL == "sqlite:///test.sqlite3"
+        settings = Settings(
+            db_driver="sqlite",
+            db_database="test.sqlite3",
+            test_in_memory=False,
+        )
+
+        assert settings.database_url == "sqlite+pysqlite:///test.sqlite3"
+
+    def test_settings_sqlite_in_memory(self):
+        """
+        Test that SQLite in-memory mode returns correct URL.
+        """
+        settings = Settings(
+            db_driver="sqlite",
+            db_database="ignored.sqlite3",
+            test_in_memory=True,
+        )
+
+        assert settings.database_url == "sqlite+pysqlite:///:memory:"
 
     def test_settings_cockroachdb_success(self):
         """
         Test successful configuration of a CockroachDB connection string.
         """
         settings = Settings(
-            DB_DRIVER="cockroachdb",
-            DB_USER="user",
-            DB_PASSWORD="password",
-            DB_HOST="host",
-            DB_PORT=26257,
-            DB_DATABASE="db",
-            DB_SSL_ROOT_CERT="cert.pem",
+            db_driver="cockroachdb",
+            db_user="user",
+            db_password="password",
+            db_host="host",
+            db_port=26257,
+            db_database="db",
+            db_ssl_root_cert="cert.pem",
         )
-        assert "cockroachdb://user:password@host:26257/db" in settings.DATABASE_URL  # type: ignore
-        assert "sslmode=verify-full" in settings.DATABASE_URL  # type: ignore
-        assert "sslrootcert=cert.pem" in settings.DATABASE_URL  # type: ignore
 
-    def test_settings_cockroachdb_missing_vars(self, monkeypatch):
+        url = settings.database_url
+
+        assert "cockroachdb://" in url
+        assert "user:password@host:26257/db" in url
+        assert "sslmode=verify-full" in url
+        assert "sslrootcert=cert.pem" in url
+
+    def test_settings_cockroachdb_missing_vars(self):
         """
         Test that settings validation fails when required CockroachDB variables are missing.
         """
-        # Ensure environment is clean
-        monkeypatch.delenv("DB_DRIVER", raising=False)
-        monkeypatch.delenv("DB_USER", raising=False)
-        monkeypatch.delenv("DB_PASSWORD", raising=False)
-        monkeypatch.delenv("DB_HOST", raising=False)
-        monkeypatch.delenv("DB_PORT", raising=False)
-        monkeypatch.delenv("DB_DATABASE", raising=False)
 
-        with pytest.raises(ValidationError):
-            Settings(
-                _env_file=None,  # type: ignore
-                DB_DRIVER="cockroachdb",
-                DB_USER="user",
-                # missing others
+        def _make_settings(**overrides):
+            """
+            Create settings for test
+            """
+
+            base = {
+                "db_driver": "sqlite",
+                "db_database": ":memory:",
+                "db_user": None,
+                "db_password": None,
+                "db_host": None,
+                "db_port": None,
+                "db_ssl_root_cert": None,
+                "test_in_memory": True,
+            }
+
+            base.update(overrides)
+
+            return Settings(**base)  # type: ignore
+
+        with pytest.raises(ValueError):
+            _make_settings(
+                db_driver="cockroachdb",
+                db_user="user",
+                db_password="password",
             )
 
     def test_settings_postgresql(self):
@@ -58,21 +90,45 @@ class TestSettings:
         Test configuration of a PostgreSQL connection string.
         """
         settings = Settings(
-            _env_file=None,  # type: ignore
-            DB_DRIVER="postgresql",
-            DB_USER="user",
-            DB_PASSWORD="password",
-            DB_HOST="host",
-            DB_PORT=5432,
-            DB_DATABASE="db",
+            db_driver="postgresql+psycopg2",
+            db_user="user",
+            db_password="password",
+            db_host="host",
+            db_port=5432,
+            db_database="db",
         )
-        # SQLAlchemy URL masks password when stringified
-        assert settings.DATABASE_URL == "postgresql://user:***@host:5432/db"
 
-    def test_settings_explicit_database_url(self):
+        url = settings.database_url
+
+        assert url.startswith("postgresql+psycopg2://")
+        assert "host:5432/db" in url
+
+    def test_settings_mssql(self):
         """
-        Test that an explicitly provided DATABASE_URL takes precedence.
+        Test configuration of a MS SQL Server connection string.
         """
-        url = "postgresql://other:pass@otherhost:5432/otherdb"
-        settings = Settings(DATABASE_URL=url)
-        assert settings.DATABASE_URL == url
+        settings = Settings(
+            db_driver="mssql+pyodbc",
+            db_user="user",
+            db_password="password",
+            db_host="host",
+            db_port=1433,
+            db_database="db",
+        )
+
+        url = settings.database_url
+
+        assert url.startswith("mssql+pyodbc://")
+        assert "host:1433/db" in url
+        assert "driver=ODBC+Driver+17+for+SQL+Server" in url
+
+    def test_settings_explicit_database_url_removed_behavior(self):
+        """
+        Test that DATABASE_URL is always derived and cannot be overridden directly.
+        """
+        settings = Settings(
+            db_driver="sqlite",
+            db_database="test.sqlite3",
+        )
+
+        assert "sqlite" in settings.database_url

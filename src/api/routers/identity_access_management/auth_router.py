@@ -50,7 +50,7 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": user.username},
         tenant_id=user.tenant_id,

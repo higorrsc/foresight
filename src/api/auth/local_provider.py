@@ -24,8 +24,8 @@ class LocalAuthenticationProvider(AbstractAuthenticationProvider):
         try:
             payload = jwt.decode(
                 token,
-                settings.SECRET_KEY,
-                algorithms=[settings.ALGORITHM],
+                settings.secret_key,
+                algorithms=[settings.algorithm],
             )
             username: str | None = payload.get("sub")
             tenant_id_str: str | None = payload.get("tenant_id")

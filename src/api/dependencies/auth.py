@@ -22,13 +22,13 @@ def get_auth_provider(
     Reads config and return correct instance of authentication provider.
     """
 
-    if settings.AUTH_PROVIDER == "local":
+    if settings.auth_provider == "local":
         repo = UserRepository(session)
         return LocalAuthenticationProvider(repo)
-    else:
-        raise ValueError(
-            f"Invalid auth provider: {settings.AUTH_PROVIDER}"
-        )  # pragma: no cover
+
+    raise ValueError(
+        f"Invalid auth provider: {settings.auth_provider}"
+    )  # pragma: no cover
 
 
 async def get_current_user(

@@ -18,7 +18,7 @@ class TestAuthDependencies:
         Test retrieval of the local authentication provider.
         """
         with patch("src.api.dependencies.auth.settings") as mock_settings:
-            mock_settings.AUTH_PROVIDER = "local"
+            mock_settings.auth_provider = "local"
             provider = get_auth_provider(auth_dependency_mock_session)
             assert isinstance(provider, LocalAuthenticationProvider)
 

@@ -1,6 +1,11 @@
-from pydantic import ValidationInfo, field_validator
+from functools import cached_property
+from typing import Literal
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import URL
+
+from src.core.infrastructure.db import DatabaseConfig
+from src.core.infrastructure.db.builders import BUILDERS
 
 
 class Settings(BaseSettings):
@@ -8,69 +13,123 @@ class Settings(BaseSettings):
     Load and validate environment variables.
     """
 
-    DB_DRIVER: str = "sqlite"
-    DB_USER: str | None = None
-    DB_PASSWORD: str | None = None
-    DB_HOST: str | None = None
-    DB_PORT: int | None = None
-    DB_DATABASE: str = "./db.sqlite3"
+    # =========================
+    # DB ENV VARS
+    # =========================
 
-    DB_SSL_ROOT_CERT: str | None = None
+    db_driver: Literal[
+        "sqlite",
+        "postgresql+psycopg2",
+        "mssql+pyodbc",
+        "cockroachdb",
+    ] = "sqlite"
 
-    DATABASE_URL: str | None = None
+    db_user: str | None = Field(default=None, validate_default=True)
+    db_password: str | None = Field(default=None, validate_default=True)
+    db_host: str | None = Field(default=None, validate_default=True)
+    db_port: int | None = Field(default=None, validate_default=True)
+    db_database: str = "./foresight.db"
+    db_ssl_root_cert: str | None = Field(default=None, validate_default=True)
 
-    SECRET_KEY: str = "default_secret_key_if_not_in_env_file"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    AUTH_PROVIDER: str = "local"
+    test_in_memory: bool = True
 
-    @field_validator("DATABASE_URL", mode="before")
-    @classmethod
-    def assemble_db_connection(cls, v: str | None, info: ValidationInfo) -> str:
-        """
-        Build DATABASE_URL from environment variables.
-        """
+    # =========================
+    # AUTH
+    # =========================
 
-        if isinstance(v, str):
-            return v
-
-        values = info.data
-        driver = values.get("DB_DRIVER")
-
-        if driver == "sqlite":
-            database_path = values.get("DB_DATABASE")
-            if values.get("DB_DRIVER") == "sqlite" and database_path:
-                return f"sqlite:///{database_path}"
-
-        if driver == "cockroachdb":
-            user = values.get("DB_USER")
-            password = values.get("DB_PASSWORD")
-            host = values.get("DB_HOST")
-            port = values.get("DB_PORT")
-            database = values.get("DB_DATABASE")
-            cert_path = values.get("DB_SSL_ROOT_CERT")
-
-            if not all([user, password, host, port, database, cert_path]):
-                raise ValueError("For CockroachDB, all variables DB_* must be set.")
-
-            return f"cockroachdb://{user}:{password}@{host}:{port}/{database}?sslmode=verify-full&sslrootcert={cert_path}"
-
-        return str(
-            URL.create(
-                drivername=values.get("DB_DRIVER", "postgresql"),
-                username=values.get("DB_USER"),
-                password=values.get("DB_PASSWORD"),
-                host=values.get("DB_HOST"),
-                port=values.get("DB_PORT"),
-                database=values.get("DB_DATABASE"),
-            )
-        )
+    secret_key: str = "change-me"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    auth_provider: str = "local"
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        case_sensitive=False,
     )
+
+    # =========================
+    # VALIDATION
+    # =========================
+
+    @model_validator(mode="after")
+    def validate_environment(self) -> "Settings":
+        """
+        Validate environment variables.
+        """
+
+        if self.db_driver == "sqlite":
+            if not self.db_database:
+                raise ValueError("SQLite requires DB_DATABASE")
+
+        if self.db_driver == "cockroachdb":
+            required = [
+                self.db_host,
+                self.db_port,
+                self.db_database,
+                self.db_user,
+                self.db_password,
+                self.db_ssl_root_cert,
+            ]
+            if not all(required):
+                raise ValueError(
+                    f"{self.db_driver} requires DB_HOST, DB_PORT, DB_DATABASE"
+                )
+
+        if self.db_driver in {
+            "postgresql+psycopg2",
+            "mssql+pyodbc",
+        }:
+            required = [
+                self.db_host,
+                self.db_port,
+                self.db_database,
+            ]
+            if not all(required):
+                raise ValueError(
+                    f"{self.db_driver} requires DB_HOST, DB_PORT, DB_DATABASE"
+                )
+
+        return self
+
+    # =========================
+    # BUILD DATABASE CONFIG DTO
+    # =========================
+
+    @cached_property
+    def database_config(self) -> DatabaseConfig:
+        """
+        Database configuration.
+        """
+
+        return DatabaseConfig(
+            driver=self.db_driver,
+            user=self.db_user,
+            password=self.db_password,
+            host=self.db_host,
+            port=self.db_port,
+            database=self.db_database,
+            ssl_root_cert=self.db_ssl_root_cert,
+            test_in_memory=self.test_in_memory,
+        )
+
+    # =========================
+    # DATABASE URL
+    # =========================
+
+    @cached_property
+    def database_url(self) -> str:
+        """
+        Database URL.
+        """
+
+        builder = BUILDERS.get(self.db_driver)
+
+        if not builder:
+            raise ValueError(f"Unsupported DB_DRIVER: {self.db_driver}")
+
+        return builder(self.database_config)
 
 
 settings = Settings()
