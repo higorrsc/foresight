@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from src.core.domain import AbstractRepository, SoftDeletableMixin
+from src.core.domain import AbstractRepository
+from src.core.domain.mixins import SoftDeletableMixin
 from src.identity_access_management.application.use_cases.permission import (
     InsufficientPermissionError,
 )
@@ -73,7 +74,7 @@ class GenericDeleteUseCase[T]:
             entity.soft_delete()
             if hasattr(entity, "updated_by"):
                 entity.updated_by = request.actor.id  # type: ignore
-            self._repository.update(entity)
+            self._repository.update(entity)  # type: ignore
         else:
             self._repository.delete(
                 request.id,
