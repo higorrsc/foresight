@@ -3,7 +3,7 @@ from .tenant import SQLAlchemyTenantMixin
 from .user_audit import SQLAlchemyUserAuditMixin
 
 __all__ = [
-    "SQLAlchemyUserAuditMixin",
     "SQLAlchemySoftDeletableMixin",
     "SQLAlchemyTenantMixin",
+    "SQLAlchemyUserAuditMixin",
 ]

@@ -1,6 +1,6 @@
 from .authenticate_user import AuthenticateUserInputDTO, AuthenticateUserUseCase
 from .change_password import ChangePasswordInputDTO, ChangePasswordUseCase
-from .create_user import CreateUserInputDTO, CreateUserUseCase
+from .create_user import CreateUserInputDTO, CreateUserOutputDTO, CreateUserUseCase
 from .delete_user import DeleteUserUseCase
 from .onboarding import OnboardingInputDTO, OnboardingOutputDTO, OnboardingUseCase
 from .restore_user import RestoreUserUseCase
@@ -14,6 +14,7 @@ __all__ = [
     "ChangePasswordInputDTO",
     "ChangePasswordUseCase",
     "CreateUserInputDTO",
+    "CreateUserOutputDTO",
     "CreateUserUseCase",
     "DeleteUserUseCase",
     "OnboardingInputDTO",

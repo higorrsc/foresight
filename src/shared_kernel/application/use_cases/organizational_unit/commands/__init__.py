@@ -18,6 +18,6 @@ __all__ = [
     "DeleteOrganizationalUnitUseCase",
     "RestoreOrganizationalUnitUseCase",
     "UpdateOrganizationalUnitInputDTO",
-    "UpdateOrganizationalUnitUseCase",
     "UpdateOrganizationalUnitOutputDTO",
+    "UpdateOrganizationalUnitUseCase",
 ]

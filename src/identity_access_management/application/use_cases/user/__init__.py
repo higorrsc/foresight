@@ -3,6 +3,7 @@ from .exceptions import (
     InvalidUserError,
     UsernameAlreadyExistsError,
     UserNotFoundError,
+    UserUseCaseError,
 )
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "InvalidUserError",
     "UsernameAlreadyExistsError",
     "UserNotFoundError",
+    "UserUseCaseError",
 ]

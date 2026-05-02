@@ -4,6 +4,6 @@ from .organizational_unit_repository import IOrganizationalUnitRepository
 
 __all__ = [
     "IAreaRepository",
-    "IOrganizationalUnitRepository",
     "IFinancialScenarioRepository",
+    "IOrganizationalUnitRepository",
 ]

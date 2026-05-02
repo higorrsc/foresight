@@ -4,7 +4,7 @@ from .organizational_unit import OrganizationalUnit
 
 __all__ = [
     "Area",
-    "OrganizationalUnit",
     "FinancialScenario",
+    "OrganizationalUnit",
     "ScenarioType",
 ]

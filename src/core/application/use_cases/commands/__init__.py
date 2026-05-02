@@ -17,9 +17,9 @@ __all__ = [
     "CreateDescribedEntityUseCase",
     "DeleteRequestInputDTO",
     "GenericDeleteUseCase",
+    "GenericRestoreUseCase",
+    "RestoreRequestInputDTO",
     "UpdateDescribedEntityInputDTO",
     "UpdateDescribedEntityOutputDTO",
     "UpdateDescribedEntityUseCase",
-    "RestoreRequestInputDTO",
-    "GenericRestoreUseCase",
 ]

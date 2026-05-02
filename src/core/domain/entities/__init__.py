@@ -4,6 +4,6 @@ from .tenant_aware import TenantAwareEntity
 
 __all__ = [
     "AbstractEntity",
-    "TenantAwareEntity",
     "DescribedEntity",
+    "TenantAwareEntity",
 ]
