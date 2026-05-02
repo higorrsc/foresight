@@ -1,17 +1,5 @@
-from .seeding import (
-    seed_app_permissions,
-    seed_initial_data,
-    seed_initial_plan,
-    seed_initial_roles,
-    seed_initial_tenant,
-    seed_initial_users,
-)
+from .database_config import DatabaseConfig
 
 __all__ = [
-    "seed_app_permissions",
-    "seed_initial_data",
-    "seed_initial_plan",
-    "seed_initial_roles",
-    "seed_initial_tenant",
-    "seed_initial_users",
+    "DatabaseConfig",
 ]
