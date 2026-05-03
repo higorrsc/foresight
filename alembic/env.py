@@ -36,6 +36,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 
 from src.identity_access_management.infrastructure.models import *  # noqa: E402, F403
+from src.planning.infrastructure.models import *  # noqa: E402, F403
 from src.shared_kernel.infrastructure.models import *  # noqa: E402, F403
 from src.tenant_management.infrastructure.models import *  # noqa: E402, F403
 
