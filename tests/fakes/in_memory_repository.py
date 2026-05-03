@@ -7,14 +7,14 @@ from src.identity_access_management.domain.repositories import (
     IRoleRepository,
     IUserRepository,
 )
+from src.planning.domain.entities import Scenario
+from src.planning.domain.repositories import IScenarioRepository
 from src.shared_kernel.domain.entities import (
     Area,
-    FinancialScenario,
     OrganizationalUnit,
 )
 from src.shared_kernel.domain.repositories import (
     IAreaRepository,
-    IFinancialScenarioRepository,
     IOrganizationalUnitRepository,
 )
 from src.tenant_management.domain.entities import Plan, Tenant
@@ -195,12 +195,12 @@ class AreaInMemoryRepository(
     """
 
 
-class FinancialScenarioInMemoryRepository(
-    InMemoryRepository[FinancialScenario],
-    IFinancialScenarioRepository,
+class ScenarioInMemoryRepository(
+    InMemoryRepository[Scenario],
+    IScenarioRepository,
 ):
     """
-    In Memory Repository specific to test FinancialScenario entity
+    In Memory Repository specific to test Scenario entity
     """
 
 

@@ -15,14 +15,18 @@ from src.identity_access_management.infrastructure.repositories import (
     RoleRepository,
     UserRepository,
 )
+from src.planning.domain.repositories import (
+    IScenarioRepository,
+)
+from src.planning.infrastructure.repositories import (
+    ScenarioRepository,
+)
 from src.shared_kernel.domain.repositories import (
     IAreaRepository,
-    IFinancialScenarioRepository,
     IOrganizationalUnitRepository,
 )
 from src.shared_kernel.infrastructure.repositories import (
     AreaRepository,
-    FinancialScenarioRepository,
     OrganizationalUnitRepository,
 )
 from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
@@ -117,11 +121,11 @@ def get_organizational_unit_repository(
     return OrganizationalUnitRepository(session)
 
 
-def get_financial_scenario_repository(
+def get_scenario_repository(
     session: Annotated[Session, Depends(get_db_session)],
-) -> IFinancialScenarioRepository:
+) -> IScenarioRepository:
     """
-    Return an FinancialScenarioRepository instance with database session.
+    Return an ScenarioRepository instance with database session.
     """
 
-    return FinancialScenarioRepository(session)
+    return ScenarioRepository(session)

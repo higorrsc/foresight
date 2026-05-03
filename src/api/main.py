@@ -8,9 +8,9 @@ from src.api.routers.identity_access_management import (
     role_router,
     user_router,
 )
+from src.api.routers.planning import scenario_router
 from src.api.routers.shared_kernel import (
     area_router,
-    financial_scenario_router,
     organizational_unit_router,
 )
 from src.api.routers.tenant_management import plan_router, tenant_router
@@ -65,5 +65,5 @@ app.include_router(tenant_router)
 app.include_router(user_router)
 app.include_router(role_router)
 app.include_router(area_router)
-app.include_router(financial_scenario_router)
+app.include_router(scenario_router)
 app.include_router(organizational_unit_router)

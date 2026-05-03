@@ -68,6 +68,18 @@ from src.identity_access_management.infrastructure.repositories import (
     RoleRepository,
     UserRepository,
 )
+from src.planning.application.use_cases.scenario.commands import (
+    CreateScenarioUseCase,
+    DeleteScenarioUseCase,
+    LockScenarioUseCase,
+    RestoreScenarioUseCase,
+    UnlockScenarioUseCase,
+    UpdateScenarioUseCase,
+)
+from src.planning.application.use_cases.scenario.queries import (
+    GetScenarioByIdUseCase,
+    ListScenarioUseCase,
+)
 from src.scripts import seed_initial_data
 from src.shared_kernel.application.use_cases.area.commands import (
     CreateAreaUseCase,
@@ -78,18 +90,6 @@ from src.shared_kernel.application.use_cases.area.commands import (
 from src.shared_kernel.application.use_cases.area.queries import (
     GetAreaByIdUseCase,
     ListAreaUseCase,
-)
-from src.shared_kernel.application.use_cases.financial_scenario.commands import (
-    CreateFinancialScenarioUseCase,
-    DeleteFinancialScenarioUseCase,
-    LockFinancialScenarioUseCase,
-    RestoreFinancialScenarioUseCase,
-    UnlockFinancialScenarioUseCase,
-    UpdateFinancialScenarioUseCase,
-)
-from src.shared_kernel.application.use_cases.financial_scenario.queries import (
-    GetFinancialScenarioByIdUseCase,
-    ListFinancialScenarioUseCase,
 )
 from src.shared_kernel.application.use_cases.organizational_unit.commands import (
     CreateOrganizationalUnitUseCase,
@@ -123,11 +123,11 @@ from src.tenant_management.infrastructure.models import TenantModel
 from tests.fakes import (
     AreaInMemoryRepository,
     DummyEntity,
-    FinancialScenarioInMemoryRepository,
     OrganizationalUnitInMemoryRepository,
     PermissionInMemoryRepository,
     PlanInMemoryRepository,
     RoleInMemoryRepository,
+    ScenarioInMemoryRepository,
     TenantInMemoryRepository,
     UserInMemoryRepository,
 )
@@ -566,8 +566,8 @@ def area_in_memory_repo():
 
 @pytest.fixture
 def financial_scenario_in_memory_repo():
-    """Fixture that returns a FinancialScenarioInMemoryRepository."""
-    return FinancialScenarioInMemoryRepository()
+    """Fixture that returns a ScenarioInMemoryRepository."""
+    return ScenarioInMemoryRepository()
 
 
 @pytest.fixture
@@ -721,50 +721,50 @@ def list_area_use_case(area_in_memory_repo):
 
 @pytest.fixture
 def create_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for CreateFinancialScenarioUseCase."""
-    return CreateFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for CreateScenarioUseCase."""
+    return CreateScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def delete_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for DeleteFinancialScenarioUseCase."""
-    return DeleteFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for DeleteScenarioUseCase."""
+    return DeleteScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def lock_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for LockFinancialScenarioUseCase."""
-    return LockFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for LockScenarioUseCase."""
+    return LockScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def restore_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for RestoreFinancialScenarioUseCase."""
-    return RestoreFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for RestoreScenarioUseCase."""
+    return RestoreScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def unlock_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for UnlockFinancialScenarioUseCase."""
-    return UnlockFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for UnlockScenarioUseCase."""
+    return UnlockScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def update_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for UpdateFinancialScenarioUseCase."""
-    return UpdateFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for UpdateScenarioUseCase."""
+    return UpdateScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def get_financial_scenario_by_id_use_case(financial_scenario_in_memory_repo):
-    """Fixture for GetFinancialScenarioByIdUseCase."""
-    return GetFinancialScenarioByIdUseCase(financial_scenario_in_memory_repo)
+    """Fixture for GetScenarioByIdUseCase."""
+    return GetScenarioByIdUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
 def list_financial_scenario_use_case(financial_scenario_in_memory_repo):
-    """Fixture for ListFinancialScenarioUseCase."""
-    return ListFinancialScenarioUseCase(financial_scenario_in_memory_repo)
+    """Fixture for ListScenarioUseCase."""
+    return ListScenarioUseCase(financial_scenario_in_memory_repo)
 
 
 @pytest.fixture
