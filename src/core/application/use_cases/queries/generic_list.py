@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 from src.core.application import PaginatedResponseDTO, PaginationMeta
 from src.core.domain import AbstractRepository
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

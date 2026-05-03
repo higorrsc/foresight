@@ -20,12 +20,6 @@ from src.core.application.use_cases.queries import (
     ListRequestInputDTO,
 )
 from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application.use_cases.financial_scenario import (
-    FinancialScenarioAlreadyLockedError,
-    FinancialScenarioAlreadyUnlockedError,
-    FinancialScenarioNotFoundError,
-    InvalidFinancialScenarioError,
-)
 from src.shared_kernel.application.use_cases.financial_scenario.commands import (
     CreateFinancialScenarioInputDTO,
     CreateFinancialScenarioUseCase,
@@ -43,6 +37,12 @@ from src.shared_kernel.application.use_cases.financial_scenario.queries import (
     ListFinancialScenarioUseCase,
 )
 from src.shared_kernel.domain.entities.financial_scenario import ScenarioType
+from src.shared_kernel.domain.exceptions import (
+    FinancialScenarioAlreadyLockedError,
+    FinancialScenarioAlreadyUnlockedError,
+    FinancialScenarioNotFoundError,
+    InvalidFinancialScenarioError,
+)
 from src.shared_kernel.domain.repositories import IFinancialScenarioRepository
 
 # --- Permissions ---

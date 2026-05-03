@@ -2,16 +2,16 @@ from uuid import uuid4
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-    PermissionNotFoundError,
-)
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.role.commands import (
     SetRolePermissionsInputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Permission, Role
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    PermissionNotFoundError,
+    RoleNotFoundError,
+)
 
 
 class TestSetRolePermissionsUseCase:

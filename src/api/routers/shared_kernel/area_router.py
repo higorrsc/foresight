@@ -22,10 +22,6 @@ from src.core.application.use_cases.queries import (
     ListRequestInputDTO,
 )
 from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application.use_cases.area import (
-    AreaNotFoundError,
-    InvalidAreaError,
-)
 from src.shared_kernel.application.use_cases.area.commands import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
@@ -35,6 +31,10 @@ from src.shared_kernel.application.use_cases.area.commands import (
 from src.shared_kernel.application.use_cases.area.queries import (
     GetAreaByIdUseCase,
     ListAreaUseCase,
+)
+from src.shared_kernel.domain.exceptions import (
+    AreaNotFoundError,
+    InvalidAreaError,
 )
 from src.shared_kernel.domain.repositories import IAreaRepository
 

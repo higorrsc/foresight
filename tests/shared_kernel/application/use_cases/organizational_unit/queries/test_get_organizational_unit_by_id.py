@@ -5,14 +5,10 @@ import pytest
 from src.core.application.use_cases.queries.generic_get_by_id import (
     GetByIdRequestInputDTO,
 )
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
-from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
-    OrganizationalUnitNotFoundError,
-)
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.exceptions import OrganizationalUnitNotFoundError
 
 
 class TestGetOrganizationalUnitByIdUseCase:

@@ -2,11 +2,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
-from src.tenant_management.application.use_cases.tenant import TenantNotFoundError
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
+from src.tenant_management.domain.exceptions import TenantNotFoundError
 from src.tenant_management.domain.repositories import ITenantRepository
 from src.tenant_management.domain.value_objects import TenantStatus
 

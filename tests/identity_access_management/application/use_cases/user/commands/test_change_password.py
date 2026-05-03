@@ -2,17 +2,15 @@ from copy import deepcopy
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.user import (
-    InvalidPasswordError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     ChangePasswordInputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities.user import User, hash_password
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    InvalidPasswordError,
+)
 
 
 class TestChangePasswordUseCase:

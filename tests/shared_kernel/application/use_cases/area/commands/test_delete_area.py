@@ -1,8 +1,8 @@
 from uuid import UUID
 
 from src.core.application.use_cases.commands import DeleteRequestInputDTO
-from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.domain.entities import Area
+from src.shared_kernel.domain.exceptions import AreaNotFoundError
 
 
 class TestDeleteArea:

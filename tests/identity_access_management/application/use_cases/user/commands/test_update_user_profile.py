@@ -2,14 +2,14 @@ from copy import deepcopy
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     UserProfileInputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities.user import User
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+)
 
 
 class TestUpdateUserProfileUseCase:

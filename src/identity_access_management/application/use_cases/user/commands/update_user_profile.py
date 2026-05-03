@@ -3,14 +3,12 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
-from src.identity_access_management.application.use_cases.permission import (
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.user import (
     InvalidUserError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.repositories import IUserRepository
 
 if TYPE_CHECKING:

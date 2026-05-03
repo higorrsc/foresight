@@ -3,16 +3,14 @@ from uuid import uuid4
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
-from src.tenant_management.application.use_cases.tenant import TenantNotFoundError
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.tenant_management.application.use_cases.tenant.commands import (
     UpdateTenantStatusInputDTO,
 )
 from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.entities.plan import Plan
+from src.tenant_management.domain.exceptions import TenantNotFoundError
 from src.tenant_management.domain.value_objects import TenantStatus
 
 

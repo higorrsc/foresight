@@ -21,15 +21,6 @@ from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-    PermissionNotFoundError,
-)
-from src.identity_access_management.application.use_cases.role import (
-    InvalidRoleError,
-    RoleAlreadyExistsError,
-    RoleNotFoundError,
-)
 from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleUseCase,
@@ -40,14 +31,19 @@ from src.identity_access_management.application.use_cases.role.commands import (
     UpdateRoleInputDTO,
     UpdateRoleUseCase,
 )
-from src.identity_access_management.application.use_cases.role.exceptions import (
-    RoleDeletionIntegrityError,
-)
 from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
     ListRoleUseCase,
 )
 from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    InvalidRoleError,
+    PermissionNotFoundError,
+    RoleAlreadyExistsError,
+    RoleDeletionIntegrityError,
+    RoleNotFoundError,
+)
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,

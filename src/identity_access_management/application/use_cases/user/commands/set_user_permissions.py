@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.permission import (
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
     PermissionNotFoundError,
+    UserNotFoundError,
 )
-from src.identity_access_management.application.use_cases.user import UserNotFoundError
-from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IUserRepository,

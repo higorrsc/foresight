@@ -7,11 +7,11 @@ from src.shared_kernel.application.use_cases.financial_scenario.commands import 
     UnlockFinancialScenarioInputDTO,
     UnlockFinancialScenarioUseCase,
 )
-from src.shared_kernel.application.use_cases.financial_scenario.exceptions import (
+from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
+from src.shared_kernel.domain.exceptions import (
     FinancialScenarioAlreadyUnlockedError,
     FinancialScenarioNotFoundError,
 )
-from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 

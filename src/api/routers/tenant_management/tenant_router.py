@@ -14,17 +14,15 @@ from src.api.dependencies import (
     get_user_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
 )
-from src.identity_access_management.application.use_cases.user.exceptions import (
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
     UsernameAlreadyExistsError,
 )
-from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
@@ -34,12 +32,12 @@ from src.tenant_management.application.use_cases.tenant.commands import (
     UpdateTenantStatusInputDTO,
     UpdateTenantStatusUseCase,
 )
-from src.tenant_management.application.use_cases.tenant.exceptions import (
-    TenantNotFoundError,
-)
 from src.tenant_management.application.use_cases.tenant.queries import (
     ListTenantsInputDTO,
     ListTenantsUseCase,
+)
+from src.tenant_management.domain.exceptions import (
+    TenantNotFoundError,
 )
 from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
 from src.tenant_management.domain.value_objects import TenantStatus

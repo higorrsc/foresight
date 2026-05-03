@@ -28,13 +28,13 @@ from src.shared_kernel.application.use_cases.organizational_unit.commands import
     UpdateOrganizationalUnitInputDTO,
     UpdateOrganizationalUnitUseCase,
 )
-from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
-    InvalidOrganizationalUnitError,
-    OrganizationalUnitNotFoundError,
-)
 from src.shared_kernel.application.use_cases.organizational_unit.queries import (
     GetOrganizationalUnitByIdUseCase,
     ListOrganizationalUnitUseCase,
+)
+from src.shared_kernel.domain.exceptions import (
+    InvalidOrganizationalUnitError,
+    OrganizationalUnitNotFoundError,
 )
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 

@@ -2,14 +2,14 @@ from uuid import uuid4
 
 import pytest
 
-from src.identity_access_management.application.use_cases.role import (
-    InvalidRoleError,
-    RoleNotFoundError,
-)
 from src.identity_access_management.application.use_cases.role.commands import (
     UpdateRoleInputDTO,
 )
 from src.identity_access_management.domain.entities import Role
+from src.identity_access_management.domain.exceptions import (
+    InvalidRoleError,
+    RoleNotFoundError,
+)
 
 
 class TestUpdateRoleUseCase:

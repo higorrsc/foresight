@@ -2,10 +2,8 @@ from decimal import Decimal
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.tenant_management.application.use_cases.plan.commands import (
     CreatePlanInputDTO,
 )

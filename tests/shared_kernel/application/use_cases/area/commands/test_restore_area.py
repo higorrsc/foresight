@@ -2,8 +2,8 @@ from datetime import datetime
 from uuid import UUID
 
 from src.core.application.use_cases.commands import RestoreRequestInputDTO
-from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.domain.entities import Area
+from src.shared_kernel.domain.exceptions import AreaNotFoundError
 
 
 class TestRestoreArea:

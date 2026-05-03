@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
-from src.identity_access_management.application.use_cases.role import (
+from src.identity_access_management.domain.exceptions import (
     InvalidRoleError,
     RoleNotFoundError,
 )

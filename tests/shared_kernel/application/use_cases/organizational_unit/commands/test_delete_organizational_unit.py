@@ -3,14 +3,10 @@ from uuid import uuid4
 import pytest
 
 from src.core.application.use_cases.commands.generic_delete import DeleteRequestInputDTO
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
-from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
-    OrganizationalUnitNotFoundError,
-)
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.exceptions import OrganizationalUnitNotFoundError
 
 
 class TestDeleteOrganizationalUnitUseCase:

@@ -4,13 +4,13 @@ import pytest
 
 from src.core.application.use_cases.queries import GetByIdRequestInputDTO
 from src.identity_access_management.domain.entities import User
-from src.shared_kernel.application.use_cases.financial_scenario.exceptions import (
-    FinancialScenarioNotFoundError,
-)
 from src.shared_kernel.application.use_cases.financial_scenario.queries import (
     GetFinancialScenarioByIdUseCase,
 )
 from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
+from src.shared_kernel.domain.exceptions import (
+    FinancialScenarioNotFoundError,
+)
 from tests.fakes.in_memory_repository import FinancialScenarioInMemoryRepository
 
 

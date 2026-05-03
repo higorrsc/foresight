@@ -1,14 +1,14 @@
 import pytest
 
-from src.identity_access_management.application.use_cases.permission.exceptions import (
-    PermissionNotFoundError,
-)
-from src.identity_access_management.application.use_cases.role import InvalidRoleError
 from src.identity_access_management.application.use_cases.role.commands import (
     CreateRoleInputDTO,
     CreateRoleOutputDTO,
 )
 from src.identity_access_management.domain.entities.permission import Permission
+from src.identity_access_management.domain.exceptions import (
+    InvalidRoleError,
+    PermissionNotFoundError,
+)
 
 
 class TestCreateRoleUseCase:

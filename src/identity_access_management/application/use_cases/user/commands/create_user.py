@@ -1,14 +1,13 @@
-# src/identity_access_management/application/use_cases/user/create_user.py
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
-from src.identity_access_management.application.use_cases.user import (
-    UsernameAlreadyExistsError,
-)
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.entities.user import hash_password
+from src.identity_access_management.domain.exceptions import (
+    RoleNotFoundError,
+    UsernameAlreadyExistsError,
+)
 from src.identity_access_management.domain.repositories import (
     IRoleRepository,
     IUserRepository,

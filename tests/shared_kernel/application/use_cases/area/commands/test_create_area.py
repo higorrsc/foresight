@@ -4,7 +4,7 @@ from src.core.application.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     CreateDescribedEntityOutputDTO,
 )
-from src.shared_kernel.application.use_cases.area import InvalidAreaError
+from src.shared_kernel.domain.exceptions import InvalidAreaError
 
 
 class TestCreateArea:

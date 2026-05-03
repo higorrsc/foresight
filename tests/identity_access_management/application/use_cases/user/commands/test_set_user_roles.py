@@ -2,15 +2,15 @@ from copy import deepcopy
 
 import pytest
 
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.user.commands import (
     SetUserRolesInputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role, User
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    RoleNotFoundError,
+)
 
 
 class TestSetUserRolesUseCase:

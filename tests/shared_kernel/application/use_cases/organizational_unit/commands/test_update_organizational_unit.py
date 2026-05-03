@@ -6,10 +6,8 @@ from src.shared_kernel.application.use_cases.organizational_unit.commands import
     UpdateOrganizationalUnitInputDTO,
     UpdateOrganizationalUnitOutputDTO,
 )
-from src.shared_kernel.application.use_cases.organizational_unit.exceptions import (
-    OrganizationalUnitNotFoundError,
-)
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.exceptions import OrganizationalUnitNotFoundError
 
 
 class TestUpdateOrganizationalUnitUseCase:

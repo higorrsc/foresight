@@ -3,12 +3,12 @@ from uuid import uuid4
 import pytest
 
 from src.core.application.use_cases.commands import DeleteRequestInputDTO
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
-from src.identity_access_management.application.use_cases.role.exceptions import (
-    RoleDeletionIntegrityError,
-)
 from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.entities.user import hash_password
+from src.identity_access_management.domain.exceptions import (
+    RoleDeletionIntegrityError,
+    RoleNotFoundError,
+)
 
 
 class TestDeleteRoleUseCase:

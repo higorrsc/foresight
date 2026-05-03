@@ -4,10 +4,8 @@ from uuid import UUID, uuid4
 
 from src.core.domain import AbstractRepository, EntityValidationError
 from src.core.domain.entities import DescribedEntity
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User

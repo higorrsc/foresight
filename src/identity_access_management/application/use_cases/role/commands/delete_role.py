@@ -1,12 +1,10 @@
 from src.core.application.use_cases.commands import DeleteRequestInputDTO
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
-from src.identity_access_management.application.use_cases.role.exceptions import (
-    RoleDeletionIntegrityError,
-)
 from src.identity_access_management.domain.constants.permissions import AppPermission
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    RoleDeletionIntegrityError,
+    RoleNotFoundError,
+)
 from src.identity_access_management.domain.repositories import (
     IRoleRepository,
     IUserRepository,

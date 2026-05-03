@@ -1,12 +1,10 @@
 from src.core.application.use_cases.commands import DeleteRequestInputDTO
-from src.identity_access_management.application.use_cases.permission import (
+from src.identity_access_management.domain.constants import AppPermission
+from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.user import (
     InvalidUserError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.repositories import IUserRepository
 
 

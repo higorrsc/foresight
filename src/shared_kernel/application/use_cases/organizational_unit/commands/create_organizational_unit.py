@@ -3,10 +3,8 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
-from src.shared_kernel.application.use_cases.organizational_unit import (
-    InvalidOrganizationalUnitError,
-)
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.exceptions import InvalidOrganizationalUnitError
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 
 if TYPE_CHECKING:

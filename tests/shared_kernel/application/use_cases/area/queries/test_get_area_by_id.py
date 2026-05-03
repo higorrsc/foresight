@@ -3,8 +3,8 @@ from uuid import UUID
 import pytest
 
 from src.core.application.use_cases.queries import GetByIdRequestInputDTO
-from src.shared_kernel.application.use_cases.area import AreaNotFoundError
 from src.shared_kernel.domain.entities import Area
+from src.shared_kernel.domain.exceptions import AreaNotFoundError
 
 
 class TestGetAreaByIdUseCase:

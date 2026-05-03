@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from src.identity_access_management.application.use_cases.user import (
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.exceptions import (
     InvalidPasswordError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.repositories import IUserRepository
 
 

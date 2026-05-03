@@ -3,16 +3,16 @@ from uuid import uuid4
 
 import pytest
 
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
-from src.identity_access_management.application.use_cases.user import (
-    UsernameAlreadyExistsError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     CreateUserInputDTO,
     CreateUserOutputDTO,
 )
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role, User
+from src.identity_access_management.domain.exceptions import (
+    RoleNotFoundError,
+    UsernameAlreadyExistsError,
+)
 
 
 class TestCreateUserUseCase:

@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain import EntityValidationError
-from src.identity_access_management.application.use_cases.permission.exceptions import (
+from src.identity_access_management.domain.entities import Role
+from src.identity_access_management.domain.exceptions import (
+    InvalidRoleError,
     PermissionNotFoundError,
 )
-from src.identity_access_management.application.use_cases.role import InvalidRoleError
-from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,

@@ -1,7 +1,7 @@
 from src.core.application.use_cases.queries import GenericGetByIdUseCase
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import Role
+from src.identity_access_management.domain.exceptions import RoleNotFoundError
 from src.identity_access_management.domain.repositories import IRoleRepository
 
 

@@ -1,10 +1,10 @@
 from src.core.application.use_cases.queries import GetByIdRequestInputDTO
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.user import UserNotFoundError
 from src.identity_access_management.domain.constants import AppPermission
 from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.exceptions import (
+    InsufficientPermissionError,
+    UserNotFoundError,
+)
 from src.identity_access_management.domain.repositories import IUserRepository
 
 

@@ -6,12 +6,12 @@ from src.core.application.use_cases.commands import (
     DeleteRequestInputDTO,
     RestoreRequestInputDTO,
 )
-from src.identity_access_management.application.use_cases.role import RoleNotFoundError
 from src.identity_access_management.application.use_cases.role.commands import (
     DeleteRoleUseCase,
     RestoreRoleUseCase,
 )
 from src.identity_access_management.domain.entities import Role
+from src.identity_access_management.domain.exceptions import RoleNotFoundError
 
 
 class TestRestoreRoleUseCase:

@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain.exceptions import EntityValidationError
-from src.shared_kernel.application.use_cases.financial_scenario.exceptions import (
+from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
+from src.shared_kernel.domain.exceptions import (
     InvalidFinancialScenarioError,
 )
-from src.shared_kernel.domain.entities import FinancialScenario, ScenarioType
 from src.shared_kernel.domain.repositories import IFinancialScenarioRepository
 
 if TYPE_CHECKING:

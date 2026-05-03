@@ -8,9 +8,7 @@ from src.core.application.use_cases.commands.generic_create_described import (
     CreateDescribedEntityUseCase,
 )
 from src.core.domain.entities.described import DescribedEntity
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 
 
 class MockEntity(DescribedEntity):

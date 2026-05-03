@@ -2,15 +2,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.permission import (
+from src.identity_access_management.domain.constants.permissions import AppPermission
+from src.identity_access_management.domain.entities.user import hash_password
+from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
-)
-from src.identity_access_management.application.use_cases.user import (
     InvalidPasswordError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.constants.permissions import AppPermission
-from src.identity_access_management.domain.entities.user import hash_password
 from src.identity_access_management.domain.repositories import IUserRepository
 
 if TYPE_CHECKING:

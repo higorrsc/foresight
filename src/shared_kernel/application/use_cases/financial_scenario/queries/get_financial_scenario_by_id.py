@@ -1,9 +1,7 @@
 from src.core.application.use_cases.queries import GenericGetByIdUseCase
 from src.identity_access_management.domain.constants import AppPermission
-from src.shared_kernel.application.use_cases.financial_scenario import (
-    FinancialScenarioNotFoundError,
-)
 from src.shared_kernel.domain.entities import FinancialScenario
+from src.shared_kernel.domain.exceptions import FinancialScenarioNotFoundError
 from src.shared_kernel.domain.repositories import IFinancialScenarioRepository
 
 

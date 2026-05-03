@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.core.domain.exceptions import EntityValidationError
-from src.shared_kernel.application.use_cases.organizational_unit import (
+from src.shared_kernel.domain.exceptions import (
     InvalidOrganizationalUnitError,
     OrganizationalUnitNotFoundError,
 )

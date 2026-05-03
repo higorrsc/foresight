@@ -1,9 +1,7 @@
 from src.core.application.use_cases.commands import GenericDeleteUseCase
 from src.identity_access_management.domain.constants import AppPermission
-from src.shared_kernel.application.use_cases.organizational_unit import (
-    OrganizationalUnitNotFoundError,
-)
 from src.shared_kernel.domain.entities import OrganizationalUnit
+from src.shared_kernel.domain.exceptions import OrganizationalUnitNotFoundError
 from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
 
 

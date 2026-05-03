@@ -11,10 +11,8 @@ from src.api.dependencies import (
     get_plan_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
-from src.identity_access_management.application.use_cases.permission import (
-    InsufficientPermissionError,
-)
 from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.tenant_management.application.use_cases.plan.commands import (
     CreatePlanInputDTO,
     CreatePlanUseCase,

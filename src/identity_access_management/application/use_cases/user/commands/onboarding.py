@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
 
-from src.identity_access_management.application.use_cases.user.exceptions import (
-    UsernameAlreadyExistsError,
-)
 from src.identity_access_management.domain.entities import Role, User
 from src.identity_access_management.domain.entities.user import hash_password
+from src.identity_access_management.domain.exceptions import (
+    UsernameAlreadyExistsError,
+)
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,

@@ -1,14 +1,14 @@
 import pytest
 
-from src.identity_access_management.application.use_cases.user import (
-    InvalidPasswordError,
-    UserNotFoundError,
-)
 from src.identity_access_management.application.use_cases.user.commands import (
     AuthenticateUserInputDTO,
 )
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.entities.user import hash_password
+from src.identity_access_management.domain.exceptions import (
+    InvalidPasswordError,
+    UserNotFoundError,
+)
 
 
 class TestAuthenticateUserUseCase:
