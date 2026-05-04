@@ -1,5 +1,6 @@
 import os
 from collections.abc import Generator
+from decimal import Decimal
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, Mock  # noqa: E402
 from uuid import uuid4
@@ -10,8 +11,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, Pool, StaticPool
-
-from decimal import Decimal
 
 from src.api.auth.local_provider import LocalAuthenticationProvider
 from src.api.dependencies import get_db_session

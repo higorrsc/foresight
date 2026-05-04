@@ -9,6 +9,7 @@ from src.finance.domain.exceptions import (
     CurrencyMismatchError,
     InvalidMoneyOperationError,
 )
+
 from .currency_code import CurrencyCode
 
 
@@ -35,7 +36,7 @@ class Money(AbstractValueObject):
         if isinstance(self.amount, Decimal) and self.amount.is_finite():
             normalized_amount = self._normalize_amount(self.amount)
             object.__setattr__(self, "amount", normalized_amount)
-        
+
         super().__post_init__()
 
     def validate(self) -> None:
