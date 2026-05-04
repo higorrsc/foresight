@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 
-@dataclass(kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class AbstractValueObject(ABC):
     """
     Abstract base class for value objects.
