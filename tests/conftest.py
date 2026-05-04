@@ -11,6 +11,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, Pool, StaticPool
 
+from decimal import Decimal
+
 from src.api.auth.local_provider import LocalAuthenticationProvider
 from src.api.dependencies import get_db_session
 from src.api.main import app
@@ -22,6 +24,7 @@ from src.core.application.use_cases.queries import (
 from src.core.domain import EntityNotFoundError
 from src.core.infrastructure.config import Base
 from src.core.infrastructure.repository import InMemoryRepository, SQLAlchemyRepository
+from src.finance.domain.value_objects import CurrencyCode, Money
 from src.identity_access_management.application.use_cases.permission.queries import (
     ListPermissionsUseCase,
 )
@@ -934,3 +937,30 @@ def organizational_unit_sqlalchemy_repo(db_session_for_test):
 def create_user_use_case_mocked(mock_user_repository, mock_role_repository):
     """Fixture for CreateUserUseCase initialized with mock repositories."""
     return CreateUserUseCase(mock_user_repository, mock_role_repository)
+
+
+# --- FINANCE FIXTURES ---
+
+
+@pytest.fixture
+def brl_currency():
+    """Fixture for BRL currency code."""
+    return CurrencyCode(value="BRL")
+
+
+@pytest.fixture
+def usd_currency():
+    """Fixture for USD currency code."""
+    return CurrencyCode(value="USD")
+
+
+@pytest.fixture
+def money_brl_100(brl_currency):
+    """Fixture for 100.00 BRL."""
+    return Money(amount=Decimal("100.00"), currency=brl_currency)
+
+
+@pytest.fixture
+def money_usd_100(usd_currency):
+    """Fixture for 100.00 USD."""
+    return Money(amount=Decimal("100.00"), currency=usd_currency)

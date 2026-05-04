@@ -9,10 +9,10 @@ from src.finance.domain.exceptions import (
     CurrencyMismatchError,
     InvalidMoneyOperationError,
 )
-from src.finance.domain.value_objects import CurrencyCode
+from .currency_code import CurrencyCode
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True)
 class Money(AbstractValueObject):
     """
     Value object representing a monetary amount in a specific currency.
@@ -32,8 +32,10 @@ class Money(AbstractValueObject):
         Normalize and validate the monetary amount.
         """
 
-        normalized_amount = self._normalize_amount(self.amount)
-        object.__setattr__(self, "amount", normalized_amount)
+        if isinstance(self.amount, Decimal) and self.amount.is_finite():
+            normalized_amount = self._normalize_amount(self.amount)
+            object.__setattr__(self, "amount", normalized_amount)
+        
         super().__post_init__()
 
     def validate(self) -> None:
