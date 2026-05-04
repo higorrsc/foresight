@@ -4,7 +4,7 @@ from decimal import Decimal
 from src.core.domain import AbstractValueObject
 
 
-@dataclass(kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class DummyValueObjectForMoneyType(AbstractValueObject):
     """
     A dummy value object for money type.
