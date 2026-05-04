@@ -52,6 +52,7 @@
     "pythonpath",
     "PYTHONUNBUFFERED",
     "qualname",
+    "quantizer",
     "sessionmaker",
     "SGBD",
     "sqlalchemy",
