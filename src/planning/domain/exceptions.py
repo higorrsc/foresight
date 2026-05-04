@@ -27,3 +27,7 @@ class ScenarioAlreadyUnlockedError(BusinessRuleViolationError):
 
 class ScenarioNotFoundError(EntityNotFoundError):
     """Exception raised when a Scenario is not found in the repository."""
+
+
+class InvalidExchangeRateError(EntityValidationError):
+    """Exception raised when an ExchangeRate is not valid."""
