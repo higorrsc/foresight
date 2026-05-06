@@ -1,6 +1,6 @@
 import pytest
 
-from src.core.domain import EntityValidationError
+from src.finance.domain.exceptions import InvalidCurrencyCodeError
 from src.finance.domain.value_objects import CurrencyCode
 
 
@@ -21,17 +21,37 @@ class TestCurrencyCode:
     @pytest.mark.parametrize(
         "invalid_value, expected_error",
         [
-            ("BR", "Currency code must be 3 characters long"),
-            ("BRL1", "Currency code must be 3 characters long"),
-            ("B1L", "Currency code must contain only letters"),
-            ("ZZZ", "Invalid ISO 4217 currency code: ZZZ"),
+            (
+                "BR",
+                "Currency code must contain 3 characters",
+            ),
+            (
+                "BRL1",
+                "Currency code must contain 3 characters",
+            ),
+            (
+                "B1L",
+                "Currency code must contain only letters",
+            ),
+            (
+                "ZZZ",
+                "Unsupported ISO 4217 currency code: ZZZ",
+            ),
         ],
     )
-    def test_currency_code_validation_failure(self, invalid_value, expected_error):
+    def test_currency_code_validation_failure(
+        self,
+        invalid_value,
+        expected_error,
+    ):
         """
         Test initialization failure with invalid currency codes.
         """
-        with pytest.raises(EntityValidationError, match=expected_error):
+
+        with pytest.raises(
+            InvalidCurrencyCodeError,
+            match=expected_error,
+        ):
             CurrencyCode(value=invalid_value)
 
     def test_currency_code_equality(self):
