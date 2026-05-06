@@ -1,7 +1,13 @@
+from decimal import Decimal
+
 from sqlalchemy.orm import Session
 
-from src.planning.domain.entities import Scenario, ScenarioType
-from src.planning.infrastructure.repositories import ScenarioRepository
+from src.finance.domain.value_objects import CurrencyCode
+from src.planning.domain.entities import ExchangeRate, Scenario, ScenarioType
+from src.planning.infrastructure.repositories import (
+    ExchangeRateRepository,
+    ScenarioRepository,
+)
 from src.tenant_management.infrastructure.models import TenantModel
 
 
@@ -109,3 +115,66 @@ class TestScenarioRepository:
 
         assert result.total == 2
         assert len(result.data) == 2
+
+    def test_scenario_repository_with_exchange_rates(
+        self,
+        db_session_for_test: Session,
+        default_tenant: TenantModel,
+    ):
+        """
+        Test saving a scenario with exchange rates.
+        """
+        repository = ScenarioRepository(db_session_for_test)
+        scenario = Scenario(
+            description="Scenario with rates",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,  # type: ignore
+            assumptions=None,
+        )
+        rate = ExchangeRate(
+            scenario_id=scenario.id,
+            from_currency=CurrencyCode(value="USD"),
+            to_currency=CurrencyCode(value="BRL"),
+            rate=Decimal("5.0"),
+        )
+        scenario.exchange_rates = [rate]
+
+        repository.save(scenario)
+
+        saved = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
+        assert saved is not None
+        assert saved.exchange_rates is not None
+        assert len(saved.exchange_rates) == 1
+        assert str(saved.exchange_rates[0].from_currency) == "USD"
+        assert saved.exchange_rates[0].rate == Decimal("5.0")
+
+    def test_exchange_rate_repository(
+        self,
+        db_session_for_test: Session,
+        default_tenant: TenantModel,
+    ):
+        """
+        Test the ExchangeRateRepository directly.
+        """
+        scenario_repo = ScenarioRepository(db_session_for_test)
+        scenario = Scenario(
+            description="Parent Scenario",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,  # type: ignore
+            assumptions=None,
+        )
+        scenario_repo.save(scenario)
+
+        er_repo = ExchangeRateRepository(db_session_for_test)
+        rate = ExchangeRate(
+            scenario_id=scenario.id,
+            from_currency=CurrencyCode(value="EUR"),
+            to_currency=CurrencyCode(value="USD"),
+            rate=Decimal("1.1"),
+        )
+        er_repo.save(rate)
+
+        saved_rate = er_repo.get_by_id(rate.id, None)
+        assert saved_rate is not None
+        assert saved_rate.rate == Decimal("1.1")
+        assert saved_rate.scenario_id == scenario.id
