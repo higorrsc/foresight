@@ -1,9 +1,11 @@
+from decimal import Decimal
 from uuid import uuid4
 
 import pytest
 
 from src.identity_access_management.domain.entities import User
 from src.planning.application.use_cases.scenario.commands import (
+    ExchangeRateInputDTO,
     UpdateScenarioInputDTO,
     UpdateScenarioUseCase,
 )
@@ -90,3 +92,41 @@ class TestUpdateScenarioUseCase:
 
         with pytest.raises(CannotUpdateLockedScenarioError):
             use_case.execute(input_dto)
+
+    def test_update_financial_scenario_with_exchange_rates(self, admin_actor: User):
+        """
+        Test successful update of a financial scenario with exchange rates.
+        """
+        repository = ScenarioInMemoryRepository()
+        scenario = Scenario(
+            description="Scenario to update rates",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=admin_actor.tenant_id,
+            assumptions=None,
+        )
+        repository.save(scenario)
+
+        use_case = UpdateScenarioUseCase(repository)
+        exchange_rates = [
+            ExchangeRateInputDTO(
+                from_currency="GBP",
+                to_currency="USD",
+                rate=Decimal("1.25"),
+            )
+        ]
+
+        input_dto = UpdateScenarioInputDTO(
+            actor=admin_actor,
+            id=scenario.id,
+            description="Updated Description",
+            scenario_type=ScenarioType.ACTUAL,
+            exchange_rates=exchange_rates,
+        )
+
+        use_case.execute(input_dto)
+
+        updated_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        assert updated_scenario.exchange_rates is not None  # type: ignore
+        assert len(updated_scenario.exchange_rates) == 1  # type: ignore
+        assert str(updated_scenario.exchange_rates[0].from_currency) == "GBP"  # type: ignore
+        assert updated_scenario.exchange_rates[0].rate == Decimal("1.25")  # type: ignore

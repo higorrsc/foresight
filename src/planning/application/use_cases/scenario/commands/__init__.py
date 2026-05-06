@@ -2,6 +2,7 @@ from .create_scenario import (
     CreateScenarioInputDTO,
     CreateScenarioOutputDTO,
     CreateScenarioUseCase,
+    ExchangeRateInputDTO,
 )
 from .delete_scenario import DeleteScenarioUseCase
 from .lock_scenario import (
@@ -24,6 +25,7 @@ __all__ = [
     "CreateScenarioOutputDTO",
     "CreateScenarioUseCase",
     "DeleteScenarioUseCase",
+    "ExchangeRateInputDTO",
     "LockScenarioInputDTO",
     "LockScenarioUseCase",
     "RestoreScenarioUseCase",
