@@ -1,23 +1,22 @@
 from dataclasses import dataclass
 
-from src.core.domain import AbstractValueObject, EntityValidationError
-from src.finance.domain.constants import VALID_CURRENCY_CODES
+from src.core.domain import AbstractValueObject
+from src.finance.domain.entities.currency import currency_catalog
 
 
 @dataclass(frozen=True, kw_only=True)
 class CurrencyCode(AbstractValueObject):
     """
-    Value object representing a currency code.
+    ISO 4217 currency code value object.
     """
 
     value: str
 
     def __post_init__(self):
-        """
-        Validate the value object after initialization.
-        """
+        """Validate and normalize the currency code."""
 
-        object.__setattr__(self, "value", self.value.upper())
+        normalized = currency_catalog.validate_code(self.value)
+        object.__setattr__(self, "value", normalized)
         super().__post_init__()
 
     def __repr__(self) -> str:
@@ -37,23 +36,37 @@ class CurrencyCode(AbstractValueObject):
 
         return self.value
 
+    @property
+    def currency(self):
+        """Get the currency metadata for this code."""
+
+        return currency_catalog.get(self.value)
+
+    @property
+    def decimal_places(self) -> int:
+        """Get the number of decimal places for this code."""
+
+        return currency_catalog.decimal_places(self.value)
+
+    @property
+    def symbol(self) -> str:
+        """Get the symbol for this code."""
+
+        return currency_catalog.symbol(self.value)
+
+    @property
+    def numeric_code(self) -> str:
+        """Get the numeric code for this code."""
+
+        return currency_catalog.numeric_code(self.value)
+
+    @property
+    def name(self) -> str:
+        """Get the name for this code."""
+
+        return currency_catalog.name(self.value)
+
     def validate(self):
         """
-        Validate the value object.
-
-        This method should be implemented in the concrete subclasses to validate
-        the value object's state. It should raise a EntityValidationError if the value
-        object is in an invalid state.
-
-        Raises:
-            EntityValidationError: If the value object is in an invalid state.
+        Validation already performed during normalization.
         """
-
-        if len(self.value) != 3:
-            raise EntityValidationError("Currency code must be 3 characters long")
-
-        if not self.value.isalpha():
-            raise EntityValidationError("Currency code must contain only letters")
-
-        if self.value not in VALID_CURRENCY_CODES:
-            raise EntityValidationError(f"Invalid ISO 4217 currency code: {self.value}")

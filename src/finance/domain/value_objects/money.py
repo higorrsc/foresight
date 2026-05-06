@@ -2,9 +2,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import SupportsInt
 
-from src.core.domain.exceptions import EntityValidationError
 from src.core.domain.value_object import AbstractValueObject
-from src.finance.domain.constants import CURRENCY_DECIMAL_PLACES
 from src.finance.domain.exceptions import (
     CurrencyMismatchError,
     InvalidMoneyOperationError,
@@ -16,92 +14,57 @@ from .currency_code import CurrencyCode
 @dataclass(frozen=True, kw_only=True)
 class Money(AbstractValueObject):
     """
-    Value object representing a monetary amount in a specific currency.
+    Monetary value object.
 
     Invariants:
-        - amount must be a Decimal
-        - amount cannot be NaN
-        - amount cannot be infinite
-        - amount precision must respect the currency decimal places
+        - amount must be Decimal
+        - amount must be finite
+        - precision must respect currency
     """
 
     amount: Decimal
     currency: CurrencyCode
 
-    def __post_init__(self) -> None:
-        """
-        Normalize and validate the monetary amount.
-        """
-
-        if isinstance(self.amount, Decimal) and self.amount.is_finite():
-            normalized_amount = self._normalize_amount(self.amount)
-            object.__setattr__(self, "amount", normalized_amount)
-
-        super().__post_init__()
-
     def validate(self) -> None:
-        """
-        Validate monetary invariants.
-
-        Raises:
-            EntityValidationError:
-                If the monetary value is invalid.
-        """
+        """Validate the Money object."""
 
         if not isinstance(self.amount, Decimal):
-            raise EntityValidationError("Money amount must be a Decimal.")
+            raise InvalidMoneyOperationError("Money amount must be Decimal.")
 
-        if self.amount.is_nan():
-            raise EntityValidationError("Money amount cannot be NaN.")
+        if not self.amount.is_finite():
+            raise InvalidMoneyOperationError("Money amount must be finite.")
 
-        if self.amount.is_infinite():
-            raise EntityValidationError("Money amount cannot be infinite.")
-
-        allowed_decimals = CURRENCY_DECIMAL_PLACES[str(self.currency)]
+        allowed_decimals = self.currency.decimal_places
 
         exponent = abs(self.amount.as_tuple().exponent)  # type: ignore
 
         if exponent > allowed_decimals:
-            raise EntityValidationError(
-                f"Currency '{self.currency}' supports at most "
-                f"{allowed_decimals} decimal places."
+            raise InvalidMoneyOperationError(
+                f"Currency '{self.currency}' supports "
+                f"at most {allowed_decimals} decimal places."
             )
 
     def __add__(self, other: "Money") -> "Money":
-        """
-        Add two Money objects.
-
-        Raises:
-            InvalidMoneyOperationError:
-                If the other object is not Money.
-
-            CurrencyMismatchError:
-                If currencies are different.
-        """
+        """Add two Money objects."""
 
         self._ensure_same_currency(other)
 
+        amount = self.amount + other.amount
+
         return Money(
-            amount=self.amount + other.amount,
+            amount=self._quantize(amount),
             currency=self.currency,
         )
 
     def __sub__(self, other: "Money") -> "Money":
-        """
-        Subtract two Money objects.
-
-        Raises:
-            InvalidMoneyOperationError:
-                If the other object is not Money.
-
-            CurrencyMismatchError:
-                If currencies are different.
-        """
+        """Subtract two Money objects."""
 
         self._ensure_same_currency(other)
 
+        amount = self.amount - other.amount
+
         return Money(
-            amount=self.amount - other.amount,
+            amount=self._quantize(amount),
             currency=self.currency,
         )
 
@@ -109,24 +72,13 @@ class Money(AbstractValueObject):
         self,
         multiplier: Decimal | int | SupportsInt,
     ) -> "Money":
-        """
-        Multiply Money by a numeric value.
+        """Multiply two Money objects."""
 
-        Float values are intentionally not supported to avoid
-        floating-point precision issues.
-
-        Raises:
-            InvalidMoneyOperationError:
-                If multiplier is a float.
-        """
-
-        if isinstance(multiplier, float):
-            raise InvalidMoneyOperationError(
-                "Float values are not supported in Money operations."
-            )
+        decimal_multiplier = self._to_decimal(multiplier)
+        amount = self.amount * decimal_multiplier
 
         return Money(
-            amount=self.amount * Decimal(multiplier),  # type: ignore
+            amount=self._quantize(amount),
             currency=self.currency,
         )
 
@@ -134,33 +86,22 @@ class Money(AbstractValueObject):
         self,
         divisor: Decimal | int | SupportsInt,
     ) -> "Money":
-        """
-        Divide Money by a numeric value.
+        """Divide two Money objects."""
 
-        Raises:
-            InvalidMoneyOperationError:
-                If divisor is zero or float.
-        """
-
-        if isinstance(divisor, float):
-            raise InvalidMoneyOperationError(
-                "Float values are not supported in Money operations."
-            )
-
-        decimal_divisor = Decimal(divisor)  # type: ignore
+        decimal_divisor = self._to_decimal(divisor)
 
         if decimal_divisor == Decimal("0"):
             raise InvalidMoneyOperationError("Division by zero is not allowed.")
 
+        amount = self.amount / decimal_divisor
+
         return Money(
-            amount=self.amount / decimal_divisor,
+            amount=self._quantize(amount),
             currency=self.currency,
         )
 
     def __neg__(self) -> "Money":
-        """
-        Negate Money amount.
-        """
+        """Negate a Money object."""
 
         return Money(
             amount=-self.amount,
@@ -168,9 +109,7 @@ class Money(AbstractValueObject):
         )
 
     def __abs__(self) -> "Money":
-        """
-        Return absolute Money value.
-        """
+        """Get the absolute value of a Money object."""
 
         return Money(
             amount=abs(self.amount),
@@ -178,60 +117,37 @@ class Money(AbstractValueObject):
         )
 
     def __lt__(self, other: "Money") -> bool:
-        """
-        Compare if Money is less than another Money.
-        """
+        """Compare two Money objects."""
 
         self._ensure_same_currency(other)
-
         return self.amount < other.amount
 
     def __le__(self, other: "Money") -> bool:
-        """
-        Compare if Money is less than or equal to another Money.
-        """
+        """Compare two Money objects."""
 
         self._ensure_same_currency(other)
-
         return self.amount <= other.amount
 
     def __gt__(self, other: "Money") -> bool:
-        """
-        Compare if Money is greater than another Money.
-        """
+        """Compare two Money objects."""
 
         self._ensure_same_currency(other)
-
         return self.amount > other.amount
 
     def __ge__(self, other: "Money") -> bool:
-        """
-        Compare if Money is greater than or equal to another Money.
-        """
+        """Compare two Money objects."""
 
         self._ensure_same_currency(other)
-
         return self.amount >= other.amount
 
     @property
     def is_zero(self) -> bool:
-        """
-        Indicates whether the monetary amount is zero.
-        """
+        """Check if a Money object is zero."""
 
         return self.amount == Decimal("0")
 
     def _ensure_same_currency(self, other: "Money") -> None:
-        """
-        Ensure Money operations use the same currency.
-
-        Raises:
-            InvalidMoneyOperationError:
-                If the other object is not Money.
-
-            CurrencyMismatchError:
-                If currencies are different.
-        """
+        """Ensure that two Money objects have the same currency."""
 
         if not isinstance(other, Money):
             raise InvalidMoneyOperationError(
@@ -243,31 +159,25 @@ class Money(AbstractValueObject):
                 f"Currency mismatch: {self.currency} != {other.currency}"
             )
 
-    def _normalize_amount(self, amount: Decimal) -> Decimal:
-        """
-        Normalize amount precision according to currency.
+    def _quantize(self, amount: Decimal) -> Decimal:
+        """Ensure decimal places"""
 
-        Returns:
-            Decimal:
-                Quantized monetary amount.
-        """
-
-        decimal_places = CURRENCY_DECIMAL_PLACES[str(self.currency)]
+        decimal_places = self.currency.decimal_places
 
         quantizer = Decimal("1" if decimal_places == 0 else f"1.{'0' * decimal_places}")
 
         return amount.quantize(quantizer)
 
+    @staticmethod
+    def _to_decimal(
+        value: Decimal | int | SupportsInt,
+    ) -> Decimal:
+        """Convert a value to a Decimal object."""
+
+        if isinstance(value, float):
+            raise InvalidMoneyOperationError("Float values are not supported.")
+
+        return Decimal(value)  # type: ignore
+
     def __str__(self) -> str:
-        """
-        String representation of Money.
-        """
-
         return f"{self.amount} {self.currency}"
-
-    def __repr__(self) -> str:
-        """
-        Debug representation of Money.
-        """
-
-        return f"Money(amount={self.amount}, currency='{self.currency}')"

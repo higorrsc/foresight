@@ -1,0 +1,35 @@
+BRL:
+  name: Brazilian Real
+  symbol: R$
+  numeric_code: "986"
+  decimal_places: 2
+USD:
+  name: United States Dollar
+  symbol: $
+  numeric_code: "840"
+  decimal_places: 2
+EUR:
+  name: Euro
+  symbol: €
+  numeric_code: "978"
+  decimal_places: 2
+GBP:
+  name: Pound Sterling
+  symbol: £
+  numeric_code: "826"
+  decimal_places: 2
+JPY:
+  name: Japanese Yen
+  symbol: ¥
+  numeric_code: "392"
+  decimal_places: 0
+AUD:
+  name: Australian Dollar
+  symbol: A$
+  numeric_code: "036"
+  decimal_places: 2
+CAD:
+  name: Canadian Dollar
+  symbol: C$
+  numeric_code: "124"
+  decimal_places: 2
