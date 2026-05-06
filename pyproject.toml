@@ -16,6 +16,7 @@ dependencies = [
   "pyodbc>=5.3.0",
   "python-jose[cryptography]>=3.5.0",
   "python-multipart>=0.0.20",
+  "pyyaml>=6.0.3",
   "sqlalchemy-cockroachdb>=2.0.3",
   "sqlalchemy>=2.0.43",
   "uvicorn[standard]>=0.37.0",
@@ -33,6 +34,7 @@ dev = [
   "ruff>=0.14.4",
   "types-passlib>=1.7.7.20250602",
   "types-python-jose>=3.5.0.20250531",
+  "types-pyyaml>=6.0.12.20260408",
 ]
 
 # ------------------------------------------------------
