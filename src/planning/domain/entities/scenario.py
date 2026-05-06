@@ -4,6 +4,8 @@ from enum import StrEnum
 from src.core.domain.entities import DescribedEntity
 from src.core.domain.mixins import SoftDeletableMixin, UserAuditMixin
 
+from .exchange_rate import ExchangeRate
+
 
 class ScenarioType(StrEnum):
     """
@@ -24,6 +26,7 @@ class Scenario(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     scenario_type: ScenarioType
     is_locked: bool = False
     assumptions: str | None
+    exchange_rates: list[ExchangeRate] | None = None
 
     def lock(self) -> None:
         """

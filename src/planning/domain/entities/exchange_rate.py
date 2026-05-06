@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
+from uuid import UUID
 
 from src.core.domain.entities import AbstractEntity
 from src.finance.domain.value_objects import CurrencyCode
@@ -12,6 +13,7 @@ class ExchangeRate(AbstractEntity):
     Entity representing a currency exchange rate.
     """
 
+    scenario_id: UUID
     from_currency: CurrencyCode
     to_currency: CurrencyCode
     rate: Decimal
