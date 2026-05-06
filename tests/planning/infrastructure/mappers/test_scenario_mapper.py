@@ -1,9 +1,11 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import uuid4
 
-from src.planning.domain.entities import Scenario, ScenarioType
+from src.finance.domain.value_objects import CurrencyCode
+from src.planning.domain.entities import ExchangeRate, Scenario, ScenarioType
 from src.planning.infrastructure.mappers import ScenarioMapper
-from src.planning.infrastructure.models import ScenarioModel
+from src.planning.infrastructure.models import ExchangeRateModel, ScenarioModel
 
 
 class TestScenarioMapper:
@@ -29,7 +31,8 @@ class TestScenarioMapper:
         entity.created_at = datetime.now()
         entity.created_by = uuid4()
 
-        model = ScenarioMapper.to_model(entity)
+        mapper = ScenarioMapper()
+        model = mapper.to_model(entity)
 
         assert model.id == entity_id
         assert model.tenant_id == tenant_id
@@ -59,7 +62,8 @@ class TestScenarioMapper:
             created_at=created_at,
         )
 
-        entity = ScenarioMapper.to_entity(model)
+        mapper = ScenarioMapper()
+        entity = mapper.to_entity(model)
 
         assert entity.id == model_id
         assert entity.tenant_id == tenant_id
@@ -69,3 +73,62 @@ class TestScenarioMapper:
         assert entity.assumptions == "Model assumptions"
         assert entity.created_by == created_by
         assert entity.created_at == created_at
+
+    def test_to_model_with_exchange_rates(self):
+        """
+        Test mapping of a Scenario entity with exchange rates to a ScenarioModel.
+        """
+        entity_id = uuid4()
+        entity = Scenario(
+            id=entity_id,
+            tenant_id=uuid4(),
+            description="Test Scenario",
+            scenario_type=ScenarioType.ACTUAL,
+            assumptions=None,
+        )
+        rate = ExchangeRate(
+            scenario_id=entity_id,
+            from_currency=CurrencyCode(value="USD"),
+            to_currency=CurrencyCode(value="BRL"),
+            rate=Decimal("5.0"),
+        )
+        entity.exchange_rates = [rate]
+
+        mapper = ScenarioMapper()
+        model = mapper.to_model(entity)
+
+        assert len(model.exchange_rates) == 1
+        assert model.exchange_rates[0].from_currency == "USD"
+        assert model.exchange_rates[0].rate == Decimal("5.0")
+        assert model.exchange_rates[0].scenario_id == entity_id
+
+    def test_to_entity_with_exchange_rates(self):
+        """
+        Test mapping of a ScenarioModel with exchange rates to a Scenario entity.
+        """
+        model_id = uuid4()
+        model = ScenarioModel(
+            id=model_id,
+            tenant_id=uuid4(),
+            description="Test Scenario Model",
+            scenario_type=ScenarioType.BUDGET,
+            is_locked=False,
+            assumptions=None,
+        )
+        rate_model = ExchangeRateModel(
+            id=uuid4(),
+            scenario_id=model_id,
+            from_currency="EUR",
+            to_currency="USD",
+            rate=Decimal("1.1"),
+        )
+        model.exchange_rates = [rate_model]
+
+        mapper = ScenarioMapper()
+        entity = mapper.to_entity(model)
+
+        assert entity.exchange_rates is not None
+        assert len(entity.exchange_rates) == 1
+        assert str(entity.exchange_rates[0].from_currency) == "EUR"
+        assert entity.exchange_rates[0].rate == Decimal("1.1")
+        assert entity.exchange_rates[0].scenario_id == model_id
