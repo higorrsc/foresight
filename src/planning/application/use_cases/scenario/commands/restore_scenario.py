@@ -17,7 +17,7 @@ class RestoreScenarioUseCase(GenericRestoreUseCase[Scenario]):
 
         super().__init__(
             repository,
-            AppPermission.FINANCIAL_SCENARIO_DELETE,
+            AppPermission.SCENARIO_DELETE,
             ScenarioNotFoundError,
             "Scenario with given ID not found.",
         )

@@ -18,5 +18,5 @@ class ListScenarioUseCase(GenericListUseCase[Scenario]):
 
         super().__init__(
             repository,
-            AppPermission.FINANCIAL_SCENARIO_READ,
+            AppPermission.SCENARIO_READ,
         )

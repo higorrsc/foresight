@@ -17,7 +17,7 @@ class GetScenarioByIdUseCase(GenericGetByIdUseCase[Scenario]):
 
         super().__init__(
             repository,
-            AppPermission.FINANCIAL_SCENARIO_READ,
+            AppPermission.SCENARIO_READ,
             ScenarioNotFoundError,
             "Scenario with given ID not found.",
         )
