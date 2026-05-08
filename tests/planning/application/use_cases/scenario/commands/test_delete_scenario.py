@@ -17,7 +17,7 @@ class TestDeleteScenarioUseCase:
     Test suite for the DeleteScenarioUseCase.
     """
 
-    def test_delete_financial_scenario_success(self, admin_actor: User):
+    def test_delete_scenario_success(self, admin_actor: User):
         """
         Test successful deletion (soft delete) of a financial scenario.
         """
@@ -39,7 +39,7 @@ class TestDeleteScenarioUseCase:
         assert deleted_scenario is not None
         assert deleted_scenario.is_active is False
 
-    def test_delete_financial_scenario_not_found(self, admin_actor: User):
+    def test_delete_scenario_not_found(self, admin_actor: User):
         """
         Test that deleting a non-existent financial scenario raises an error.
         """

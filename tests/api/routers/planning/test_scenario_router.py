@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from src.planning.domain.entities import ScenarioType
-from src.planning.infrastructure.models import ScenarioModel
+from src.planning.infrastructure.models import ExchangeRateModel, ScenarioModel
 
 
 class TestScenarioRouter:
@@ -12,7 +12,7 @@ class TestScenarioRouter:
     Integration tests for the  Scenario Router.
     """
 
-    def test_create_financial_scenario_api(
+    def test_create_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -68,7 +68,7 @@ class TestScenarioRouter:
         assert res_json["meta"]["total_items"] >= 1
         assert any(item["description"] == "List Scenario" for item in res_json["data"])
 
-    def test_get_financial_scenario_by_id_api(
+    def test_get_scenario_by_id_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -97,7 +97,37 @@ class TestScenarioRouter:
         assert response.status_code == 200
         assert response.json()["description"] == "Get Scenario"
 
-    def test_update_financial_scenario_api(
+    def test_get_scenario_details_api(
+        self,
+        client: TestClient,
+        admin_token: str,
+        db_session_for_test: Session,
+        default_tenant: Any,
+        admin_actor: Any,
+    ):
+        """
+        Test retrieving detailed financial scenario via API.
+        """
+        scenario = ScenarioModel(
+            description="Detailed Scenario",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        db_session_for_test.add(scenario)
+        db_session_for_test.commit()
+
+        response = client.get(
+            f"/scenarios/{scenario.id}/details",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["description"] == "Detailed Scenario"
+        assert "exchange_rates" in response.json()
+
+    def test_update_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -132,7 +162,7 @@ class TestScenarioRouter:
         assert response.status_code == 200
         assert response.json()["description"] == "New API Scenario"
 
-    def test_delete_financial_scenario_api(
+    def test_delete_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -164,7 +194,7 @@ class TestScenarioRouter:
         db_session_for_test.refresh(scenario)
         assert scenario.is_active is False
 
-    def test_lock_financial_scenario_api(
+    def test_lock_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -195,7 +225,7 @@ class TestScenarioRouter:
         db_session_for_test.refresh(scenario)
         assert scenario.is_locked is True
 
-    def test_unlock_financial_scenario_api(
+    def test_unlock_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -226,7 +256,7 @@ class TestScenarioRouter:
         db_session_for_test.refresh(scenario)
         assert scenario.is_locked is False
 
-    def test_restore_financial_scenario_api(
+    def test_restore_scenario_api(
         self,
         client: TestClient,
         admin_token: str,
@@ -256,3 +286,115 @@ class TestScenarioRouter:
         assert response.status_code == 204
         db_session_for_test.refresh(scenario)
         assert scenario.is_active is True
+
+    def test_add_exchange_rate_to_scenario_api(
+        self,
+        client: TestClient,
+        admin_token: str,
+        db_session_for_test: Session,
+        default_tenant: Any,
+        admin_actor: Any,
+    ):
+        """
+        Test adding an exchange rate to a scenario via API.
+        """
+        scenario = ScenarioModel(
+            description="Scenario for Rate",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        db_session_for_test.add(scenario)
+        db_session_for_test.commit()
+
+        response = client.post(
+            f"/scenarios/{scenario.id}/exchange-rates",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={
+                "from_currency": "USD",
+                "to_currency": "BRL",
+                "rate": 5.25,
+            },
+        )
+
+        assert response.status_code == 201
+        assert "id" in response.json()
+
+    def test_update_exchange_rate_api(
+        self,
+        client: TestClient,
+        admin_token: str,
+        db_session_for_test: Session,
+        default_tenant: Any,
+        admin_actor: Any,
+    ):
+        """
+        Test updating an exchange rate via API.
+        """
+        scenario = ScenarioModel(
+            description="Scenario for Rate Update",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        db_session_for_test.add(scenario)
+        db_session_for_test.commit()
+
+        rate = ExchangeRateModel(
+            scenario_id=scenario.id,
+            from_currency="USD",
+            to_currency="BRL",
+            rate=5.0,
+        )
+        db_session_for_test.add(rate)
+        db_session_for_test.commit()
+
+        response = client.put(
+            f"/scenarios/exchange-rates/{rate.id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={
+                "rate": 5.5,
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.json()["message"] == "Exchange rate updated successfully"
+
+    def test_remove_exchange_rate_api(
+        self,
+        client: TestClient,
+        admin_token: str,
+        db_session_for_test: Session,
+        default_tenant: Any,
+        admin_actor: Any,
+    ):
+        """
+        Test removing an exchange rate via API.
+        """
+        scenario = ScenarioModel(
+            description="Scenario for Rate Removal",
+            scenario_type=ScenarioType.ACTUAL,
+            tenant_id=default_tenant.id,
+            created_by=admin_actor.id,
+            updated_by=admin_actor.id,
+        )
+        db_session_for_test.add(scenario)
+        db_session_for_test.commit()
+
+        rate = ExchangeRateModel(
+            scenario_id=scenario.id,
+            from_currency="USD",
+            to_currency="BRL",
+            rate=5.0,
+        )
+        db_session_for_test.add(rate)
+        db_session_for_test.commit()
+
+        response = client.delete(
+            f"/scenarios/exchange-rates/{rate.id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+
+        assert response.status_code == 204

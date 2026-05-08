@@ -15,7 +15,7 @@ class TestCreateScenarioUseCase:
     Test suite for the CreateScenarioUseCase.
     """
 
-    def test_create_financial_scenario_success(self, admin_actor: User):
+    def test_create_scenario_success(self, admin_actor: User):
         """
         Test successful creation of a financial scenario.
         """
@@ -39,7 +39,7 @@ class TestCreateScenarioUseCase:
         assert saved_scenario.tenant_id == admin_actor.tenant_id  # type: ignore
         assert saved_scenario.created_by == admin_actor.id  # type: ignore
 
-    def test_create_financial_scenario_with_exchange_rates(self, admin_actor: User):
+    def test_create_scenario_with_exchange_rates(self, admin_actor: User):
         """
         Test successful creation of a financial scenario with exchange rates.
         """

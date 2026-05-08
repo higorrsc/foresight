@@ -22,7 +22,7 @@ class TestUpdateScenarioUseCase:
     Test suite for the UpdateScenarioUseCase.
     """
 
-    def test_update_financial_scenario_success(self, admin_actor: User):
+    def test_update_scenario_success(self, admin_actor: User):
         """
         Test successful update of a financial scenario.
         """
@@ -52,7 +52,7 @@ class TestUpdateScenarioUseCase:
         assert updated_scenario.scenario_type == ScenarioType.FORECAST  # type: ignore
         assert updated_scenario.updated_by == admin_actor.id  # type: ignore
 
-    def test_update_financial_scenario_not_found(self, admin_actor: User):
+    def test_update_scenario_not_found(self, admin_actor: User):
         """
         Test that updating a non-existent financial scenario raises an error.
         """
@@ -68,7 +68,7 @@ class TestUpdateScenarioUseCase:
         with pytest.raises(ScenarioNotFoundError):
             use_case.execute(input_dto)
 
-    def test_update_locked_financial_scenario_fails(self, admin_actor: User):
+    def test_update_locked_scenario_fails(self, admin_actor: User):
         """
         Test that updating a locked financial scenario raises an error.
         """
@@ -93,7 +93,7 @@ class TestUpdateScenarioUseCase:
         with pytest.raises(CannotUpdateLockedScenarioError):
             use_case.execute(input_dto)
 
-    def test_update_financial_scenario_with_exchange_rates(self, admin_actor: User):
+    def test_update_scenario_with_exchange_rates(self, admin_actor: User):
         """
         Test successful update of a financial scenario with exchange rates.
         """

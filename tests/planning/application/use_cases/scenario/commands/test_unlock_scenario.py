@@ -20,7 +20,7 @@ class TestUnlockScenarioUseCase:
     Test suite for the UnlockScenarioUseCase.
     """
 
-    def test_unlock_financial_scenario_success(self, admin_actor: User):
+    def test_unlock_scenario_success(self, admin_actor: User):
         """
         Test successful unlocking of a financial scenario.
         """
@@ -43,7 +43,7 @@ class TestUnlockScenarioUseCase:
         assert unlocked_scenario.is_locked is False  # type: ignore
         assert unlocked_scenario.updated_by == admin_actor.id  # type: ignore
 
-    def test_unlock_financial_scenario_already_unlocked(self, admin_actor: User):
+    def test_unlock_scenario_already_unlocked(self, admin_actor: User):
         """
         Test that unlocking an already unlocked financial scenario raises an error.
         """
@@ -63,7 +63,7 @@ class TestUnlockScenarioUseCase:
         with pytest.raises(ScenarioAlreadyUnlockedError):
             use_case.execute(input_dto)
 
-    def test_unlock_financial_scenario_not_found(self, admin_actor: User):
+    def test_unlock_scenario_not_found(self, admin_actor: User):
         """
         Test that unlocking a non-existent financial scenario raises an error.
         """

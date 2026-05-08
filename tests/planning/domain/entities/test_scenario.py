@@ -11,7 +11,7 @@ class TestScenarioEntity:
     Test suite for the Scenario entity.
     """
 
-    def test_financial_scenario_creation(self):
+    def test_scenario_creation(self):
         """
         Test that Scenario initializes correctly with valid data.
         """
@@ -30,7 +30,7 @@ class TestScenarioEntity:
         assert scenario.is_locked is False
         assert scenario.tenant_id == tenant_id
 
-    def test_financial_scenario_lock_unlock(self):
+    def test_scenario_lock_unlock(self):
         """
         Test the lock and unlock methods of Scenario.
         """
@@ -48,7 +48,7 @@ class TestScenarioEntity:
         scenario.unlock()
         assert scenario.is_locked is False
 
-    def test_financial_scenario_validation_empty_description(self):
+    def test_scenario_validation_empty_description(self):
         """
         Test that creating a Scenario with an
         empty description raises an EntityValidationError.
@@ -64,7 +64,7 @@ class TestScenarioEntity:
             scenario.validate()
         assert "Description must be a non-empty string." in str(excinfo.value)
 
-    def test_financial_scenario_validation_long_description(self):
+    def test_scenario_validation_long_description(self):
         """
         Test that creating a Scenario with a
         too-long description raises an EntityValidationError.
@@ -80,7 +80,7 @@ class TestScenarioEntity:
             scenario.validate()
         assert "Description must be at most 100 characters long." in str(excinfo.value)
 
-    def test_financial_scenario_update_description(self):
+    def test_scenario_update_description(self):
         """
         Test that update_description correctly updates the description.
         """
@@ -95,7 +95,7 @@ class TestScenarioEntity:
         scenario.update_description("New Description")
         assert scenario.description == "New Description"
 
-    def test_financial_scenario_update_description_invalid(self):
+    def test_scenario_update_description_invalid(self):
         """
         Test that update_description raises EntityValidationError when provided with invalid data.
         """

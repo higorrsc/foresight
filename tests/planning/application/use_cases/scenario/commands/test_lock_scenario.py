@@ -20,7 +20,7 @@ class TestLockScenarioUseCase:
     Test suite for the LockScenarioUseCase.
     """
 
-    def test_lock_financial_scenario_success(self, admin_actor: User):
+    def test_lock_scenario_success(self, admin_actor: User):
         """
         Test successful locking of a financial scenario.
         """
@@ -43,7 +43,7 @@ class TestLockScenarioUseCase:
         assert locked_scenario.is_locked is True  # type: ignore
         assert locked_scenario.updated_by == admin_actor.id  # type: ignore
 
-    def test_lock_financial_scenario_already_locked(self, admin_actor: User):
+    def test_lock_scenario_already_locked(self, admin_actor: User):
         """
         Test that locking an already locked financial scenario raises an error.
         """
@@ -63,7 +63,7 @@ class TestLockScenarioUseCase:
         with pytest.raises(ScenarioAlreadyLockedError):
             use_case.execute(input_dto)
 
-    def test_lock_financial_scenario_not_found(self, admin_actor: User):
+    def test_lock_scenario_not_found(self, admin_actor: User):
         """
         Test that locking a non-existent financial scenario raises an error.
         """

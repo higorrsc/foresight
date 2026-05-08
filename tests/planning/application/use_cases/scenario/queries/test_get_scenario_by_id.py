@@ -19,7 +19,7 @@ class TestGetScenarioByIdUseCase:
     Test suite for the GetScenarioByIdUseCase.
     """
 
-    def test_get_financial_scenario_by_id_success(self, admin_actor: User):
+    def test_get_scenario_by_id_success(self, admin_actor: User):
         """
         Test successful retrieval of a financial scenario by its ID.
         """
@@ -40,7 +40,7 @@ class TestGetScenarioByIdUseCase:
         assert result.id == scenario.id
         assert result.description == "Found me"
 
-    def test_get_financial_scenario_by_id_not_found(self, admin_actor: User):
+    def test_get_scenario_by_id_not_found(self, admin_actor: User):
         """
         Test that retrieving a non-existent financial scenario raises an error.
         """

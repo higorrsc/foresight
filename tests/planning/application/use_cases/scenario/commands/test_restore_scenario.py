@@ -19,7 +19,7 @@ class TestRestoreScenarioUseCase:
     Test suite for the RestoreScenarioUseCase.
     """
 
-    def test_restore_financial_scenario_success(self, admin_actor: User):
+    def test_restore_scenario_success(self, admin_actor: User):
         """
         Test successful restoration of a soft-deleted financial scenario.
         """
@@ -42,7 +42,7 @@ class TestRestoreScenarioUseCase:
         assert restored_scenario is not None
         assert restored_scenario.is_active is True
 
-    def test_restore_financial_scenario_not_found(self, admin_actor: User):
+    def test_restore_scenario_not_found(self, admin_actor: User):
         """
         Test that restoring a non-existent financial scenario raises an error.
         """

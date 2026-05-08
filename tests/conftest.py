@@ -567,7 +567,7 @@ def area_in_memory_repo():
 
 
 @pytest.fixture
-def financial_scenario_in_memory_repo():
+def scenario_in_memory_repo():
     """Fixture that returns a ScenarioInMemoryRepository."""
     return ScenarioInMemoryRepository()
 
@@ -722,51 +722,51 @@ def list_area_use_case(area_in_memory_repo):
 
 
 @pytest.fixture
-def create_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def create_scenario_use_case(scenario_in_memory_repo):
     """Fixture for CreateScenarioUseCase."""
-    return CreateScenarioUseCase(financial_scenario_in_memory_repo)
+    return CreateScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def delete_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def delete_scenario_use_case(scenario_in_memory_repo):
     """Fixture for DeleteScenarioUseCase."""
-    return DeleteScenarioUseCase(financial_scenario_in_memory_repo)
+    return DeleteScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def lock_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def lock_scenario_use_case(scenario_in_memory_repo):
     """Fixture for LockScenarioUseCase."""
-    return LockScenarioUseCase(financial_scenario_in_memory_repo)
+    return LockScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def restore_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def restore_scenario_use_case(scenario_in_memory_repo):
     """Fixture for RestoreScenarioUseCase."""
-    return RestoreScenarioUseCase(financial_scenario_in_memory_repo)
+    return RestoreScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def unlock_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def unlock_scenario_use_case(scenario_in_memory_repo):
     """Fixture for UnlockScenarioUseCase."""
-    return UnlockScenarioUseCase(financial_scenario_in_memory_repo)
+    return UnlockScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def update_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def update_scenario_use_case(scenario_in_memory_repo):
     """Fixture for UpdateScenarioUseCase."""
-    return UpdateScenarioUseCase(financial_scenario_in_memory_repo)
+    return UpdateScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def get_financial_scenario_by_id_use_case(financial_scenario_in_memory_repo):
+def get_scenario_by_id_use_case(scenario_in_memory_repo):
     """Fixture for GetScenarioByIdUseCase."""
-    return GetScenarioByIdUseCase(financial_scenario_in_memory_repo)
+    return GetScenarioByIdUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
-def list_financial_scenario_use_case(financial_scenario_in_memory_repo):
+def list_scenario_use_case(scenario_in_memory_repo):
     """Fixture for ListScenarioUseCase."""
-    return ListScenarioUseCase(financial_scenario_in_memory_repo)
+    return ListScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture

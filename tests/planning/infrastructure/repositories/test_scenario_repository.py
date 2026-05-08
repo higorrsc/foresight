@@ -16,7 +16,7 @@ class TestScenarioRepository:
     Test suite for the ScenarioRepository.
     """
 
-    def test_financial_scenario_repository_save_and_get_by_id(
+    def test_scenario_repository_save_and_get_by_id(
         self,
         db_session_for_test: Session,
         default_tenant: TenantModel,
@@ -42,7 +42,7 @@ class TestScenarioRepository:
         assert saved_scenario.scenario_type == ScenarioType.ACTUAL
         assert saved_scenario.tenant_id == default_tenant.id
 
-    def test_financial_scenario_repository_update(
+    def test_scenario_repository_update(
         self,
         db_session_for_test: Session,
         default_tenant: TenantModel,
@@ -65,7 +65,7 @@ class TestScenarioRepository:
         updated_scenario = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
         assert updated_scenario.description == "Updated Description"  # type: ignore
 
-    def test_financial_scenario_repository_delete(
+    def test_scenario_repository_delete(
         self,
         db_session_for_test: Session,
         default_tenant: TenantModel,
@@ -87,7 +87,7 @@ class TestScenarioRepository:
         deleted_scenario = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
         assert deleted_scenario is None
 
-    def test_financial_scenario_repository_list(
+    def test_scenario_repository_list(
         self,
         db_session_for_test: Session,
         default_tenant: TenantModel,
