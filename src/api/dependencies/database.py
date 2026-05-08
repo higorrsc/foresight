@@ -16,9 +16,11 @@ from src.identity_access_management.infrastructure.repositories import (
     UserRepository,
 )
 from src.planning.domain.repositories import (
+    IExchangeRateRepository,
     IScenarioRepository,
 )
 from src.planning.infrastructure.repositories import (
+    ExchangeRateRepository,
     ScenarioRepository,
 )
 from src.shared_kernel.domain.repositories import (
@@ -129,3 +131,13 @@ def get_scenario_repository(
     """
 
     return ScenarioRepository(session)
+
+
+def get_exchange_rate_repository(
+    session: Annotated[Session, Depends(get_db_session)],
+) -> IExchangeRateRepository:
+    """
+    Return an ExchangeRateRepository instance with database session.
+    """
+
+    return ExchangeRateRepository(session)

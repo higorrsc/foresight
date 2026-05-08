@@ -3,6 +3,7 @@ from .authorization import PermissionChecker, RoleChecker
 from .database import (
     get_area_repository,
     get_db_session,
+    get_exchange_rate_repository,
     get_organizational_unit_repository,
     get_permission_repository,
     get_plan_repository,
@@ -17,6 +18,7 @@ __all__ = [
     "get_auth_provider",
     "get_current_user",
     "get_db_session",
+    "get_exchange_rate_repository",
     "get_organizational_unit_repository",
     "get_permission_repository",
     "get_plan_repository",
