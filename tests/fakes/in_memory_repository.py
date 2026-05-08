@@ -7,8 +7,11 @@ from src.identity_access_management.domain.repositories import (
     IRoleRepository,
     IUserRepository,
 )
-from src.planning.domain.entities import Scenario
-from src.planning.domain.repositories import IScenarioRepository
+from src.planning.domain.entities import ExchangeRate, Scenario
+from src.planning.domain.repositories import (
+    IExchangeRateRepository,
+    IScenarioRepository,
+)
 from src.shared_kernel.domain.entities import (
     Area,
     OrganizationalUnit,
@@ -201,6 +204,15 @@ class ScenarioInMemoryRepository(
 ):
     """
     In Memory Repository specific to test Scenario entity
+    """
+
+
+class ExchangeRateInMemoryRepository(
+    InMemoryRepository[ExchangeRate],
+    IExchangeRateRepository,
+):
+    """
+    In Memory Repository specific to test ExchangeRate entity
     """
 
 
