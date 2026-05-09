@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.identity_access_management.domain.constants import AppPermission
 
@@ -14,43 +15,50 @@ from src.identity_access_management.infrastructure.models import (
 from src.tenant_management.infrastructure.models import PlanModel, TenantModel
 
 
-def seed_initial_plan(db_session: Session) -> PlanModel:
+async def seed_initial_plan(db_session: AsyncSession) -> PlanModel:
     """
     Creates the default 'Standard' plan if it doesn't exist.
     Returns the PlanModel object.
     """
     print("Checking for initial plan...")
     # Query using the Model
-    plan = db_session.query(PlanModel).filter_by(name="Standard").first()
+    stmt = select(PlanModel).where(PlanModel.name == "Standard")
+
+    result = await db_session.execute(stmt)
+    plan = result.scalar_one_or_none()
 
     if not plan:
         plan = PlanModel(name="Standard", price=0.01)
         db_session.add(plan)
+        await db_session.flush()
         print("Plan 'Standard' created.")
 
-    db_session.flush()
     return plan
 
 
-def seed_initial_tenant(db_session: Session, plan_id: str) -> TenantModel:
+async def seed_initial_tenant(db_session: AsyncSession, plan_id: str) -> TenantModel:
     """
     Creates a default 'System Tenant' if it doesn't exist.
     Returns the TenantModel object.
     """
     print("Checking for initial tenant...")
     # Query using the Model
-    tenant = db_session.query(TenantModel).filter_by(name="System Tenant").first()
+    stmt = select(TenantModel).where(TenantModel.name == "System Tenant")
+    result = await db_session.execute(stmt)
+    tenant = result.scalar_one_or_none()
 
     if not tenant:
         tenant = TenantModel(name="System Tenant", plan_id=plan_id)
         db_session.add(tenant)
+        await db_session.flush()
         print("Tenant 'System Tenant' created.")
 
-    db_session.flush()
     return tenant
 
 
-def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleModel]:
+async def seed_initial_roles(
+    db_session: AsyncSession, tenant_id: str
+) -> dict[str, RoleModel]:
     """
     Creates initial 'admin' and 'guest' roles for the tenant if they don't exist.
     Queries using RoleModel.
@@ -59,12 +67,21 @@ def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleMod
     print(f"Checking for initial roles for tenant {tenant_id}...")
     roles = {}
 
-    admin_exists = (
-        db_session.query(RoleModel).filter_by(name="admin", tenant_id=tenant_id).first()
+    admin_stmt = select(RoleModel).where(
+        RoleModel.name == "admin",
+        RoleModel.tenant_id == tenant_id,
     )
-    guest_exists = (
-        db_session.query(RoleModel).filter_by(name="guest", tenant_id=tenant_id).first()
+
+    guest_stmt = select(RoleModel).where(
+        RoleModel.name == "guest",
+        RoleModel.tenant_id == tenant_id,
     )
+
+    admin_result = await db_session.execute(admin_stmt)
+    guest_result = await db_session.execute(guest_stmt)
+
+    admin_exists = admin_result.scalar_one_or_none()
+    guest_exists = guest_result.scalar_one_or_none()
     # --- FIM DA CORREÇÃO ---
 
     if not admin_exists:
@@ -91,12 +108,13 @@ def seed_initial_roles(db_session: Session, tenant_id: str) -> dict[str, RoleMod
     else:
         roles["guest"] = guest_exists
 
+    await db_session.flush()
     print("Initial roles seeding completed.")
     return roles
 
 
-def seed_app_permissions(
-    db_session: Session,
+async def seed_app_permissions(
+    db_session: AsyncSession,
     admin_role: RoleModel,
     guest_role: RoleModel | None = None,
 ):
@@ -114,11 +132,13 @@ def seed_app_permissions(
     guest_allowed_codenames = AppPermission.get_guest_permissions()
 
     for permission_codename in permissions:
-        permission_model = (
-            db_session.query(PermissionModel)
-            .filter_by(codename=permission_codename)
-            .first()
+        stmt = select(PermissionModel).where(
+            PermissionModel.codename == permission_codename
         )
+
+        result = await db_session.execute(stmt)
+
+        permission_model = result.scalar_one_or_none()
 
         if not permission_model:
             permission_model = PermissionModel(
@@ -147,8 +167,8 @@ def seed_app_permissions(
     print("App permissions seeding completed.")
 
 
-def seed_initial_users(
-    db_session: Session,
+async def seed_initial_users(
+    db_session: AsyncSession,
     tenant_id: str,
     roles: dict[str, RoleModel],
 ):
@@ -159,16 +179,21 @@ def seed_initial_users(
     print(f"Checking for initial users for tenant {tenant_id}...")
 
     # --- CORREÇÃO AQUI: Query using UserModel ---
-    admin_exists = (
-        db_session.query(UserModel)
-        .filter_by(username="admin", tenant_id=tenant_id)
-        .first()
+    admin_stmt = select(UserModel).where(
+        UserModel.username == "admin",
+        UserModel.tenant_id == tenant_id,
     )
-    guest_exists = (
-        db_session.query(UserModel)
-        .filter_by(username="guest", tenant_id=tenant_id)
-        .first()
+
+    guest_stmt = select(UserModel).where(
+        UserModel.username == "guest",
+        UserModel.tenant_id == tenant_id,
     )
+
+    admin_result = await db_session.execute(admin_stmt)
+    guest_result = await db_session.execute(guest_stmt)
+
+    admin_exists = admin_result.scalar_one_or_none()
+    guest_exists = guest_result.scalar_one_or_none()
     # --- FIM DA CORREÇÃO ---
     users_to_create_data = {
         "admin": {"password": "foresight_admin", "role_key": "admin"},
@@ -204,25 +229,29 @@ def seed_initial_users(
     print("Initial users seeding completed.")
 
 
-def seed_initial_data(db_session: Session):
+async def seed_initial_data(db_session: AsyncSession):
     """
     Runs all seeding functions in the correct order to populate
     the database with initial data for a default tenant.
     """
     print("Starting database seeding process...")
 
-    default_plan = seed_initial_plan(db_session)
-    default_tenant = seed_initial_tenant(db_session, default_plan.id)  # type: ignore
-    roles = seed_initial_roles(db_session, default_tenant.id)  # type: ignore
+    default_plan = await seed_initial_plan(db_session)
+    default_tenant = await seed_initial_tenant(db_session, default_plan.id)  # type: ignore
+    roles = await seed_initial_roles(db_session, default_tenant.id)  # type: ignore
 
     if "admin" in roles:
         guest_role = roles.get("guest")
-        seed_app_permissions(
+        await seed_app_permissions(
             db_session,
             roles["admin"],
             guest_role,
         )
 
-    seed_initial_users(db_session, default_tenant.id, roles)  # type: ignore
+    await seed_initial_users(
+        db_session,
+        default_tenant.id,  # type: ignore
+        roles,
+    )  # type: ignore
 
     print("Database seeding finished.")

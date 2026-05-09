@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.auth import LocalAuthenticationProvider
 from src.api.auth._shared import AbstractAuthenticationProvider
@@ -16,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_auth_provider(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> AbstractAuthenticationProvider:
     """
     Reads config and return correct instance of authentication provider.

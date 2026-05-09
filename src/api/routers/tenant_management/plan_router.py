@@ -63,7 +63,7 @@ router = APIRouter(prefix="/plans", tags=["Plans"])
     response_model=dict,
     dependencies=[Depends(require_plan_create)],
 )
-def create_plan_endpoint(
+async def create_plan_endpoint(
     body: PlanCreateBody,
     repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -78,7 +78,7 @@ def create_plan_endpoint(
             name=body.name,
             price=Decimal(body.price),
         )
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except ValueError as e:
         raise HTTPException(
@@ -97,7 +97,7 @@ def create_plan_endpoint(
     response_model=PaginatedPlanResponse,
     dependencies=[Depends(require_plan_read)],
 )
-def list_plans_endpoint(
+async def list_plans_endpoint(
     repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     actor: Annotated[User, Depends(get_current_user)],
 ):
@@ -108,7 +108,7 @@ def list_plans_endpoint(
     try:
         use_case = ListPlansUseCase(repo)
         input_dto = ListPlansInputDTO(actor=actor)
-        plans = use_case.execute(input_dto)
+        plans = await use_case.execute(input_dto)
         return plans
     except InsufficientPermissionError as e:
         raise HTTPException(

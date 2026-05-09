@@ -188,7 +188,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def create_financial_scenario(
+async def create_financial_scenario(
     request_body: ScenarioCreateBody,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -207,7 +207,7 @@ def create_financial_scenario(
             is_locked=request_body.is_locked,
             assumptions=request_body.assumptions,
         )
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except InvalidScenarioError as e:
         raise HTTPException(
@@ -222,7 +222,7 @@ def create_financial_scenario(
     response_model=PaginatedScenarioResponse,
     dependencies=[Depends(require_scenario_read)],
 )
-def list_financial_scenarios(
+async def list_financial_scenarios(
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
     description: str | None = Query(None, description="Filter by description"),
@@ -249,7 +249,7 @@ def list_financial_scenarios(
     )
 
     use_case = ListScenarioUseCase(repo)
-    result = use_case.execute(input_dto)
+    result = await use_case.execute(input_dto)
     return result
 
 
@@ -259,7 +259,7 @@ def list_financial_scenarios(
     response_model=ScenarioResponse,
     dependencies=[Depends(require_scenario_read)],
 )
-def get_scenario_by_id(
+async def get_scenario_by_id(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -271,7 +271,7 @@ def get_scenario_by_id(
     try:
         use_case = GetScenarioByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=scenario_id, actor=actor)
-        financial_scenario = use_case.execute(input_dto)
+        financial_scenario = await use_case.execute(input_dto)
         return financial_scenario
     except ScenarioNotFoundError as e:
         raise HTTPException(
@@ -291,7 +291,7 @@ def get_scenario_by_id(
     response_model=ScenarioDetailResponse,
     dependencies=[Depends(require_scenario_read)],
 )
-def get_scenario_details(
+async def get_scenario_details(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -303,7 +303,7 @@ def get_scenario_details(
     try:
         use_case = GetScenarioDetailsUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=scenario_id, actor=actor)
-        financial_scenario = use_case.execute(input_dto)
+        financial_scenario = await use_case.execute(input_dto)
         return financial_scenario
     except ScenarioNotFoundError as e:
         raise HTTPException(
@@ -318,7 +318,7 @@ def get_scenario_details(
     response_model=ScenarioResponse,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def update_financial_scenario(
+async def update_financial_scenario(
     scenario_id: UUID,
     request_body: ScenarioUpdateBody,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
@@ -340,7 +340,7 @@ def update_financial_scenario(
             assumptions=request_body.assumptions,
         )
 
-        output_dto = use_case.execute(input_dto)
+        output_dto = await use_case.execute(input_dto)
 
         return output_dto
     except ScenarioNotFoundError as e:
@@ -360,7 +360,7 @@ def update_financial_scenario(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_scenario_delete)],
 )
-def delete_financial_scenario(
+async def delete_financial_scenario(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -371,7 +371,7 @@ def delete_financial_scenario(
 
     try:
         use_case = DeleteScenarioUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(id=scenario_id, actor=actor))
+        await use_case.execute(DeleteRequestInputDTO(id=scenario_id, actor=actor))
     except ScenarioNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -384,7 +384,7 @@ def delete_financial_scenario(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_scenario_delete)],
 )
-def restore_financial_scenario(
+async def restore_financial_scenario(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -395,7 +395,7 @@ def restore_financial_scenario(
 
     try:
         use_case = RestoreScenarioUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(id=scenario_id, actor=actor))
+        await use_case.execute(RestoreRequestInputDTO(id=scenario_id, actor=actor))
     except ScenarioNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -408,7 +408,7 @@ def restore_financial_scenario(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def lock_financial_scenario(
+async def lock_financial_scenario(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -419,7 +419,7 @@ def lock_financial_scenario(
 
     try:
         use_case = LockScenarioUseCase(repo)
-        use_case.execute(LockScenarioInputDTO(id=scenario_id, actor=actor))
+        await use_case.execute(LockScenarioInputDTO(id=scenario_id, actor=actor))
     except ScenarioNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -437,7 +437,7 @@ def lock_financial_scenario(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def unlock_financial_scenario(
+async def unlock_financial_scenario(
     scenario_id: UUID,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -448,7 +448,7 @@ def unlock_financial_scenario(
 
     try:
         use_case = UnlockScenarioUseCase(repo)
-        use_case.execute(UnlockScenarioInputDTO(id=scenario_id, actor=actor))
+        await use_case.execute(UnlockScenarioInputDTO(id=scenario_id, actor=actor))
     except ScenarioNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -467,7 +467,7 @@ def unlock_financial_scenario(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def add_exchange_rate_to_scenario(
+async def add_exchange_rate_to_scenario(
     scenario_id: UUID,
     request_body: ExchangeRateCreateBody,
     scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
@@ -489,7 +489,7 @@ def add_exchange_rate_to_scenario(
             to_currency=request_body.to_currency,
             rate=request_body.rate,
         )
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except ScenarioNotFoundError as e:
         raise HTTPException(
@@ -513,7 +513,7 @@ def add_exchange_rate_to_scenario(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def update_exchange_rate(
+async def update_exchange_rate(
     exchange_rate_id: UUID,
     request_body: ExchangeRateUpdateBody,
     scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
@@ -533,7 +533,7 @@ def update_exchange_rate(
             id=exchange_rate_id,
             rate=request_body.rate,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
         return {"message": "Exchange rate updated successfully"}
     except ExchangeRateNotFoundError as e:
         raise HTTPException(
@@ -562,7 +562,7 @@ def update_exchange_rate(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_scenario_create_or_update)],
 )
-def remove_exchange_rate(
+async def remove_exchange_rate(
     exchange_rate_id: UUID,
     scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     exchange_rate_repo: Annotated[
@@ -580,7 +580,7 @@ def remove_exchange_rate(
             actor=actor,
             id=exchange_rate_id,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except ExchangeRateNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

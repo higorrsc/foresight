@@ -160,7 +160,7 @@ router = APIRouter(
     response_model=UserSummaryResponse,
     dependencies=[Depends(require_user_create)],
 )
-def create_user_endpoint(
+async def create_user_endpoint(
     request_body: UserCreateBody,
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
@@ -183,7 +183,7 @@ def create_user_endpoint(
             roles=request_body.roles,  # type: ignore
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return result
 
     except (UsernameAlreadyExistsError, InvalidRoleError) as e:
@@ -228,7 +228,7 @@ def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]):
     response_model=PaginatedUserResponse,
     dependencies=[Depends(require_user_read)],
 )
-def list_users_endpoint(
+async def list_users_endpoint(
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
     username: str | None = Query(None, description="Filter by part of the username"),
@@ -254,7 +254,7 @@ def list_users_endpoint(
         limit=limit,
     )
     use_case = ListUserUseCase(repo)
-    result = use_case.execute(input_dto)
+    result = await use_case.execute(input_dto)
 
     return result
 
@@ -265,7 +265,7 @@ def list_users_endpoint(
     response_model=UserDetailResponse,
     dependencies=[Depends(require_user_read)],
 )
-def get_user_by_id_endpoint(
+async def get_user_by_id_endpoint(
     user_id: UUID,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -277,7 +277,7 @@ def get_user_by_id_endpoint(
     try:
         use_case = GetUserByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=user_id, actor=actor)
-        user = use_case.execute(input_dto)
+        user = await use_case.execute(input_dto)
         return user
     except UserNotFoundError as e:
         raise HTTPException(
@@ -291,7 +291,7 @@ def get_user_by_id_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_delete)],
 )
-def delete_user_endpoint(
+async def delete_user_endpoint(
     user_id: UUID,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -302,7 +302,7 @@ def delete_user_endpoint(
 
     try:
         use_case = DeleteUserUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(id=user_id, actor=actor))
+        await use_case.execute(DeleteRequestInputDTO(id=user_id, actor=actor))
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -325,7 +325,7 @@ def delete_user_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_change_password)],
 )
-def change_password_endpoint(
+async def change_password_endpoint(
     user_id: UUID,
     request_body: ChangePasswordBody,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
@@ -344,7 +344,7 @@ def change_password_endpoint(
             old_password=request_body.old_password,
             new_password=request_body.new_password,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -372,12 +372,13 @@ def change_password_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_set_permissions)],
 )
-def set_user_permissions_endpoint(
+async def set_user_permissions_endpoint(
     user_id: UUID,
     request_body: SetUserPermissionsBody,
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     permission_repo: Annotated[
-        IPermissionRepository, Depends(get_permission_repository)
+        IPermissionRepository,
+        Depends(get_permission_repository),
     ],
     actor: Annotated[User, Depends(get_current_user)],
 ):
@@ -395,7 +396,7 @@ def set_user_permissions_endpoint(
             user_id_to_update=user_id,
             permissions_codes=request_body.permission_codes,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except (UserNotFoundError, PermissionNotFoundError) as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -418,7 +419,7 @@ def set_user_permissions_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_update_profile)],
 )
-def update_user_profile_endpoint(
+async def update_user_profile_endpoint(
     user_id: UUID,
     request_body: UpdateUserProfileBody,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
@@ -444,7 +445,7 @@ def update_user_profile_endpoint(
 
     try:
         use_case = UpdateUserProfileUseCase(repo)
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -467,7 +468,7 @@ def update_user_profile_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_set_roles)],
 )
-def set_user_roles_endpoint(
+async def set_user_roles_endpoint(
     user_id: UUID,
     request_body: SetUserRolesBody,
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
@@ -488,7 +489,7 @@ def set_user_roles_endpoint(
             user_id_to_update=user_id,
             role_names=request_body.role_names,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -511,7 +512,7 @@ def set_user_roles_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_user_delete)],
 )
-def restore_user_endpoint(
+async def restore_user_endpoint(
     user_id: UUID,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -522,7 +523,7 @@ def restore_user_endpoint(
 
     try:
         use_case = RestoreUserUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(id=user_id, actor=actor))
+        await use_case.execute(RestoreRequestInputDTO(id=user_id, actor=actor))
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
