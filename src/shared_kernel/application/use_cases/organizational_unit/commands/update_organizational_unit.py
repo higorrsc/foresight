@@ -48,7 +48,7 @@ class UpdateOrganizationalUnitUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: UpdateOrganizationalUnitInputDTO,
     ) -> UpdateOrganizationalUnitOutputDTO:
@@ -56,7 +56,7 @@ class UpdateOrganizationalUnitUseCase:
         Execute the use case to update an existing Organizational Unit.
         """
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             entity_id=input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -73,7 +73,8 @@ class UpdateOrganizationalUnitUseCase:
         except EntityValidationError as e:
             raise InvalidOrganizationalUnitError(f"Invalid input data: {e}") from e
 
-        self._repository.update(entity)
+        await self._repository.update(entity)
+
         return UpdateOrganizationalUnitOutputDTO(
             id=entity.id,
             description=entity.description,

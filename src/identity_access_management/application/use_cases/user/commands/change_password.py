@@ -39,7 +39,7 @@ class ChangePasswordUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: ChangePasswordInputDTO) -> None:
+    async def execute(self, input_dto: ChangePasswordInputDTO) -> None:
         """
         Execute the ChangePasswordUseCase.
         """
@@ -52,7 +52,7 @@ class ChangePasswordUseCase:
                 "User does not have permission to change another user's password."
             )
 
-        user_to_update = self._repository.get_by_id(
+        user_to_update = await self._repository.get_by_id(
             input_dto.user_id_to_change,
             input_dto.actor.tenant_id,
         )
@@ -72,4 +72,4 @@ class ChangePasswordUseCase:
         user_to_update.hashed_password = hash_password(input_dto.new_password)
         user_to_update.updated_by = input_dto.actor.id
 
-        self._repository.update(user_to_update)
+        await self._repository.update(user_to_update)

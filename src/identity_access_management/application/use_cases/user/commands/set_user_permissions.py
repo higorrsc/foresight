@@ -45,7 +45,7 @@ class SetUserPermissionsUseCase:
         self._user_repository = user_repository
         self._permission_repository = permission_repository
 
-    def execute(self, input_dto: SetUserPermissionsInputDTO) -> None:
+    async def execute(self, input_dto: SetUserPermissionsInputDTO) -> None:
         """
         Execute the use case to set user permissions.
         """
@@ -54,7 +54,7 @@ class SetUserPermissionsUseCase:
                 "User does not have permission to set permissions."
             )
 
-        user_to_update = self._user_repository.get_by_id(
+        user_to_update = await self._user_repository.get_by_id(
             input_dto.user_id_to_update,
             input_dto.actor.tenant_id,
         )
@@ -68,7 +68,7 @@ class SetUserPermissionsUseCase:
 
         if permissions_codes_set:
             for permission_code in permissions_codes_set:
-                permission = self._permission_repository.get_by_codename(
+                permission = await self._permission_repository.get_by_codename(
                     permission_code,
                 )
                 if not permission:
@@ -82,4 +82,5 @@ class SetUserPermissionsUseCase:
             permission.codename for permission in valid_permissions
         }
         user_to_update.updated_by = input_dto.actor.id
-        self._user_repository.update(user_to_update)
+
+        await self._user_repository.update(user_to_update)

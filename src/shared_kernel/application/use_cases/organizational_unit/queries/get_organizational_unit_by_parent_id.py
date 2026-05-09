@@ -42,7 +42,7 @@ class GetOrganizationalUnitByParentIdUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         request: GetOrganizationalUnitByParentIdInputDTO,
     ) -> list[GetOrganizationalUnitByParentIdOutputDTO]:
@@ -50,7 +50,7 @@ class GetOrganizationalUnitByParentIdUseCase:
         Execute the get by parent id use case.
         """
 
-        entities = self._repository.get_by_parent_id(
+        entities = await self._repository.get_by_parent_id(
             parent_id=request.parent_id,
             tenant_id=request.actor.tenant_id,  # type: ignore
         )

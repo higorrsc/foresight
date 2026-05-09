@@ -45,7 +45,7 @@ class GenericGetByIdUseCase[T]:
         self._not_found_exception = not_found_exception
         self._not_found_message = not_found_message
 
-    def execute(self, request: GetByIdRequestInputDTO) -> T:
+    async def execute(self, request: GetByIdRequestInputDTO) -> T:
         """
         Execute the get by id use case.
 
@@ -59,7 +59,7 @@ class GenericGetByIdUseCase[T]:
                 "User does not have permission to read data."
             )
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             request.id,
             request.actor.tenant_id,
         )

@@ -41,7 +41,7 @@ class RemoveExchangeRateUseCase:
         self._scenario_repository = scenario_repository
         self._exchange_rate_repository = exchange_rate_repository
 
-    def execute(self, input_dto: RemoveExchangeRateInputDTO) -> None:
+    async def execute(self, input_dto: RemoveExchangeRateInputDTO) -> None:
         """
         Execute the use case to remove an exchange rate.
         """
@@ -51,7 +51,7 @@ class RemoveExchangeRateUseCase:
                 "User does not have permission to update scenario."
             )
 
-        exchange_rate = self._exchange_rate_repository.get_by_id(
+        exchange_rate = await self._exchange_rate_repository.get_by_id(
             input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -61,7 +61,7 @@ class RemoveExchangeRateUseCase:
                 f"Exchange rate with id={input_dto.id} not found."
             )
 
-        scenario = self._scenario_repository.get_by_id(
+        scenario = await self._scenario_repository.get_by_id(
             exchange_rate.scenario_id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -76,7 +76,7 @@ class RemoveExchangeRateUseCase:
                 f"Scenario with id={exchange_rate.scenario_id} is locked."
             )
 
-        self._exchange_rate_repository.delete(
+        await self._exchange_rate_repository.delete(
             input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )

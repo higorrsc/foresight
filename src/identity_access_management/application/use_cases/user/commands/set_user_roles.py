@@ -45,7 +45,7 @@ class SetUserRolesUseCase:
         self._user_repository = user_repository
         self._role_repository = role_repository
 
-    def execute(self, input_dto: SetUserRolesInputDTO) -> None:
+    async def execute(self, input_dto: SetUserRolesInputDTO) -> None:
         """
         Execute the use case to set user roles.
         """
@@ -54,7 +54,7 @@ class SetUserRolesUseCase:
                 "User does not have permission to set roles."
             )
 
-        user_to_update = self._user_repository.get_by_id(
+        user_to_update = await self._user_repository.get_by_id(
             input_dto.user_id_to_update,
             input_dto.actor.tenant_id,
         )
@@ -68,7 +68,7 @@ class SetUserRolesUseCase:
 
         if role_names_set:
             for role_name in role_names_set:
-                role = self._role_repository.get_by_name(
+                role = await self._role_repository.get_by_name(
                     role_name,
                     input_dto.actor.tenant_id,
                 )
@@ -79,4 +79,5 @@ class SetUserRolesUseCase:
 
         user_to_update.roles = {role.name for role in valid_roles}
         user_to_update.updated_by = input_dto.actor.id
-        self._user_repository.update(user_to_update)
+
+        await self._user_repository.update(user_to_update)

@@ -22,7 +22,7 @@ class ListPermissionsUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: ListRequestInputDTO,
     ) -> PaginatedResponseDTO[Permission]:
@@ -33,7 +33,7 @@ class ListPermissionsUseCase:
         :return: A list of permissions.
         """
 
-        all_permissions = self._repository.list_all()
+        all_permissions = await self._repository.list_all()
 
         # Ordena a lista de permissões pelo atributo 'code'
         sorted_permissions = sorted(all_permissions, key=lambda p: p.codename)

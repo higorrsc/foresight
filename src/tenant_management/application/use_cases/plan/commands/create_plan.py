@@ -45,7 +45,7 @@ class CreatePlanUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: CreatePlanInputDTO) -> CreatePlanOutputDTO:
+    async def execute(self, input_dto: CreatePlanInputDTO) -> CreatePlanOutputDTO:
         """
         Execute the use case to create a new plan.
         """
@@ -55,7 +55,8 @@ class CreatePlanUseCase:
                 "User does not have permission to create plans."
             )
 
-        if self._repository.get_by_name(input_dto.name):
+        plan = await self._repository.get_by_name(input_dto.name)
+        if plan:
             raise InvalidPlanError(f"Plan with name '{input_dto.name}' already exists.")
 
         plan = Plan(
@@ -66,5 +67,6 @@ class CreatePlanUseCase:
         plan.created_by = input_dto.actor.id
         plan.updated_by = input_dto.actor.id
 
-        self._repository.save(plan)
+        await self._repository.save(plan)
+
         return CreatePlanOutputDTO(id=plan.id)

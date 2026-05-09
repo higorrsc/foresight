@@ -20,7 +20,7 @@ class RestoreUserUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: RestoreRequestInputDTO) -> None:
+    async def execute(self, input_dto: RestoreRequestInputDTO) -> None:
         """
         Execute the restore user use case.
         """
@@ -30,7 +30,7 @@ class RestoreUserUseCase:
                 "User does not have permission to restore users."
             )
 
-        user_to_restore = self._repository.get_by_id(
+        user_to_restore = await self._repository.get_by_id(
             entity_id=input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -43,4 +43,4 @@ class RestoreUserUseCase:
         user_to_restore.restore()
         user_to_restore.updated_by = input_dto.actor.id
 
-        self._repository.update(user_to_restore)
+        await self._repository.update(user_to_restore)

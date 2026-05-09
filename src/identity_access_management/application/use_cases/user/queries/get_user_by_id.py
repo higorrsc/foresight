@@ -22,7 +22,7 @@ class GetUserByIdUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: GetByIdRequestInputDTO) -> User:
+    async def execute(self, input_dto: GetByIdRequestInputDTO) -> User:
         """
         Execute the GetUserByIdUseCase.
 
@@ -35,7 +35,7 @@ class GetUserByIdUseCase:
                 "User does not have permission to read user data."
             )
 
-        user = self._repository.get_by_id(
+        user = await self._repository.get_by_id(
             input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )

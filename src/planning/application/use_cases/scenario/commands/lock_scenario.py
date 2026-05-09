@@ -36,7 +36,7 @@ class LockScenarioUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: LockScenarioInputDTO,
     ) -> None:
@@ -44,7 +44,7 @@ class LockScenarioUseCase:
         Execute the use case to update an existing Scenario.
         """
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             entity_id=input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -61,4 +61,4 @@ class LockScenarioUseCase:
         except EntityValidationError as e:
             raise InvalidScenarioError(f"Invalid input data: {e}") from e
 
-        self._repository.update(entity)
+        await self._repository.update(entity)

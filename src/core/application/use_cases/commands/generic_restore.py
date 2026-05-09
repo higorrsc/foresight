@@ -46,7 +46,7 @@ class GenericRestoreUseCase[T]:
         self._not_found_exception = not_found_exception
         self._not_found_message = not_found_message
 
-    def execute(self, request: RestoreRequestInputDTO) -> None:
+    async def execute(self, request: RestoreRequestInputDTO) -> None:
         """
         Execute the restore use case.
 
@@ -72,4 +72,4 @@ class GenericRestoreUseCase[T]:
             entity.restore()
             if hasattr(entity, "updated_by"):
                 entity.updated_by = request.actor.id  # type: ignore
-            self._repository.update(entity)  # type: ignore
+            await self._repository.update(entity)  # type: ignore
