@@ -1,13 +1,13 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
-from src.core.application.use_cases.commands.generic_create_described import (
+from src.core.application.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     CreateDescribedEntityUseCase,
 )
-from src.core.domain.entities.described import DescribedEntity
+from src.core.domain.entities import DescribedEntity
 from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 
 
@@ -16,20 +16,18 @@ class MockEntity(DescribedEntity):
     A mock entity for testing purposes.
     """
 
-    pass
-
 
 class TestCreateDescribedEntityUseCase:
     """
     Test suite for the CreateDescribedEntityUseCase.
     """
 
-    def test_execute_success(self):
+    async def test_execute_success(self):
         """
         Test successful execution of the create described entity use case.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"test:create"}
         actor.tenant_id = uuid4()
 
@@ -45,7 +43,7 @@ class TestCreateDescribedEntityUseCase:
             description="Test description",
         )
 
-        output = use_case.execute(input_dto)
+        output = await use_case.execute(input_dto)
 
         assert output.id is not None
         assert repository.save.called
@@ -54,12 +52,12 @@ class TestCreateDescribedEntityUseCase:
         assert saved_entity.description == "Test description"
         assert saved_entity.tenant_id == actor.tenant_id
 
-    def test_execute_insufficient_permission(self):
+    async def test_execute_insufficient_permission(self):
         """
         Test that execution fails when the actor has insufficient permissions.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"other:permission"}
 
         use_case = CreateDescribedEntityUseCase(
@@ -75,14 +73,14 @@ class TestCreateDescribedEntityUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_execute_invalid_data(self):
+    async def test_execute_invalid_data(self):
         """
         Test that execution fails when provided with invalid data.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"test:create"}
 
         use_case = CreateDescribedEntityUseCase(
@@ -99,5 +97,6 @@ class TestCreateDescribedEntityUseCase:
         )
 
         with pytest.raises(ValueError) as excinfo:
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
+
         assert "Invalid input data" in str(excinfo.value)
