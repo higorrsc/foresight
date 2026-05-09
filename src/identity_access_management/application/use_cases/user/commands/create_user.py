@@ -78,7 +78,7 @@ class CreateUserUseCase:
             role_names_set = {guest_role.name}
         else:
             for role_name in role_names_set:
-                if not self._role_repository.get_by_name(
+                if not await self._role_repository.get_by_name(
                     role_name,
                     input_dto.actor.tenant_id,
                 ):

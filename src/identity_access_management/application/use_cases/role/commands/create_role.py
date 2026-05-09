@@ -63,7 +63,7 @@ class CreateRoleUseCase:
         try:
             permission_codes_set = set(input_dto.permissions)
             for permission_code in permission_codes_set:
-                if not self._permission_repository.get_by_codename(
+                if not await self._permission_repository.get_by_codename(
                     permission_code,
                 ):
                     raise PermissionNotFoundError(

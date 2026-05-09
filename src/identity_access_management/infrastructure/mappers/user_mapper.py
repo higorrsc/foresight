@@ -23,6 +23,8 @@ class UserMapper(AbstractMapper[User, UserModel]):
             last_name=entity.last_name,
             email=entity.email,
         )
+        model.roles_rel = []
+        model.permissions_rel = []
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
         return model

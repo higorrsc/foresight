@@ -38,7 +38,25 @@ class RoleRepository(
     def _get_base_query(self):
         """Overwrites the base query to always load permissions of the role."""
 
-        return select(RoleModel).options(selectinload(RoleModel.permissions_rel))
+        return select(self._model_cls).options(
+            selectinload(self._model_cls.permissions_rel)
+        )
+
+    async def get_by_id(
+        self,
+        entity_id: UUID,
+        tenant_id: UUID | None,
+    ) -> Role | None:
+        """Get a role by its ID, ensuring permissions are loaded."""
+
+        stmt = self._get_base_query().where(
+            self._model_cls.id == entity_id,
+            self._model_cls.tenant_id == tenant_id,
+        )
+        result = await self._session.execute(stmt)
+        model = result.unique().scalar_one_or_none()
+
+        return self._mapper.to_entity(model) if model else None
 
     async def get_by_name(
         self,
@@ -55,7 +73,7 @@ class RoleRepository(
         )
 
         result = await self._session.execute(stmt)
-        model = result.scalar_one_or_none()
+        model = result.unique().scalar_one_or_none()
 
         return self._mapper.to_entity(model) if model else None
 
@@ -71,14 +89,13 @@ class RoleRepository(
             )
 
             result = await self._session.execute(stmt)
-            permissions_model = result.unique().scalars().all()
-
+            permissions_model = list(result.unique().scalars().all())
             model.permissions_rel = permissions_model
+        else:
+            model.permissions_rel = []
 
         self._session.add(model)
-
-        await self._session.commit()
-        await self._session.refresh(model)
+        await self._session.flush()
 
         return self._mapper.to_entity(model)
 
@@ -87,10 +104,9 @@ class RoleRepository(
         Update Role entity
         """
 
-        model = await self._session.get(
-            self._model_cls,
-            entity.id,
-        )
+        stmt = self._get_base_query().where(self._model_cls.id == entity.id)
+        result = await self._session.execute(stmt)
+        model = result.unique().scalar_one_or_none()
 
         if not model:
             return None
@@ -108,11 +124,10 @@ class RoleRepository(
             )
 
             result = await self._session.execute(stmt)
-            permission_models = result.unique().scalars().all()
+            permission_models = list(result.unique().scalars().all())
 
             model.permissions_rel = permission_models
 
-        await self._session.commit()
-        await self._session.refresh(model)
+        await self._session.flush()
 
         return self._mapper.to_entity(model)

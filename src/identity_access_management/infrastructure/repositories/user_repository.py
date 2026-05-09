@@ -39,9 +39,25 @@ class UserRepository(
     def _get_base_query(self):
         """Overwrites the base query to always load permissions and roles."""
 
-        return select(UserModel).options(
-            selectinload(UserModel.roles_rel).selectinload(RoleModel.permissions_rel)
+        return select(self._model_cls).options(
+            selectinload(self._model_cls.permissions_rel)
         )
+
+    async def get_by_id(
+        self,
+        entity_id: UUID,
+        tenant_id: UUID | None,
+    ) -> User | None:
+        """Get a role by its ID, ensuring permissions are loaded."""
+
+        stmt = self._get_base_query().where(
+            self._model_cls.id == entity_id,
+            self._model_cls.tenant_id == tenant_id,
+        )
+        result = await self._session.execute(stmt)
+        model = result.unique().scalar_one_or_none()
+
+        return self._mapper.to_entity(model) if model else None
 
     async def get_by_username(
         self,
@@ -107,16 +123,22 @@ class UserRepository(
         model = self._mapper.to_model(entity)
 
         if entity.roles:
-            stmt = select(RoleModel).where(RoleModel.name.in_(entity.roles))
+            stmt = (
+                select(RoleModel)
+                .options(selectinload(RoleModel.permissions_rel))
+                .where(RoleModel.name.in_(entity.roles))
+            )
             result = await self._session.execute(stmt)
-
-            role_models = result.unique().scalars().all()
+            role_models = list(result.unique().scalars().all())
             model.roles_rel = role_models
+        else:
+            model.roles_rel = []
+
+        if not hasattr(model, "permissions_rel") or model.permissions_rel is None:
+            model.permissions_rel = []
 
         self._session.add(model)
-
-        await self._session.commit()
-        await self._session.refresh(model)
+        await self._session.flush()
 
         return self._mapper.to_entity(model)
 
@@ -125,10 +147,9 @@ class UserRepository(
         Update User entity
         """
 
-        model = await self._session.get(
-            self._model_cls,
-            entity.id,
-        )
+        stmt = self._get_base_query().where(self._model_cls.id == entity.id)
+        result = await self._session.execute(stmt)
+        model = result.unique().scalar_one_or_none()
 
         if not model:
             return None
@@ -144,9 +165,13 @@ class UserRepository(
             model.deleted_at = entity.deleted_at
 
         if entity.roles is not None:
-            stmt = select(RoleModel).where(RoleModel.name.in_(entity.roles))
+            stmt = (
+                select(RoleModel)
+                .options(selectinload(RoleModel.permissions_rel))
+                .where(RoleModel.name.in_(entity.roles))
+            )
             result = await self._session.execute(stmt)
-            role_models = result.unique().scalars().all()
+            role_models = list(result.unique().scalars().all())
             model.roles_rel = role_models
 
         if entity.permissions is not None:
@@ -154,11 +179,10 @@ class UserRepository(
                 PermissionModel.codename.in_(entity.permissions)
             )
             result = await self._session.execute(stmt)
-            permission_models = result.unique().scalars().all()
+            permission_models = list(result.unique().scalars().all())
             model.permissions_rel = permission_models
 
-        await self._session.commit()
-        await self._session.refresh(model)
+        await self._session.flush()
 
         return self._mapper.to_entity(model)
 
