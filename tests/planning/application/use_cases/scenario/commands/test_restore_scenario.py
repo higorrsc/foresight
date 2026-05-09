@@ -19,7 +19,7 @@ class TestRestoreScenarioUseCase:
     Test suite for the RestoreScenarioUseCase.
     """
 
-    def test_restore_scenario_success(self, admin_actor: User):
+    async def test_restore_scenario_success(self, admin_actor: User):
         """
         Test successful restoration of a soft-deleted financial scenario.
         """
@@ -31,18 +31,21 @@ class TestRestoreScenarioUseCase:
             assumptions=None,
         )
         scenario.soft_delete()
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = RestoreScenarioUseCase(repository)
         input_dto = RestoreRequestInputDTO(actor=admin_actor, id=scenario.id)
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        restored_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        restored_scenario = await repository.get_by_id(
+            scenario.id,
+            admin_actor.tenant_id,
+        )
         assert restored_scenario is not None
         assert restored_scenario.is_active is True
 
-    def test_restore_scenario_not_found(self, admin_actor: User):
+    async def test_restore_scenario_not_found(self, admin_actor: User):
         """
         Test that restoring a non-existent financial scenario raises an error.
         """
@@ -51,4 +54,4 @@ class TestRestoreScenarioUseCase:
         input_dto = RestoreRequestInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

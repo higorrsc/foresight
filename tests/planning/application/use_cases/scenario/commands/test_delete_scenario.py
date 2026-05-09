@@ -17,7 +17,7 @@ class TestDeleteScenarioUseCase:
     Test suite for the DeleteScenarioUseCase.
     """
 
-    def test_delete_scenario_success(self, admin_actor: User):
+    async def test_delete_scenario_success(self, admin_actor: User):
         """
         Test successful deletion (soft delete) of a financial scenario.
         """
@@ -28,18 +28,21 @@ class TestDeleteScenarioUseCase:
             tenant_id=admin_actor.tenant_id,
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = DeleteScenarioUseCase(repository)
         input_dto = DeleteRequestInputDTO(actor=admin_actor, id=scenario.id)
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        deleted_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        deleted_scenario = await repository.get_by_id(
+            scenario.id,
+            admin_actor.tenant_id,
+        )
         assert deleted_scenario is not None
         assert deleted_scenario.is_active is False
 
-    def test_delete_scenario_not_found(self, admin_actor: User):
+    async def test_delete_scenario_not_found(self, admin_actor: User):
         """
         Test that deleting a non-existent financial scenario raises an error.
         """
@@ -48,4 +51,4 @@ class TestDeleteScenarioUseCase:
         input_dto = DeleteRequestInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

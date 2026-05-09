@@ -22,7 +22,7 @@ class TestUpdateExchangeRateUseCase:
     Test suite for the UpdateExchangeRateUseCase.
     """
 
-    def test_update_exchange_rate_success(self, admin_actor: User):
+    async def test_update_exchange_rate_success(self, admin_actor: User):
         """
         Test successful update of an exchange rate.
         """
@@ -36,7 +36,7 @@ class TestUpdateExchangeRateUseCase:
             assumptions="Some assumptions",
             tenant_id=admin_actor.tenant_id,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         rate = ExchangeRate(
             scenario_id=scenario.id,
@@ -44,7 +44,7 @@ class TestUpdateExchangeRateUseCase:
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
         )
-        exchange_rate_repo.save(rate)
+        await exchange_rate_repo.save(rate)
 
         input_dto = UpdateExchangeRateInputDTO(
             actor=admin_actor,
@@ -52,12 +52,15 @@ class TestUpdateExchangeRateUseCase:
             rate=Decimal("5.5"),
         )
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        updated_rate = exchange_rate_repo.get_by_id(rate.id, admin_actor.tenant_id)
+        updated_rate = await exchange_rate_repo.get_by_id(
+            rate.id,
+            admin_actor.tenant_id,
+        )
         assert updated_rate.rate == Decimal("5.5")  # type: ignore
 
-    def test_update_exchange_rate_not_found(self, admin_actor: User):
+    async def test_update_exchange_rate_not_found(self, admin_actor: User):
         """
         Test error when exchange rate is not found.
         """
@@ -72,9 +75,9 @@ class TestUpdateExchangeRateUseCase:
         )
 
         with pytest.raises(ExchangeRateNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_update_exchange_rate_scenario_locked(self, admin_actor: User):
+    async def test_update_exchange_rate_scenario_locked(self, admin_actor: User):
         """
         Test error when scenario is locked.
         """
@@ -89,7 +92,7 @@ class TestUpdateExchangeRateUseCase:
             tenant_id=admin_actor.tenant_id,
             is_locked=True,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         rate = ExchangeRate(
             scenario_id=scenario.id,
@@ -97,7 +100,7 @@ class TestUpdateExchangeRateUseCase:
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
         )
-        exchange_rate_repo.save(rate)
+        await exchange_rate_repo.save(rate)
 
         input_dto = UpdateExchangeRateInputDTO(
             actor=admin_actor,
@@ -106,4 +109,4 @@ class TestUpdateExchangeRateUseCase:
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

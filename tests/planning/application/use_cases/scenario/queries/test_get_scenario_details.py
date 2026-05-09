@@ -17,7 +17,7 @@ class TestGetScenarioDetailsUseCase:
     Test suite for the GetScenarioDetailsUseCase.
     """
 
-    def test_get_scenario_details_success(self, admin_actor: User):
+    async def test_get_scenario_details_success(self, admin_actor: User):
         """
         Test successful retrieval of scenario details.
         """
@@ -30,19 +30,19 @@ class TestGetScenarioDetailsUseCase:
             assumptions="Some assumptions",
             tenant_id=admin_actor.tenant_id,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         input_dto = GetByIdRequestInputDTO(
             actor=admin_actor,
             id=scenario.id,
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
 
         assert result.id == scenario.id
         assert result.description == "Test Scenario"
 
-    def test_get_scenario_details_not_found(self, admin_actor: User):
+    async def test_get_scenario_details_not_found(self, admin_actor: User):
         """
         Test error when scenario is not found.
         """
@@ -55,4 +55,4 @@ class TestGetScenarioDetailsUseCase:
         )
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

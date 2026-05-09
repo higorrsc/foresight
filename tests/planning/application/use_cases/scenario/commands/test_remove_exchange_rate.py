@@ -22,7 +22,7 @@ class TestRemoveExchangeRateUseCase:
     Test suite for the RemoveExchangeRateUseCase.
     """
 
-    def test_remove_exchange_rate_success(self, admin_actor: User):
+    async def test_remove_exchange_rate_success(self, admin_actor: User):
         """
         Test successful removal of an exchange rate.
         """
@@ -36,7 +36,7 @@ class TestRemoveExchangeRateUseCase:
             assumptions="Some assumptions",
             tenant_id=admin_actor.tenant_id,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         rate = ExchangeRate(
             scenario_id=scenario.id,
@@ -44,18 +44,23 @@ class TestRemoveExchangeRateUseCase:
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
         )
-        exchange_rate_repo.save(rate)
+        await exchange_rate_repo.save(rate)
 
         input_dto = RemoveExchangeRateInputDTO(
             actor=admin_actor,
             id=rate.id,
         )
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        assert exchange_rate_repo.get_by_id(rate.id, admin_actor.tenant_id) is None
+        result = await exchange_rate_repo.get_by_id(
+            rate.id,
+            admin_actor.tenant_id,
+        )
 
-    def test_remove_exchange_rate_not_found(self, admin_actor: User):
+        assert result is None
+
+    async def test_remove_exchange_rate_not_found(self, admin_actor: User):
         """
         Test error when exchange rate is not found.
         """
@@ -69,9 +74,9 @@ class TestRemoveExchangeRateUseCase:
         )
 
         with pytest.raises(ExchangeRateNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_remove_exchange_rate_scenario_locked(self, admin_actor: User):
+    async def test_remove_exchange_rate_scenario_locked(self, admin_actor: User):
         """
         Test error when scenario is locked.
         """
@@ -86,7 +91,7 @@ class TestRemoveExchangeRateUseCase:
             tenant_id=admin_actor.tenant_id,
             is_locked=True,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         rate = ExchangeRate(
             scenario_id=scenario.id,
@@ -94,7 +99,7 @@ class TestRemoveExchangeRateUseCase:
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
         )
-        exchange_rate_repo.save(rate)
+        await exchange_rate_repo.save(rate)
 
         input_dto = RemoveExchangeRateInputDTO(
             actor=admin_actor,
@@ -102,4 +107,4 @@ class TestRemoveExchangeRateUseCase:
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

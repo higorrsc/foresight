@@ -20,7 +20,7 @@ class TestUnlockScenarioUseCase:
     Test suite for the UnlockScenarioUseCase.
     """
 
-    def test_unlock_scenario_success(self, admin_actor: User):
+    async def test_unlock_scenario_success(self, admin_actor: User):
         """
         Test successful unlocking of a financial scenario.
         """
@@ -32,18 +32,20 @@ class TestUnlockScenarioUseCase:
             assumptions=None,
             is_locked=True,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = UnlockScenarioUseCase(repository)
         input_dto = UnlockScenarioInputDTO(actor=admin_actor, id=scenario.id)
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        unlocked_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        unlocked_scenario = await repository.get_by_id(
+            scenario.id, admin_actor.tenant_id
+        )
         assert unlocked_scenario.is_locked is False  # type: ignore
         assert unlocked_scenario.updated_by == admin_actor.id  # type: ignore
 
-    def test_unlock_scenario_already_unlocked(self, admin_actor: User):
+    async def test_unlock_scenario_already_unlocked(self, admin_actor: User):
         """
         Test that unlocking an already unlocked financial scenario raises an error.
         """
@@ -55,15 +57,15 @@ class TestUnlockScenarioUseCase:
             assumptions=None,
             is_locked=False,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = UnlockScenarioUseCase(repository)
         input_dto = UnlockScenarioInputDTO(actor=admin_actor, id=scenario.id)
 
         with pytest.raises(ScenarioAlreadyUnlockedError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_unlock_scenario_not_found(self, admin_actor: User):
+    async def test_unlock_scenario_not_found(self, admin_actor: User):
         """
         Test that unlocking a non-existent financial scenario raises an error.
         """
@@ -72,4 +74,4 @@ class TestUnlockScenarioUseCase:
         input_dto = UnlockScenarioInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

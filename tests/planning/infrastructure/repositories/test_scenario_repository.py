@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.finance.domain.value_objects import CurrencyCode
 from src.planning.domain.entities import ExchangeRate, Scenario, ScenarioType
@@ -16,9 +16,9 @@ class TestScenarioRepository:
     Test suite for the ScenarioRepository.
     """
 
-    def test_scenario_repository_save_and_get_by_id(
+    async def test_scenario_repository_save_and_get_by_id(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
@@ -32,9 +32,9 @@ class TestScenarioRepository:
             assumptions=None,
         )
 
-        repository.save(scenario)
+        await repository.save(scenario)
 
-        saved_scenario = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
+        saved_scenario = await repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
 
         assert saved_scenario is not None
         assert saved_scenario.id == scenario.id
@@ -42,14 +42,15 @@ class TestScenarioRepository:
         assert saved_scenario.scenario_type == ScenarioType.ACTUAL
         assert saved_scenario.tenant_id == default_tenant.id
 
-    def test_scenario_repository_update(
+    async def test_scenario_repository_update(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
         Test updating an existing financial scenario.
         """
+
         repository = ScenarioRepository(db_session_for_test)
         scenario = Scenario(
             description="Original Description",
@@ -57,17 +58,20 @@ class TestScenarioRepository:
             tenant_id=default_tenant.id,  # type: ignore
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         scenario.description = "Updated Description"
-        repository.update(scenario)
+        await repository.update(scenario)
 
-        updated_scenario = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
+        updated_scenario = await repository.get_by_id(
+            scenario.id,
+            default_tenant.id,  # type: ignore
+        )  # type: ignore
         assert updated_scenario.description == "Updated Description"  # type: ignore
 
-    def test_scenario_repository_delete(
+    async def test_scenario_repository_delete(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
@@ -80,16 +84,19 @@ class TestScenarioRepository:
             tenant_id=default_tenant.id,  # type: ignore
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
-        repository.delete(scenario.id, default_tenant.id)  # type: ignore
+        await repository.delete(scenario.id, default_tenant.id)  # type: ignore
 
-        deleted_scenario = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
+        deleted_scenario = await repository.get_by_id(
+            scenario.id,
+            default_tenant.id,  # type: ignore
+        )
         assert deleted_scenario is None
 
-    def test_scenario_repository_list(
+    async def test_scenario_repository_list(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
@@ -108,17 +115,17 @@ class TestScenarioRepository:
             tenant_id=default_tenant.id,  # type: ignore
             assumptions=None,
         )
-        repository.save(scenario1)
-        repository.save(scenario2)
+        await repository.save(scenario1)
+        await repository.save(scenario2)
 
-        result = repository.search(tenant_id=default_tenant.id)  # type: ignore
+        result = await repository.search(tenant_id=default_tenant.id)  # type: ignore
 
         assert result.total == 2
         assert len(result.data) == 2
 
-    def test_scenario_repository_with_exchange_rates(
+    async def test_scenario_repository_with_exchange_rates(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
@@ -139,18 +146,18 @@ class TestScenarioRepository:
         )
         scenario.exchange_rates = [rate]
 
-        repository.save(scenario)
+        await repository.save(scenario)
 
-        saved = repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
+        saved = await repository.get_by_id(scenario.id, default_tenant.id)  # type: ignore
         assert saved is not None
         assert saved.exchange_rates is not None
         assert len(saved.exchange_rates) == 1
         assert str(saved.exchange_rates[0].from_currency) == "USD"
         assert saved.exchange_rates[0].rate == Decimal("5.0")
 
-    def test_exchange_rate_repository(
+    async def test_exchange_rate_repository(
         self,
-        db_session_for_test: Session,
+        db_session_for_test: AsyncSession,
         default_tenant: TenantModel,
     ):
         """
@@ -163,7 +170,7 @@ class TestScenarioRepository:
             tenant_id=default_tenant.id,  # type: ignore
             assumptions=None,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         er_repo = ExchangeRateRepository(db_session_for_test)
         rate = ExchangeRate(
@@ -172,9 +179,9 @@ class TestScenarioRepository:
             to_currency=CurrencyCode(value="USD"),
             rate=Decimal("1.1"),
         )
-        er_repo.save(rate)
+        await er_repo.save(rate)
 
-        saved_rate = er_repo.get_by_id(rate.id, None)
+        saved_rate = await er_repo.get_by_id(rate.id, None)
         assert saved_rate is not None
         assert saved_rate.rate == Decimal("1.1")
         assert saved_rate.scenario_id == scenario.id
