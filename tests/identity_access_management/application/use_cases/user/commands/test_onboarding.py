@@ -13,7 +13,7 @@ class TestOnboardingUseCase:
     Test suite for the OnboardingUseCase.
     """
 
-    def test_onboarding_creates_all_entities_correctly(
+    async def test_onboarding_creates_all_entities_correctly(
         self,
         onboarding_use_case,
         plan_in_memory_repo,
@@ -26,9 +26,9 @@ class TestOnboardingUseCase:
         Test if the onboarding use case creates all entities correctly.
         """
 
-        plan_in_memory_repo.save(Plan(name="Standard", price=Decimal(1)))
+        await plan_in_memory_repo.save(Plan(name="Standard", price=Decimal(1)))
         for perm_name in AppPermission.get_all_permissions():
-            permission_in_memory_repo.save(
+            await permission_in_memory_repo.save(
                 Permission(codename=perm_name, description="...")
             )
 
@@ -40,22 +40,22 @@ class TestOnboardingUseCase:
             email="admin@acme.com",
         )
 
-        output = onboarding_use_case.execute(input_dto)
+        output = await onboarding_use_case.execute(input_dto)
 
         assert output.tenant_id is not None
         assert output.user_id is not None
 
-        tenant = tenant_in_memory_repo.get_by_id(output.tenant_id, None)
+        tenant = await tenant_in_memory_repo.get_by_id(output.tenant_id, None)
         assert tenant is not None
         assert tenant.name == "Empresa Acme"
 
-        user = user_in_memory_repo.get_by_id(output.user_id, tenant.id)
+        user = await user_in_memory_repo.get_by_id(output.user_id, tenant.id)
         assert user is not None
         assert user.username == "admin_acme"
         assert user.tenant_id == tenant.id
 
-        admin_role = role_in_memory_repo.get_by_name("admin", tenant.id)
-        guest_role = role_in_memory_repo.get_by_name("guest", tenant.id)
+        admin_role = await role_in_memory_repo.get_by_name("admin", tenant.id)
+        guest_role = await role_in_memory_repo.get_by_name("guest", tenant.id)
         assert admin_role is not None
         assert guest_role is not None
 

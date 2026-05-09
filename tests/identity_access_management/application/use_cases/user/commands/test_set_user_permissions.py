@@ -18,7 +18,7 @@ class TestSetUserPermissionsUseCase:
     Test suite for the SetUserPermissionsUseCase.
     """
 
-    def test_admin_can_set_permissions_for_user(
+    async def test_admin_can_set_permissions_for_user(
         self,
         set_user_permissions_use_case,
         user_in_memory_repo,
@@ -31,15 +31,15 @@ class TestSetUserPermissionsUseCase:
         """
         admin_actor.permissions.add(AppPermission.USER_SET_PERMISSIONS)
 
-        permission_in_memory_repo.save(
+        await permission_in_memory_repo.save(
             Permission(
                 codename="admin:editor",
                 description="Editor permission",
             )
         )
 
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = SetUserPermissionsInputDTO(
             actor=admin_actor,
@@ -47,15 +47,15 @@ class TestSetUserPermissionsUseCase:
             permissions_codes=["admin:editor"],
         )
 
-        set_user_permissions_use_case.execute(input_dto)
+        await set_user_permissions_use_case.execute(input_dto)
 
-        updated_guest = user_in_memory_repo.get_by_id(
+        updated_guest = await user_in_memory_repo.get_by_id(
             guest_actor.id, admin_actor.tenant_id
         )
         assert updated_guest.permissions == {"admin:editor"}
         assert updated_guest.updated_by == admin_actor.id
 
-    def test_guest_cannot_set_permissions(
+    async def test_guest_cannot_set_permissions(
         self,
         set_user_permissions_use_case,
         user_in_memory_repo,
@@ -64,7 +64,7 @@ class TestSetUserPermissionsUseCase:
         """
         Test if a guest user cannot set permissions.
         """
-        user_in_memory_repo.save(deepcopy(guest_actor))  # Não tem a permissão
+        await user_in_memory_repo.save(deepcopy(guest_actor))  # Não tem a permissão
 
         input_dto = SetUserPermissionsInputDTO(
             actor=guest_actor,
@@ -76,9 +76,9 @@ class TestSetUserPermissionsUseCase:
             InsufficientPermissionError,
             match="User does not have permission",
         ):
-            set_user_permissions_use_case.execute(input_dto)
+            await set_user_permissions_use_case.execute(input_dto)
 
-    def test_set_non_existent_permission_raises_error(
+    async def test_set_non_existent_permission_raises_error(
         self,
         set_user_permissions_use_case,
         user_in_memory_repo,
@@ -89,7 +89,7 @@ class TestSetUserPermissionsUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_SET_PERMISSIONS)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = SetUserPermissionsInputDTO(
             actor=admin_actor,
@@ -101,4 +101,4 @@ class TestSetUserPermissionsUseCase:
             PermissionNotFoundError,
             match="Permission 'fake_permission' not found.",
         ):
-            set_user_permissions_use_case.execute(input_dto)
+            await set_user_permissions_use_case.execute(input_dto)

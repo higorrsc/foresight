@@ -18,7 +18,7 @@ class TestSetUserRolesUseCase:
     Test suite for the SetUserRolesUseCase.
     """
 
-    def test_admin_can_set_roles_for_user(
+    async def test_admin_can_set_roles_for_user(
         self,
         set_user_roles_use_case,
         user_in_memory_repo,
@@ -31,7 +31,7 @@ class TestSetUserRolesUseCase:
         """
         admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
 
-        role_in_memory_repo.save(
+        await role_in_memory_repo.save(
             Role(
                 name="editor",
                 description="Editor role",
@@ -39,8 +39,8 @@ class TestSetUserRolesUseCase:
             )
         )
 
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = SetUserRolesInputDTO(
             actor=admin_actor,
@@ -48,15 +48,15 @@ class TestSetUserRolesUseCase:
             role_names=["editor"],
         )
 
-        set_user_roles_use_case.execute(input_dto)
+        await set_user_roles_use_case.execute(input_dto)
 
-        updated_guest = user_in_memory_repo.get_by_id(
+        updated_guest = await user_in_memory_repo.get_by_id(
             guest_actor.id, admin_actor.tenant_id
         )
         assert updated_guest.roles == {"editor"}
         assert updated_guest.updated_by == admin_actor.id
 
-    def test_guest_cannot_set_roles(
+    async def test_guest_cannot_set_roles(
         self,
         set_user_roles_use_case,
         user_in_memory_repo,
@@ -65,19 +65,21 @@ class TestSetUserRolesUseCase:
         """
         Test if a guest user cannot set roles.
         """
-        user_in_memory_repo.save(deepcopy(guest_actor))  # Não tem a permissão
+        await user_in_memory_repo.save(deepcopy(guest_actor))  # Não tem a permissão
 
         input_dto = SetUserRolesInputDTO(
-            actor=guest_actor, user_id_to_update=guest_actor.id, role_names=["admin"]
+            actor=guest_actor,
+            user_id_to_update=guest_actor.id,
+            role_names=["admin"],
         )
 
         with pytest.raises(
             InsufficientPermissionError,
             match="User does not have permission",
         ):
-            set_user_roles_use_case.execute(input_dto)
+            await set_user_roles_use_case.execute(input_dto)
 
-    def test_set_non_existent_role_raises_error(
+    async def test_set_non_existent_role_raises_error(
         self,
         set_user_roles_use_case,
         user_in_memory_repo,
@@ -88,7 +90,7 @@ class TestSetUserRolesUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_SET_ROLES)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = SetUserRolesInputDTO(
             actor=admin_actor,
@@ -100,4 +102,4 @@ class TestSetUserRolesUseCase:
             RoleNotFoundError,
             match="Role 'fake_role' not found.",
         ):
-            set_user_roles_use_case.execute(input_dto)
+            await set_user_roles_use_case.execute(input_dto)

@@ -17,7 +17,7 @@ class TestGetUserByIdUseCase:
     Test suite for the GetUserByIdUseCase.
     """
 
-    def test_admin_can_get_user_by_id(
+    async def test_admin_can_get_user_by_id(
         self,
         get_user_by_id_use_case,
         user_in_memory_repo,
@@ -29,21 +29,21 @@ class TestGetUserByIdUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_READ)
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = GetByIdRequestInputDTO(
             actor=admin_actor,
             id=guest_actor.id,
         )
 
-        result_user = get_user_by_id_use_case.execute(input_dto)
+        result_user = await get_user_by_id_use_case.execute(input_dto)
 
         assert result_user is not None
         assert result_user.id == guest_actor.id
         assert result_user.username == guest_actor.username
 
-    def test_get_user_without_permission_raises_error(
+    async def test_get_user_without_permission_raises_error(
         self,
         get_user_by_id_use_case,
         user_in_memory_repo,
@@ -53,7 +53,7 @@ class TestGetUserByIdUseCase:
         Test if get user without permission raises error.
         """
 
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = GetByIdRequestInputDTO(
             actor=guest_actor,
@@ -64,9 +64,9 @@ class TestGetUserByIdUseCase:
             InsufficientPermissionError,
             match="User does not have permission",
         ):
-            get_user_by_id_use_case.execute(input_dto)
+            await get_user_by_id_use_case.execute(input_dto)
 
-    def test_get_non_existent_user_raises_error(
+    async def test_get_non_existent_user_raises_error(
         self,
         get_user_by_id_use_case,
         user_in_memory_repo,
@@ -76,7 +76,7 @@ class TestGetUserByIdUseCase:
         Testa que buscar um ID inexistente levanta UserNotFoundError.
         """
         admin_actor.permissions.add(AppPermission.USER_READ)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = GetByIdRequestInputDTO(
             actor=admin_actor,
@@ -87,9 +87,9 @@ class TestGetUserByIdUseCase:
             UserNotFoundError,
             match="not found in this tenant",
         ):
-            get_user_by_id_use_case.execute(input_dto)
+            await get_user_by_id_use_case.execute(input_dto)
 
-    def test_get_user_from_other_tenant_raises_error(
+    async def test_get_user_from_other_tenant_raises_error(
         self,
         get_user_by_id_use_case,
         user_in_memory_repo,
@@ -100,14 +100,14 @@ class TestGetUserByIdUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_READ)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         other_tenant_user = User(
             username="other_tenant_user",
             hashed_password="johnDoeNew",
             tenant_id=uuid4(),
         )
-        user_in_memory_repo.save(other_tenant_user)
+        await user_in_memory_repo.save(other_tenant_user)
 
         input_dto = GetByIdRequestInputDTO(
             actor=admin_actor,
@@ -118,4 +118,4 @@ class TestGetUserByIdUseCase:
             UserNotFoundError,
             match="not found in this tenant",
         ):
-            get_user_by_id_use_case.execute(input_dto)
+            await get_user_by_id_use_case.execute(input_dto)

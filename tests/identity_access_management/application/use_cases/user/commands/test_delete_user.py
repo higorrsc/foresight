@@ -18,7 +18,7 @@ class TestDeleteUserUseCase:
     Test suite for the DeleteUserUseCase.
     """
 
-    def test_admin_can_delete_other_user(
+    async def test_admin_can_delete_other_user(
         self,
         delete_user_use_case,
         user_in_memory_repo,
@@ -30,14 +30,14 @@ class TestDeleteUserUseCase:
         """
 
         admin_actor.permissions.add(AppPermission.USER_DELETE)
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = DeleteRequestInputDTO(actor=admin_actor, id=guest_actor.id)
 
-        delete_user_use_case.execute(input_dto)
+        await delete_user_use_case.execute(input_dto)
 
-        deleted_user = user_in_memory_repo.get_by_id(
+        deleted_user = await user_in_memory_repo.get_by_id(
             guest_actor.id, admin_actor.tenant_id
         )
         assert deleted_user is not None
@@ -45,18 +45,18 @@ class TestDeleteUserUseCase:
         assert deleted_user.deleted_at is not None
         assert deleted_user.updated_by == admin_actor.id
 
-    def test_user_cannot_delete_without_permission(
+    async def test_user_cannot_delete_without_permission(
         self,
         delete_user_use_case,
         user_in_memory_repo,
-        guest_actor: User,
         admin_actor: User,
+        guest_actor: User,
     ):
         """
         Test if a user without permission cannot delete another user.
         """
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = DeleteRequestInputDTO(actor=guest_actor, id=admin_actor.id)
 
@@ -64,9 +64,9 @@ class TestDeleteUserUseCase:
             InsufficientPermissionError,
             match="User does not have permission",
         ):
-            delete_user_use_case.execute(input_dto)
+            await delete_user_use_case.execute(input_dto)
 
-    def test_user_cannot_delete_self(
+    async def test_user_cannot_delete_self(
         self,
         delete_user_use_case,
         user_in_memory_repo,
@@ -76,7 +76,7 @@ class TestDeleteUserUseCase:
         Test if a user cannot delete themselves.
         """
         admin_actor.permissions.add(AppPermission.USER_DELETE)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = DeleteRequestInputDTO(actor=admin_actor, id=admin_actor.id)
 
@@ -84,9 +84,9 @@ class TestDeleteUserUseCase:
             InvalidUserError,
             match="User cannot delete their own account",
         ):
-            delete_user_use_case.execute(input_dto)
+            await delete_user_use_case.execute(input_dto)
 
-    def test_delete_non_existent_user_raises_error(
+    async def test_delete_non_existent_user_raises_error(
         self,
         delete_user_use_case,
         user_in_memory_repo,
@@ -96,7 +96,7 @@ class TestDeleteUserUseCase:
         Test if deleting a non-existent user raises an error.
         """
         admin_actor.permissions.add(AppPermission.USER_DELETE)
-        user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
 
         input_dto = DeleteRequestInputDTO(actor=admin_actor, id=uuid4())
 
@@ -104,4 +104,4 @@ class TestDeleteUserUseCase:
             UserNotFoundError,
             match="User to delete not found",
         ):
-            delete_user_use_case.execute(input_dto)
+            await delete_user_use_case.execute(input_dto)

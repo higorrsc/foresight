@@ -14,7 +14,7 @@ class TestListUserUseCase:
     Test suite for the ListUserUseCase.
     """
 
-    def test_list_users_with_permission(
+    async def test_list_users_with_permission(
         self,
         list_user_use_case,
         user_in_memory_repo,
@@ -26,24 +26,24 @@ class TestListUserUseCase:
         """
         admin_actor.permissions.add(AppPermission.USER_READ)
 
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         other_tenant_user = User(
             username="other_tenant_user",
             hashed_password="pw",
             tenant_id=uuid4(),
         )
-        user_in_memory_repo.save(other_tenant_user)
+        await user_in_memory_repo.save(other_tenant_user)
 
         input_dto = ListRequestInputDTO(actor=admin_actor)
-        result = list_user_use_case.execute(input_dto)
+        result = await list_user_use_case.execute(input_dto)
 
         assert result.meta.total_items == 2
         assert result.data[0].username == admin_actor.username
         assert result.data[1].username == guest_actor.username
 
-    def test_list_users_without_permission_raises_error(
+    async def test_list_users_without_permission_raises_error(
         self,
         list_user_use_case,
         guest_actor: User,
@@ -57,4 +57,4 @@ class TestListUserUseCase:
             InsufficientPermissionError,
             match="User does not have permission",
         ):
-            list_user_use_case.execute(input_dto)
+            await list_user_use_case.execute(input_dto)

@@ -16,7 +16,7 @@ class TestDeleteRoleUseCase:
     Test the DeleteRoleUseCase.
     """
 
-    def test_delete_existing_role_without_associated_users(
+    async def test_delete_existing_role_without_associated_users(
         self,
         role_in_memory_repo,
         user_in_memory_repo,
@@ -32,23 +32,23 @@ class TestDeleteRoleUseCase:
             description="Description",
             tenant_id=admin_actor.tenant_id,
         )
-        role_in_memory_repo.save(role_to_delete)
+        await role_in_memory_repo.save(role_to_delete)
 
         input_dto = DeleteRequestInputDTO(
             id=role_to_delete.id,
             actor=admin_actor,
         )
 
-        delete_role_use_case_iam.execute(input_dto)
+        await delete_role_use_case_iam.execute(input_dto)
 
-        found_role = role_in_memory_repo.get_by_id(
+        found_role = await role_in_memory_repo.get_by_id(
             role_to_delete.id,
             admin_actor.tenant_id,
         )
         assert found_role.is_active is False
         assert found_role.deleted_at is not None
 
-    def test_delete_non_existent_role_raises_error(
+    async def test_delete_non_existent_role_raises_error(
         self,
         delete_role_use_case_iam,
         admin_actor,
@@ -67,9 +67,9 @@ class TestDeleteRoleUseCase:
             RoleNotFoundError,
             match=f"Role with ID '{non_existent_id}' not found.",
         ):
-            delete_role_use_case_iam.execute(input_dto)
+            await delete_role_use_case_iam.execute(input_dto)
 
-    def test_delete_role_with_associated_user_raises_error(
+    async def test_delete_role_with_associated_user_raises_error(
         self,
         role_in_memory_repo,
         user_in_memory_repo,
@@ -85,7 +85,7 @@ class TestDeleteRoleUseCase:
             description="Description",
             tenant_id=admin_actor.tenant_id,
         )
-        role_in_memory_repo.save(role_to_delete)
+        await role_in_memory_repo.save(role_to_delete)
 
         from src.identity_access_management.domain.entities.user import User
 
@@ -95,9 +95,9 @@ class TestDeleteRoleUseCase:
             tenant_id=admin_actor.tenant_id,
             roles={role_to_delete.id},  # type: ignore
         )
-        user_in_memory_repo.save(user_associated)
+        await user_in_memory_repo.save(user_associated)
 
-        users_count = user_in_memory_repo.count_users_by_role(role_to_delete.id)
+        users_count = await user_in_memory_repo.count_users_by_role(role_to_delete.id)
         assert users_count == 1
 
         with pytest.raises(
@@ -107,7 +107,7 @@ class TestDeleteRoleUseCase:
                 f"because it is assigned to {users_count} users."
             ),
         ):
-            delete_role_use_case_iam.execute(
+            await delete_role_use_case_iam.execute(
                 DeleteRequestInputDTO(
                     id=role_to_delete.id,
                     actor=admin_actor,

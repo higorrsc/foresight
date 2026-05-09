@@ -18,7 +18,7 @@ class TestChangePasswordUseCase:
     Test suite for the ChangePasswordUseCase.
     """
 
-    def test_user_can_change_own_password(
+    async def test_user_can_change_own_password(
         self,
         change_password_use_case,
         user_in_memory_repo,
@@ -30,7 +30,7 @@ class TestChangePasswordUseCase:
 
         guest_actor_with_hash = deepcopy(guest_actor)
         guest_actor_with_hash.hashed_password = hash_password("foresight_guest")
-        user_in_memory_repo.save(guest_actor_with_hash)
+        await user_in_memory_repo.save(guest_actor_with_hash)
 
         input_dto = ChangePasswordInputDTO(
             actor=guest_actor_with_hash,
@@ -39,15 +39,15 @@ class TestChangePasswordUseCase:
             new_password="new_strong_password_123",
         )
 
-        change_password_use_case.execute(input_dto)
+        await change_password_use_case.execute(input_dto)
 
-        updated_user = user_in_memory_repo.get_by_id(
+        updated_user = await user_in_memory_repo.get_by_id(
             guest_actor.id, guest_actor.tenant_id
         )
         assert updated_user.verify_password("new_strong_password_123") is True
         assert updated_user.updated_by == guest_actor.id
 
-    def test_admin_can_change_other_user_password_without_old_password(
+    async def test_admin_can_change_other_user_password_without_old_password(
         self,
         change_password_use_case,
         user_in_memory_repo,
@@ -59,9 +59,9 @@ class TestChangePasswordUseCase:
         the old password.
         """
 
-        admin_actor.permissions.add(AppPermission.USER_CHANGE_PASSWORD)
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        guest_actor.permissions.add(AppPermission.USER_CHANGE_PASSWORD)
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = ChangePasswordInputDTO(
             actor=admin_actor,
@@ -70,15 +70,15 @@ class TestChangePasswordUseCase:
             new_password="admin_reset_password",
         )
 
-        change_password_use_case.execute(input_dto)
+        await change_password_use_case.execute(input_dto)
 
-        updated_guest = user_in_memory_repo.get_by_id(
+        updated_guest = await user_in_memory_repo.get_by_id(
             guest_actor.id, admin_actor.tenant_id
         )
         assert updated_guest.verify_password("admin_reset_password") is True
         assert updated_guest.updated_by == admin_actor.id
 
-    def test_change_password_with_incorrect_old_password_raises_error(
+    async def test_change_password_with_incorrect_old_password_raises_error(
         self,
         change_password_use_case,
         user_in_memory_repo,
@@ -90,7 +90,7 @@ class TestChangePasswordUseCase:
 
         guest_actor_with_hash = deepcopy(guest_actor)
         guest_actor_with_hash.hashed_password = hash_password("correct_old_password")
-        user_in_memory_repo.save(guest_actor_with_hash)
+        await user_in_memory_repo.save(guest_actor_with_hash)
 
         input_dto = ChangePasswordInputDTO(
             actor=guest_actor_with_hash,
@@ -100,20 +100,20 @@ class TestChangePasswordUseCase:
         )
 
         with pytest.raises(InvalidPasswordError, match="Invalid old password."):
-            change_password_use_case.execute(input_dto)
+            await change_password_use_case.execute(input_dto)
 
-    def test_user_cannot_change_other_user_password(
+    async def test_user_cannot_change_other_user_password(
         self,
         change_password_use_case,
         user_in_memory_repo,
-        guest_actor: User,
         admin_actor: User,
+        guest_actor: User,
     ):
         """
         Testa que um utilizador comum não pode alterar a senha de outro.
         """
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(
             deepcopy(guest_actor)
         )  # guest_actor não tem a permissão
 
@@ -128,4 +128,4 @@ class TestChangePasswordUseCase:
             InsufficientPermissionError,
             match="User does not have permission to change another user's password.",
         ):
-            change_password_use_case.execute(input_dto)
+            await change_password_use_case.execute(input_dto)

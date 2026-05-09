@@ -16,7 +16,7 @@ class TestCreateRoleUseCase:
     Test the CreateRoleUseCase.
     """
 
-    def test_create_role_with_valid_data(
+    async def test_create_role_with_valid_data(
         self,
         admin_actor,
         create_role_use_case,
@@ -25,7 +25,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role with valid data.
         """
 
-        output = create_role_use_case.execute(
+        output = await create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -36,7 +36,7 @@ class TestCreateRoleUseCase:
         assert output.id is not None
         assert isinstance(output, CreateRoleOutputDTO)
 
-    def test_create_role_with_empty_name(
+    async def test_create_role_with_empty_name(
         self,
         admin_actor,
         create_role_use_case,
@@ -49,7 +49,7 @@ class TestCreateRoleUseCase:
             InvalidRoleError,
             match="Invalid input data: Role name is required.",
         ):
-            create_role_use_case.execute(
+            await create_role_use_case.execute(
                 CreateRoleInputDTO(
                     actor=admin_actor,
                     name="",
@@ -57,7 +57,7 @@ class TestCreateRoleUseCase:
                 )
             )
 
-    def test_create_role_with_long_name(
+    async def test_create_role_with_long_name(
         self,
         admin_actor,
         create_role_use_case,
@@ -70,7 +70,7 @@ class TestCreateRoleUseCase:
             InvalidRoleError,
             match="Role name must be at most 100 characters long.",
         ):
-            create_role_use_case.execute(
+            await create_role_use_case.execute(
                 CreateRoleInputDTO(
                     actor=admin_actor,
                     name="A" * 101,
@@ -78,7 +78,7 @@ class TestCreateRoleUseCase:
                 )
             )
 
-    def test_create_role_without_description(
+    async def test_create_role_without_description(
         self,
         admin_actor,
         create_role_use_case,
@@ -87,7 +87,7 @@ class TestCreateRoleUseCase:
         Test the creation of a role without description.
         """
 
-        output = create_role_use_case.execute(
+        output = await create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -97,7 +97,7 @@ class TestCreateRoleUseCase:
         assert output.id is not None
         assert isinstance(output, CreateRoleOutputDTO)
 
-    def test_create_role_with_valid_permission(
+    async def test_create_role_with_valid_permission(
         self,
         admin_actor,
         permission_in_memory_repo,
@@ -106,14 +106,14 @@ class TestCreateRoleUseCase:
         """
         Test the creation of a role with valid permission.
         """
-        permission_in_memory_repo.save(
+        await permission_in_memory_repo.save(
             Permission(codename="area:read", description="Read area")
         )
-        permission_in_memory_repo.save(
+        await permission_in_memory_repo.save(
             Permission(codename="area:create", description="Create area")
         )
 
-        output = create_role_use_case.execute(
+        output = await create_role_use_case.execute(
             CreateRoleInputDTO(
                 actor=admin_actor,
                 name="Test Role",
@@ -127,9 +127,9 @@ class TestCreateRoleUseCase:
         assert output.id is not None
         assert isinstance(output, CreateRoleOutputDTO)
 
-    def test_create_role_with_invalid_permission(
+    async def test_create_role_with_invalid_permission(
         self,
-        admin_actor,
+        guest_actor,
         create_role_use_case,
     ):
         """
@@ -140,9 +140,9 @@ class TestCreateRoleUseCase:
             PermissionNotFoundError,
             match="Permission 'area:reader' not found.",
         ):
-            create_role_use_case.execute(
+            await create_role_use_case.execute(
                 CreateRoleInputDTO(
-                    actor=admin_actor,
+                    actor=guest_actor,
                     name="Test Role",
                     permissions=["area:reader"],
                 )
