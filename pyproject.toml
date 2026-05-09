@@ -51,9 +51,7 @@ explicit_package_bases = true
 ignore_missing_imports = true
 namespace_packages = true
 warn_unused_configs = true
-exclude = [
-  "alembic/versions",
-]
+exclude = ["alembic/versions"]
 
 # ------------------------------------------------------
 # Ruff
@@ -92,6 +90,8 @@ pythonpath = "."
 python_files = "tests.py tests_*.py *_tests.py test_*.py *_test.py"
 addopts = "-v --import-mode=importlib"
 testpaths = "tests"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
   "ignore:Cannot correctly sort tables:sqlalchemy.exc.SAWarning",
   "ignore:Accessing argon2.__version__:DeprecationWarning",
