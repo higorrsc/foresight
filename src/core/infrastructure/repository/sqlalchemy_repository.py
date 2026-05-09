@@ -59,8 +59,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         model = self._mapper.to_model(entity)
         self._session.add(model)
-        await self._session.commit()
-        await self._session.refresh(model)
+        await self._session.flush()
         return self._mapper.to_entity(model)
 
     async def get_by_id(
@@ -121,8 +120,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         model = self._mapper.to_model(entity)
         merged_model = await self._session.merge(model)
-        await self._session.commit()
-        await self._session.refresh(merged_model)
+        await self._session.flush()
         return self._mapper.to_entity(merged_model)
 
     async def delete(
