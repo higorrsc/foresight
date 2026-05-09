@@ -36,6 +36,6 @@ class PlanRepository(SQLAlchemyRepository[Plan, PlanModel], IPlanRepository):
         )
 
         result = await self._session.execute(stmt)
-        model = result.scalar_one_or_none()
+        model = result.unique().scalar_one_or_none()
 
         return self._mapper.to_entity(model) if model else None

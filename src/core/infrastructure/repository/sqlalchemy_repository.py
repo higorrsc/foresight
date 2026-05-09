@@ -44,6 +44,11 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         return getattr(self._model_cls, column_name, None)
 
+    def _get_base_query(self):
+        """Hook to allow children repos add eager loads (options)."""
+
+        return select(self._model_cls)
+
     async def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
@@ -75,14 +80,14 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         if id_column is None:
             return None
 
-        stmt = select(self._model_cls).where(id_column == entity_id)
+        stmt = self._get_base_query().where(id_column == entity_id)
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
             stmt = stmt.where(tenant_column == tenant_id)
 
         result = await self._session.execute(stmt)
-        model = result.scalars().first()
+        model = result.unique().scalars().first()
         return self._mapper.to_entity(model) if model else None
 
     async def get_all(
@@ -96,14 +101,14 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         :return: A list of all entities.
         """
 
-        stmt = select(self._model_cls)
+        stmt = self._get_base_query()
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
             stmt = stmt.where(tenant_column == tenant_id)
 
         result = await self._session.execute(stmt)
-        models = result.unique().scalars().all()
+        models = result.unique().unique().scalars().all()
         return [self._mapper.to_entity(m) for m in models]
 
     async def update(self, entity: T) -> T | None:
@@ -159,7 +164,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        stmt = select(self._model_cls)
+        stmt = self._get_base_query()
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
@@ -188,7 +193,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         stmt = stmt.offset(offset).limit(limit)
 
         result = await self._session.execute(stmt)
-        models = result.unique().scalars().all()
+        models = result.unique().unique().scalars().all()
         entities = [self._mapper.to_entity(model) for model in models]
 
         return PaginatedResult(

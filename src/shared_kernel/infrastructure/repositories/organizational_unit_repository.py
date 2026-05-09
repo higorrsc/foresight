@@ -53,6 +53,6 @@ class OrganizationalUnitRepository(
 
         result = await self._session.execute(stmt)
 
-        models = result.scalars().all()
+        models = result.unique().scalars().all()
 
         return [self._mapper.to_entity(model) for model in models]

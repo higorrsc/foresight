@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.identity_access_management.domain.entities import User
@@ -35,6 +36,13 @@ class UserRepository(
             UserMapper(),
         )
 
+    def _get_base_query(self):
+        """Overwrites the base query to always load permissions and roles."""
+
+        return select(UserModel).options(
+            selectinload(UserModel.roles_rel).selectinload(RoleModel.permissions_rel)
+        )
+
     async def get_by_username(
         self,
         username: str,
@@ -44,14 +52,13 @@ class UserRepository(
         Get a user by its username and tenant.
         """
 
-        stmt = select(self._model_cls).where(
+        stmt = self._get_base_query().where(
             self._model_cls.username == username,
             self._model_cls.tenant_id == tenant_id,
         )
 
         result = await self._session.execute(stmt)
-
-        model = result.scalar_one_or_none()
+        model = result.unique().scalar_one_or_none()
 
         return self._mapper.to_entity(model) if model else None
 
@@ -67,14 +74,13 @@ class UserRepository(
         :return: User entity or None if not found.
         """
 
-        stmt = select(self._model_cls).where(
+        stmt = self._get_base_query().where(
             self._model_cls.email == email,
             self._model_cls.tenant_id == tenant_id,
         )
 
         result = await self._session.execute(stmt)
-
-        model = result.scalar_one_or_none()
+        model = result.unique().scalar_one_or_none()
 
         return self._mapper.to_entity(model) if model else None
 
@@ -86,13 +92,10 @@ class UserRepository(
         :return: User entity or None if not found.
         """
 
-        stmt = select(self._model_cls).where(
-            self._model_cls.username == username,
-        )
+        stmt = self._get_base_query().where(self._model_cls.username == username)
 
         result = await self._session.execute(stmt)
-
-        model = result.scalar_one_or_none()
+        model = result.unique().scalar_one_or_none()
 
         return self._mapper.to_entity(model) if model else None
 
@@ -105,11 +108,9 @@ class UserRepository(
 
         if entity.roles:
             stmt = select(RoleModel).where(RoleModel.name.in_(entity.roles))
-
             result = await self._session.execute(stmt)
 
-            role_models = result.scalars().all()
-
+            role_models = result.unique().scalars().all()
             model.roles_rel = role_models
 
         self._session.add(model)
@@ -145,7 +146,7 @@ class UserRepository(
         if entity.roles is not None:
             stmt = select(RoleModel).where(RoleModel.name.in_(entity.roles))
             result = await self._session.execute(stmt)
-            role_models = result.scalars().all()
+            role_models = result.unique().scalars().all()
             model.roles_rel = role_models
 
         if entity.permissions is not None:
@@ -153,7 +154,7 @@ class UserRepository(
                 PermissionModel.codename.in_(entity.permissions)
             )
             result = await self._session.execute(stmt)
-            permission_models = result.scalars().all()
+            permission_models = result.unique().scalars().all()
             model.permissions_rel = permission_models
 
         await self._session.commit()

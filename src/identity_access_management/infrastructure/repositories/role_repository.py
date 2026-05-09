@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.identity_access_management.domain.entities import Role
@@ -34,6 +35,11 @@ class RoleRepository(
             RoleMapper(),
         )
 
+    def _get_base_query(self):
+        """Overwrites the base query to always load permissions of the role."""
+
+        return select(RoleModel).options(selectinload(RoleModel.permissions_rel))
+
     async def get_by_name(
         self,
         name: str,
@@ -43,7 +49,7 @@ class RoleRepository(
         Get a role by its name.
         """
 
-        stmt = select(self._model_cls).where(
+        stmt = self._get_base_query().where(
             self._model_cls.name == name,
             self._model_cls.tenant_id == tenant_id,
         )
@@ -65,7 +71,7 @@ class RoleRepository(
             )
 
             result = await self._session.execute(stmt)
-            permissions_model = result.scalars().all()
+            permissions_model = result.unique().scalars().all()
 
             model.permissions_rel = permissions_model
 
@@ -102,7 +108,7 @@ class RoleRepository(
             )
 
             result = await self._session.execute(stmt)
-            permission_models = result.scalars().all()
+            permission_models = result.unique().scalars().all()
 
             model.permissions_rel = permission_models
 

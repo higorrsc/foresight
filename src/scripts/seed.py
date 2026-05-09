@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.identity_access_management.domain.constants import AppPermission
 
@@ -25,7 +26,7 @@ async def seed_initial_plan(db_session: AsyncSession) -> PlanModel:
     stmt = select(PlanModel).where(PlanModel.name == "Standard")
 
     result = await db_session.execute(stmt)
-    plan = result.scalar_one_or_none()
+    plan = result.unique().scalar_one_or_none()
 
     if not plan:
         plan = PlanModel(name="Standard", price=0.01)
@@ -45,7 +46,7 @@ async def seed_initial_tenant(db_session: AsyncSession, plan_id: str) -> TenantM
     # Query using the Model
     stmt = select(TenantModel).where(TenantModel.name == "System Tenant")
     result = await db_session.execute(stmt)
-    tenant = result.scalar_one_or_none()
+    tenant = result.unique().scalar_one_or_none()
 
     if not tenant:
         tenant = TenantModel(name="System Tenant", plan_id=plan_id)
@@ -57,7 +58,8 @@ async def seed_initial_tenant(db_session: AsyncSession, plan_id: str) -> TenantM
 
 
 async def seed_initial_roles(
-    db_session: AsyncSession, tenant_id: str
+    db_session: AsyncSession,
+    tenant_id: str,
 ) -> dict[str, RoleModel]:
     """
     Creates initial 'admin' and 'guest' roles for the tenant if they don't exist.
@@ -67,21 +69,29 @@ async def seed_initial_roles(
     print(f"Checking for initial roles for tenant {tenant_id}...")
     roles = {}
 
-    admin_stmt = select(RoleModel).where(
-        RoleModel.name == "admin",
-        RoleModel.tenant_id == tenant_id,
+    admin_stmt = (
+        select(RoleModel)
+        .options(selectinload(RoleModel.permissions_rel))
+        .where(
+            RoleModel.name == "admin",
+            RoleModel.tenant_id == tenant_id,
+        )
     )
 
-    guest_stmt = select(RoleModel).where(
-        RoleModel.name == "guest",
-        RoleModel.tenant_id == tenant_id,
+    guest_stmt = (
+        select(RoleModel)
+        .options(selectinload(RoleModel.permissions_rel))
+        .where(
+            RoleModel.name == "guest",
+            RoleModel.tenant_id == tenant_id,
+        )
     )
 
     admin_result = await db_session.execute(admin_stmt)
     guest_result = await db_session.execute(guest_stmt)
 
-    admin_exists = admin_result.scalar_one_or_none()
-    guest_exists = guest_result.scalar_one_or_none()
+    admin_exists = admin_result.unique().scalar_one_or_none()
+    guest_exists = guest_result.unique().scalar_one_or_none()
     # --- FIM DA CORREÇÃO ---
 
     if not admin_exists:
@@ -138,7 +148,7 @@ async def seed_app_permissions(
 
         result = await db_session.execute(stmt)
 
-        permission_model = result.scalar_one_or_none()
+        permission_model = result.unique().scalar_one_or_none()
 
         if not permission_model:
             permission_model = PermissionModel(
@@ -192,8 +202,8 @@ async def seed_initial_users(
     admin_result = await db_session.execute(admin_stmt)
     guest_result = await db_session.execute(guest_stmt)
 
-    admin_exists = admin_result.scalar_one_or_none()
-    guest_exists = guest_result.scalar_one_or_none()
+    admin_exists = admin_result.unique().scalar_one_or_none()
+    guest_exists = guest_result.unique().scalar_one_or_none()
     # --- FIM DA CORREÇÃO ---
     users_to_create_data = {
         "admin": {"password": "foresight_admin", "role_key": "admin"},

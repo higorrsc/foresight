@@ -34,7 +34,7 @@ class PermissionRepository(
 
         stmt = select(self._model_cls)
         result = await self._session.execute(stmt)
-        models = result.scalars().all()
+        models = result.unique().scalars().all()
         return [self._mapper.to_entity(m) for m in models]
 
     async def get_by_codename(self, codename: str) -> Permission | None:
@@ -44,5 +44,5 @@ class PermissionRepository(
 
         stmt = select(self._model_cls).filter_by(codename=codename)
         result = await self._session.execute(stmt)
-        model = result.scalars().first()
+        model = result.unique().scalars().first()
         return self._mapper.to_entity(model) if model else None
