@@ -206,6 +206,8 @@ async def setup_database():
 
     yield
 
+    await engine.dispose()
+
     if not USE_IN_MEMORY_DB:
         try:
             os.remove(DB_FILE_PATH)
@@ -224,17 +226,18 @@ async def db_session_for_test(setup_database) -> AsyncGenerator[AsyncSession]:
     transaction = await connection.begin()
     session = TestingSessionLocal(bind=connection)
 
-    for table in reversed(Base.metadata.sorted_tables):
-        await session.execute(table.delete())
+    try:
+        for table in reversed(Base.metadata.sorted_tables):
+            await session.execute(table.delete())
 
-    await seed_initial_data(session)  # type: ignore
-    await session.flush()
+        await seed_initial_data(session)
+        await session.flush()
 
-    yield session
-
-    await session.close()
-    await transaction.rollback()
-    await connection.close()
+        yield session
+    finally:
+        await session.close()
+        await transaction.rollback()
+        await connection.close()
 
 
 @pytest.fixture(scope="function")
