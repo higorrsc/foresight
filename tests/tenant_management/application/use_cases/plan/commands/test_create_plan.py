@@ -14,42 +14,42 @@ class TestCreatePlanUseCase:
     Test suite for CreatePlanUseCase.
     """
 
-    def test_admin_can_create_plan(
-        self, create_plan_use_case, plan_in_memory_repo, admin_actor
+    async def test_admin_can_create_plan(
+        self, create_plan_use_case, plan_in_memory_repo, guest_actor
     ):
         """
         Test if admin can create a plan.
         """
 
-        admin_actor.permissions.add(AppPermission.PLAN_CREATE)
+        guest_actor.permissions.add(AppPermission.PLAN_CREATE)
 
         input_dto = CreatePlanInputDTO(
-            actor=admin_actor,
+            actor=guest_actor,
             name="Pro Plan",
             price=Decimal(99.90),
         )
 
-        result = create_plan_use_case.execute(input_dto)
+        result = await create_plan_use_case.execute(input_dto)
 
         assert result.id is not None
-        saved_plan = plan_in_memory_repo.get_by_id(result.id, None)
+        saved_plan = await plan_in_memory_repo.get_by_id(result.id, None)
         assert saved_plan.name == "Pro Plan"
         assert saved_plan.price == 99.90
-        assert saved_plan.created_by == admin_actor.id
+        assert saved_plan.created_by == guest_actor.id
 
-    def test_user_without_permission_cannot_create_plan(
+    async def test_user_without_permission_cannot_create_plan(
         self,
         create_plan_use_case,
-        admin_actor,
+        guest_actor,
     ):
         """
         Test if user without permission cannot create a plan.
         """
 
-        if AppPermission.PLAN_CREATE in admin_actor.permissions:
-            admin_actor.permissions.remove(AppPermission.PLAN_CREATE)
+        if AppPermission.PLAN_CREATE in guest_actor.permissions:
+            guest_actor.permissions.remove(AppPermission.PLAN_CREATE)
 
-        input_dto = CreatePlanInputDTO(actor=admin_actor, name="Hacker Plan")
+        input_dto = CreatePlanInputDTO(actor=guest_actor, name="Hacker Plan")
 
         with pytest.raises(InsufficientPermissionError):
-            create_plan_use_case.execute(input_dto)
+            await create_plan_use_case.execute(input_dto)
