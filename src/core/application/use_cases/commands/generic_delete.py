@@ -59,7 +59,7 @@ class GenericDeleteUseCase[T]:
                 "User does not have permission to delete data."
             )
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             request.id,
             request.actor.tenant_id,
         )
