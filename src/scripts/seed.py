@@ -99,6 +99,7 @@ async def seed_initial_roles(
             name="admin",
             description="Administrator with full access.",
             tenant_id=tenant_id,
+            permissions_rel=[],
         )
         db_session.add(admin_role_model)
         roles["admin"] = admin_role_model
@@ -111,6 +112,7 @@ async def seed_initial_roles(
             name="guest",
             description="User with limited permissions.",
             tenant_id=tenant_id,
+            permissions_rel=[],
         )
         db_session.add(guest_role_model)
         roles["guest"] = guest_role_model
