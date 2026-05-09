@@ -14,7 +14,7 @@ class TestDeleteOrganizationalUnitUseCase:
     Test suite for the DeleteOrganizationalUnitUseCase.
     """
 
-    def test_delete_organizational_unit_success(
+    async def test_delete_organizational_unit_success(
         self,
         delete_organizational_unit_use_case,
         organizational_unit_in_memory_repo,
@@ -34,23 +34,23 @@ class TestDeleteOrganizationalUnitUseCase:
             created_by=admin_actor.id,
             updated_by=admin_actor.id,
         )
-        organizational_unit_in_memory_repo.save(entity)
+        await organizational_unit_in_memory_repo.save(entity)
 
         input_dto = DeleteRequestInputDTO(
             actor=admin_actor,
             id=entity_id,
         )
 
-        delete_organizational_unit_use_case.execute(input_dto)
+        await delete_organizational_unit_use_case.execute(input_dto)
 
-        saved_entity = organizational_unit_in_memory_repo.get_by_id(
+        saved_entity = await organizational_unit_in_memory_repo.get_by_id(
             entity_id, admin_actor.tenant_id
         )
         assert saved_entity is not None
         assert saved_entity.deleted_at is not None
         assert saved_entity.updated_by == admin_actor.id
 
-    def test_delete_organizational_unit_insufficient_permission(
+    async def test_delete_organizational_unit_insufficient_permission(
         self,
         delete_organizational_unit_use_case,
         organizational_unit_in_memory_repo,
@@ -59,7 +59,7 @@ class TestDeleteOrganizationalUnitUseCase:
         """
         Test that deletion fails when the actor has insufficient permissions.
         """
-        # Create an actor without the required permission
+
         from copy import deepcopy
 
         actor_no_perm = deepcopy(admin_actor)
@@ -72,10 +72,12 @@ class TestDeleteOrganizationalUnitUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            delete_organizational_unit_use_case.execute(input_dto)
+            await delete_organizational_unit_use_case.execute(input_dto)
 
-    def test_delete_organizational_unit_not_found(
-        self, delete_organizational_unit_use_case, admin_actor
+    async def test_delete_organizational_unit_not_found(
+        self,
+        delete_organizational_unit_use_case,
+        admin_actor,
     ):
         """
         Test that deletion fails when the organizational unit is not found.
@@ -88,4 +90,4 @@ class TestDeleteOrganizationalUnitUseCase:
         )
 
         with pytest.raises(OrganizationalUnitNotFoundError):
-            delete_organizational_unit_use_case.execute(input_dto)
+            await delete_organizational_unit_use_case.execute(input_dto)

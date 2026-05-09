@@ -8,7 +8,7 @@ class TestListOrganizationalUnit:
     Test the ListOrganizationalUnit use case.
     """
 
-    def test_list_organizational_units(
+    async def test_list_organizational_units(
         self,
         admin_actor,
         organizational_unit_in_memory_repo,
@@ -29,13 +29,13 @@ class TestListOrganizationalUnit:
             tenant_id=admin_actor.tenant_id,
         )
 
-        organizational_unit_in_memory_repo.save(unit1)
-        organizational_unit_in_memory_repo.save(unit2)
+        await organizational_unit_in_memory_repo.save(unit1)
+        await organizational_unit_in_memory_repo.save(unit2)
 
-        units: PaginatedResponseDTO[OrganizationalUnit] = (
-            list_organizational_unit_use_case.execute(
-                ListRequestInputDTO(actor=admin_actor)
-            )
+        units: PaginatedResponseDTO[
+            OrganizationalUnit
+        ] = await list_organizational_unit_use_case.execute(
+            ListRequestInputDTO(actor=admin_actor)
         )
 
         assert len(units.data) == 2
@@ -44,17 +44,17 @@ class TestListOrganizationalUnit:
         assert units.data[1].id is not None
         assert units.data[1].description == "Unit 2"
 
-    def test_empty_list_organizational_unit(
+    async def test_empty_list_organizational_unit(
         self, admin_actor, list_organizational_unit_use_case
     ):
         """
         Test listing organizational units when there are no units.
         """
 
-        units: PaginatedResponseDTO[OrganizationalUnit] = (
-            list_organizational_unit_use_case.execute(
-                ListRequestInputDTO(actor=admin_actor)
-            )
+        units: PaginatedResponseDTO[
+            OrganizationalUnit
+        ] = await list_organizational_unit_use_case.execute(
+            ListRequestInputDTO(actor=admin_actor)
         )
 
         assert len(units.data) == 0

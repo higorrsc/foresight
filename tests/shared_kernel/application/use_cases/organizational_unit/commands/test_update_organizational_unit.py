@@ -15,7 +15,7 @@ class TestUpdateOrganizationalUnitUseCase:
     Test suite for the UpdateOrganizationalUnitUseCase.
     """
 
-    def test_update_organizational_unit_success(
+    async def test_update_organizational_unit_success(
         self,
         update_organizational_unit_use_case,
         organizational_unit_in_memory_repo,
@@ -34,7 +34,7 @@ class TestUpdateOrganizationalUnitUseCase:
             created_by=admin_actor.id,
             updated_by=admin_actor.id,
         )
-        organizational_unit_in_memory_repo.save(original_entity)
+        await organizational_unit_in_memory_repo.save(original_entity)
 
         input_dto = UpdateOrganizationalUnitInputDTO(
             actor=admin_actor,
@@ -44,13 +44,13 @@ class TestUpdateOrganizationalUnitUseCase:
             parent_id=None,
         )
 
-        result = update_organizational_unit_use_case.execute(input_dto)
+        result = await update_organizational_unit_use_case.execute(input_dto)
 
         assert isinstance(result, UpdateOrganizationalUnitOutputDTO)
         assert result.id == entity_id
         assert result.description == "Updated Description"
 
-        saved_entity = organizational_unit_in_memory_repo.get_by_id(
+        saved_entity = await organizational_unit_in_memory_repo.get_by_id(
             entity_id, admin_actor.tenant_id
         )
         assert saved_entity is not None
@@ -58,8 +58,10 @@ class TestUpdateOrganizationalUnitUseCase:
         assert saved_entity.code == "UPDATED"
         assert saved_entity.updated_by == admin_actor.id
 
-    def test_update_organizational_unit_not_found(
-        self, update_organizational_unit_use_case, admin_actor
+    async def test_update_organizational_unit_not_found(
+        self,
+        update_organizational_unit_use_case,
+        admin_actor,
     ):
         """
         Test that updating a non-existent organizational unit raises an error.
@@ -72,4 +74,4 @@ class TestUpdateOrganizationalUnitUseCase:
         )
 
         with pytest.raises(OrganizationalUnitNotFoundError):
-            update_organizational_unit_use_case.execute(input_dto)
+            await update_organizational_unit_use_case.execute(input_dto)

@@ -8,7 +8,7 @@ class TestOrganizationalUnitRepository:
     Test suite for OrganizationalUnitRepository.
     """
 
-    def test_get_by_parent_id(
+    async def test_get_by_parent_id(
         self,
         organizational_unit_sqlalchemy_repo,
         db_session_for_test,
@@ -58,10 +58,10 @@ class TestOrganizationalUnitRepository:
                 other_parent_unit,
             ]
         )
-        db_session_for_test.flush()
+        await db_session_for_test.flush()
 
         # 2. Test fetching children of a specific parent
-        children = organizational_unit_sqlalchemy_repo.get_by_parent_id(
+        children = await organizational_unit_sqlalchemy_repo.get_by_parent_id(
             parent_id,
             tenant_id=default_tenant_id,
         )
@@ -73,7 +73,7 @@ class TestOrganizationalUnitRepository:
         assert children[1].description == "Child Unit 2"
 
         # 3. Test fetching top-level units (parent_id is None)
-        top_level_units = organizational_unit_sqlalchemy_repo.get_by_parent_id(
+        top_level_units = await organizational_unit_sqlalchemy_repo.get_by_parent_id(
             None, default_tenant_id
         )
 
@@ -82,7 +82,7 @@ class TestOrganizationalUnitRepository:
         assert top_level_units[1].code == "2"
 
         # 4. Test fetching for a parent with no children
-        no_children = organizational_unit_sqlalchemy_repo.get_by_parent_id(
+        no_children = await organizational_unit_sqlalchemy_repo.get_by_parent_id(
             other_parent_unit.id,
             tenant_id=default_tenant_id,
         )
