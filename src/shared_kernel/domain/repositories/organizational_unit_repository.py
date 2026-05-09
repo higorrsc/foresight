@@ -11,7 +11,7 @@ class IOrganizationalUnitRepository(AbstractRepository[OrganizationalUnit]):
     """
 
     @abstractmethod
-    def get_by_parent_id(
+    async def get_by_parent_id(
         self,
         parent_id: UUID,
         tenant_id: UUID,

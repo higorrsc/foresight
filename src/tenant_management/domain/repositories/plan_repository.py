@@ -10,7 +10,7 @@ class IPlanRepository(AbstractRepository[Plan]):
     """
 
     @abstractmethod
-    def get_by_name(self, name: str) -> Plan | None:
+    async def get_by_name(self, name: str) -> Plan | None:
         """
         Finds a plan by its unique name.
         """

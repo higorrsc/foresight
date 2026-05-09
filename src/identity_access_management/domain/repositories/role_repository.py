@@ -11,7 +11,7 @@ class IRoleRepository(AbstractRepository[Role]):
     """
 
     @abstractmethod
-    def get_by_name(
+    async def get_by_name(
         self,
         name: str,
         tenant_id: UUID | None,

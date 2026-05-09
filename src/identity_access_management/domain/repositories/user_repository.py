@@ -11,7 +11,7 @@ class IUserRepository(AbstractRepository[User]):
     """
 
     @abstractmethod
-    def get_by_email(
+    async def get_by_email(
         self,
         email: str,
         tenant_id: UUID | None,
@@ -23,7 +23,7 @@ class IUserRepository(AbstractRepository[User]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_username(
+    async def get_by_username(
         self,
         username: str,
         tenant_id: UUID | None,
@@ -35,7 +35,7 @@ class IUserRepository(AbstractRepository[User]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_username_global(self, username: str) -> User | None:
+    async def get_by_username_global(self, username: str) -> User | None:
         """
         Get a user by its username at any tenant.
         """
@@ -43,7 +43,7 @@ class IUserRepository(AbstractRepository[User]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def count_users_by_role(self, role_id: UUID) -> int:
+    async def count_users_by_role(self, role_id: UUID) -> int:
         """
         Count the number of users associated with a role.
         """

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.shared_kernel.domain.entities import Area
@@ -15,11 +15,15 @@ class AreaRepository(
     Repository for managing Area entities using SQLAlchemy.
     """
 
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         """
         Initialize the AreaRepository with a SQLAlchemy session.
 
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, AreaModel, AreaMapper())
+        super().__init__(
+            session,
+            AreaModel,
+            AreaMapper(),
+        )

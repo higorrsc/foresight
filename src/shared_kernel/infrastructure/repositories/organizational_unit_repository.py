@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.shared_kernel.domain.entities import OrganizationalUnit
@@ -19,7 +20,7 @@ class OrganizationalUnitRepository(
     :param session: SQLAlchemy session.
     """
 
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         """
         Initialize the OrganizationalUnitRepository with a SQLAlchemy session.
 
@@ -32,7 +33,7 @@ class OrganizationalUnitRepository(
             OrganizationalUnitMapper(),
         )
 
-    def get_by_parent_id(
+    async def get_by_parent_id(
         self,
         parent_id: UUID | None,
         tenant_id: UUID | None,
@@ -41,12 +42,17 @@ class OrganizationalUnitRepository(
         Get OrganizationalUnits by parent_id using SQLAlchemy
         """
 
-        query = self._session.query(self._model_cls).filter_by(
-            parent_id=parent_id,
-            tenant_id=tenant_id,
+        stmt = (
+            select(self._model_cls)
+            .where(
+                self._model_cls.parent_id == parent_id,
+                self._model_cls.tenant_id == tenant_id,
+            )
+            .order_by(self._model_cls.code)
         )
-        query = query.order_by(self._model_cls.code)
 
-        models = query.all()
+        result = await self._session.execute(stmt)
+
+        models = result.scalars().all()
 
         return [self._mapper.to_entity(model) for model in models]
