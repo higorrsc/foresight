@@ -1,15 +1,15 @@
 import os
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 from decimal import Decimal
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock, Mock  # noqa: E402
 from uuid import uuid4
 
 import pytest
 from dotenv import load_dotenv
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import selectinload
 from sqlalchemy.pool import NullPool, Pool, StaticPool
 
 from src.api.auth.local_provider import LocalAuthenticationProvider
@@ -136,34 +136,30 @@ from tests.fakes import (
 
 # --- ENVIRONMENT VARIABLE LOGIC ---
 
-# 1. Load the .env file into OS environment variables
 load_dotenv()
 
-# 2. Read the environment variable. Default is 'true' (use in-memory).
 USE_IN_MEMORY_DB = os.getenv("TEST_IN_MEMORY", "true").lower() in ("true", "1", "t")
 
-DB_FILE_PATH = "test.sqlite3"  # Name of the physical test file
+DB_FILE_PATH = "test.sqlite3"
 CONNECT_ARGS = {"check_same_thread": False}
-POOLCLASS: type[Pool] = NullPool  # Default pool for files
+POOLCLASS: type[Pool] = NullPool
 
 if USE_IN_MEMORY_DB:
-    SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-    # StaticPool is ESSENTIAL for :memory: to work with TestClient
+    SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
     POOLCLASS = StaticPool
     print("\n--- Running tests with IN-MEMORY database (from .env) ---")
 else:
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_FILE_PATH}"
+    SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///./{DB_FILE_PATH}"
     print(f"\n--- Running tests with FILE database ({DB_FILE_PATH}) (from .env) ---")
 
 
 @pytest.fixture(autouse=True)
 def mock_email_validator(monkeypatch):
-    """
-    Mock email_validator.validate_email to bypass
-    DNS checks and return the input email as normalized.
-    """
+    """Mock the validate_email function"""
 
     def mock_validate(email, **kwargs):
+        """Mock the validate method"""
+
         mock_result = MagicMock()
         mock_result.normalized = email
         return mock_result
@@ -172,174 +168,183 @@ def mock_email_validator(monkeypatch):
         "src.identity_access_management.domain.entities.user.validate_email",
         mock_validate,
     )
+
     return mock_validate
 
 
 @pytest.fixture
 def anyio_backend():
-    """
-    Fixture to specify the backend for anyio tests.
-    """
+    """Fixture that represents backend"""
+
     return "asyncio"
 
 
-engine = create_engine(
+engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args=CONNECT_ARGS,
-    poolclass=POOLCLASS,  # Use the dynamic poolclass
+    poolclass=POOLCLASS,
 )
-TestingSessionLocal = sessionmaker(
+
+TestingSessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
 )
 
 
 @pytest.fixture(scope="session")
-def setup_database():
+async def setup_database():
     """
     Creates the database tables once per test session.
     If using a file, deletes it at the end.
     """
 
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     yield
-    # Only delete the file if we are not using in-memory
+
     if not USE_IN_MEMORY_DB:
-        os.remove(DB_FILE_PATH)
+        try:
+            os.remove(DB_FILE_PATH)
+        except OSError:
+            pass
 
 
 @pytest.fixture(scope="function")
-def db_session_for_test(setup_database) -> Generator[Session]:
+async def db_session_for_test(setup_database) -> AsyncGenerator[AsyncSession]:
     """
-    Creates ONE transaction for each test, seeds data, flushes,
-    and rolls back at the end.
+    Creates ONE transaction for each test, seeds data,
+    flushes and rolls back at the end.
     """
 
-    connection = engine.connect()
-    transaction = connection.begin()
+    connection = await engine.connect()
+    transaction = await connection.begin()
     session = TestingSessionLocal(bind=connection)
 
     for table in reversed(Base.metadata.sorted_tables):
-        session.execute(table.delete())
+        await session.execute(table.delete())
 
-    seed_initial_data(session)
-
-    session.flush()
+    await seed_initial_data(session)  # type: ignore
+    await session.flush()
 
     yield session
 
-    session.close()
-    transaction.rollback()
-    connection.close()
+    await session.close()
+    await transaction.rollback()
+    await connection.close()
 
 
 @pytest.fixture(scope="function")
-def client(db_session_for_test: Session) -> Generator[TestClient, Any, Any]:
-    """
-    Creates a TestClient for each test, using the correct test session.
-    """
+async def client(db_session_for_test: AsyncSession) -> AsyncGenerator[AsyncClient]:
+    """Creates an AsyncClient for each test."""
 
-    def override_get_db_session_for_test() -> Generator[Session]:
+    async def override_get_db_session_for_test() -> AsyncGenerator[AsyncSession]:
         yield db_session_for_test
 
     app.dependency_overrides[get_db_session] = override_get_db_session_for_test
-    yield TestClient(app)
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+    ) as ac:
+        yield ac
+
     app.dependency_overrides.clear()
 
 
-# --- NEW DATA FIXTURES ---
 @pytest.fixture(scope="function")
-def default_tenant(db_session_for_test: Session) -> TenantModel:
-    """
-    Provides the default 'System Tenant' (TenantModel) created by seeding.
-    """
+async def default_tenant(db_session_for_test: AsyncSession) -> TenantModel:
+    """Fixture representing the default tenant."""
 
-    tenant = (
-        db_session_for_test.query(TenantModel).filter_by(name="System Tenant").first()
-    )
+    stmt = select(TenantModel).filter_by(name="System Tenant")
+    result = await db_session_for_test.execute(stmt)
+    tenant = result.unique().scalar_one_or_none()
     assert tenant is not None, "Seeding of 'System Tenant' failed."
     return tenant
 
 
 @pytest.fixture(scope="function")
-def admin_user_model(
-    db_session_for_test: Session,
+async def admin_user_model(
+    db_session_for_test: AsyncSession,
     default_tenant: TenantModel,
 ) -> UserModel:
-    """
-    Provides the 'admin' UserModel created by seeding.
-    """
+    """Fixture representing the admin user."""
 
-    user = (
-        db_session_for_test.query(UserModel)
+    stmt = (
+        select(UserModel)
+        .options(
+            selectinload(UserModel.roles_rel).selectinload(RoleModel.permissions_rel)
+        )
         .filter_by(username="admin", tenant_id=default_tenant.id)
-        .first()
     )
+    result = await db_session_for_test.execute(stmt)
+    user = result.unique().scalar_one_or_none()
     assert user is not None, "Seeding of 'admin' user failed."
     return user
 
 
 @pytest.fixture(scope="function")
-def guest_user_model(
-    db_session_for_test: Session,
+async def guest_user_model(
+    db_session_for_test: AsyncSession,
     default_tenant: TenantModel,
 ) -> UserModel:
-    """
-    Provides the 'guest' UserModel created by seeding.
-    """
+    """Fixture representing the guest user."""
 
-    user = (
-        db_session_for_test.query(UserModel)
+    stmt = (
+        select(UserModel)
+        .options(
+            selectinload(UserModel.roles_rel).selectinload(RoleModel.permissions_rel)
+        )
         .filter_by(username="guest", tenant_id=default_tenant.id)
-        .first()
     )
-
+    result = await db_session_for_test.execute(stmt)
+    user = result.unique().scalar_one_or_none()
     assert user is not None, "Seeding of 'guest' user failed."
     return user
 
 
 @pytest.fixture(scope="function")
 def admin_actor(admin_user_model: UserModel) -> UserEntity:
-    """
-    Returns the 'admin' User (Domain Entity) to be used as an actor in use cases.
-    """
+    """Fixture representing the admin user."""
 
     return UserMapper.to_entity(admin_user_model)
 
 
 @pytest.fixture(scope="function")
 def guest_actor(guest_user_model: UserModel) -> UserEntity:
-    """
-    Returns the 'guest' User (Domain Entity) to be used as an actor in use cases.
-    """
+    """Fixture representing the guest user."""
 
     return UserMapper.to_entity(guest_user_model)
 
 
 @pytest.fixture(scope="function")
-def admin_token(client: TestClient) -> str:
-    """
-    Logs in as 'admin' and returns an access token.
-    """
+async def admin_token(client: AsyncClient) -> str:
+    """Fixture representing the admin token."""
 
-    response = client.post(
+    response = await client.post(
         "/auth/token",
-        data={"username": "admin", "password": "foresight_admin"},
+        data={
+            "username": "admin",
+            "password": "foresight_admin",
+        },
     )
     assert response.status_code == 200, f"Failed to get admin token: {response.json()}"
     return response.json()["access_token"]
 
 
 @pytest.fixture(scope="function")
-def guest_token(client: TestClient) -> str:
-    """
-    Logs in as 'guest' and returns an access token.
-    """
+async def guest_token(client: AsyncClient) -> str:
+    """Fixture representing the guest token."""
 
-    response = client.post(
+    response = await client.post(
         "/auth/token",
-        data={"username": "guest", "password": "foresight_guest"},
+        data={
+            "username": "guest",
+            "password": "foresight_guest",
+        },
     )
     assert response.status_code == 200, f"Failed to get guest token: {response.json()}"
     return response.json()["access_token"]
@@ -347,125 +352,102 @@ def guest_token(client: TestClient) -> str:
 
 @pytest.fixture(scope="function")
 def default_tenant_id(default_tenant: TenantModel) -> str:
-    """
-    Returns the tenant ID to be used.
-    """
+    """Fixture representing the default tenant id."""
 
     return str(default_tenant.id)
 
 
 @pytest.fixture(scope="function")
-def admin_role_model(
-    db_session_for_test: Session,
+async def admin_role_model(
+    db_session_for_test: AsyncSession,
     default_tenant: TenantModel,
 ) -> RoleModel:
-    """
-    Provides the 'admin' RoleModel created by seeding.
-    """
-    role = (
-        db_session_for_test.query(RoleModel)
-        .filter_by(
-            name="admin",
-            tenant_id=default_tenant.id,
-        )
-        .first()
+    """Fixture representing the admin role."""
+
+    stmt = (
+        select(RoleModel)
+        .options(selectinload(RoleModel.permissions_rel))
+        .filter_by(name="admin", tenant_id=default_tenant.id)
     )
+    result = await db_session_for_test.execute(stmt)
+    role = result.unique().scalar_one_or_none()
     assert role is not None, "Seeding of 'admin' role failed."
     return role
 
 
 @pytest.fixture(scope="function")
-def guest_role_model(
-    db_session_for_test: Session,
+async def guest_role_model(
+    db_session_for_test: AsyncSession,
     default_tenant: TenantModel,
 ) -> RoleModel:
-    """
-    Provides the 'guest' RoleModel created by seeding.
-    """
-    role = (
-        db_session_for_test.query(RoleModel)
-        .filter_by(
-            name="guest",
-            tenant_id=default_tenant.id,
-        )
-        .first()
+    """Fixture representing the guest role."""
+
+    stmt = (
+        select(RoleModel)
+        .options(selectinload(RoleModel.permissions_rel))
+        .filter_by(name="guest", tenant_id=default_tenant.id)
     )
+    result = await db_session_for_test.execute(stmt)
+    role = result.unique().scalar_one_or_none()
     assert role is not None, "Seeding of 'guest' role failed."
     return role
 
 
 @pytest.fixture(scope="function")
 def admin_role(admin_role_model: RoleModel) -> RoleEntity:
-    """
-    Returns the 'admin' Role (Domain Entity) to be used as an role in use cases.
-    """
+    """Fixture representing the admin role."""
 
     return RoleMapper.to_entity(admin_role_model)
 
 
 @pytest.fixture(scope="function")
 def guest_role(guest_role_model: RoleModel) -> RoleEntity:
-    """
-    Returns the 'guest' Role (Domain Entity) to be used as an role in use cases.
-    """
+    """Fixture representing the guest role."""
 
     return RoleMapper.to_entity(guest_role_model)
 
 
-# --- CONSOLIDATED FIXTURES ---
-
-
-# API Auth Dependency Fixtures
 @pytest.fixture
 def auth_dependency_mock_session():
-    """
-    Fixture for a mock database session.
-    """
+    """Fixture mocking the auth dependency session"""
+
     return Mock()
 
 
 @pytest.fixture
 def auth_dependency_mock_provider():
-    """
-    Fixture for a mock authentication provider.
-    """
+    """Fixture mocking the auth dependency provider"""
+
     provider = Mock()
     provider.get_user_from_token = AsyncMock()
     return provider
 
 
-# API Authorization Dependency Fixtures
 @pytest.fixture
 def authorization_dependency_mock_user():
-    """
-    Fixture for a mock user.
-    """
+    """Fixture mocking the authorization dependency user"""
+
     return Mock(spec=User)
 
 
-# API Local Provider Fixtures
 @pytest.fixture
 def local_auth_provider_mock_repo():
-    """
-    Fixture for a mock repository.
-    """
+    """Fixture mocking the local auth provider repository"""
+
     return Mock()
 
 
 @pytest.fixture
 def local_auth_provider(local_auth_provider_mock_repo):
-    """
-    Fixture for the LocalAuthenticationProvider.
-    """
+    """Fixture mocking the local auth provider"""
+
     return LocalAuthenticationProvider(local_auth_provider_mock_repo)
 
 
-# Core Repository Fixtures
 @pytest.fixture
 def sqlalchemy_area_repository(db_session_for_test):
-    """
-    Fixture to provide a repository instance for testing.
-    """
+    """Fixture representing the area repository."""
+
     return SQLAlchemyRepository(
         db_session_for_test,
         AreaModel,
@@ -475,26 +457,22 @@ def sqlalchemy_area_repository(db_session_for_test):
 
 @pytest.fixture
 def dummy_in_memory_repository():
-    """
-    Fixture for an in-memory repository.
-    """
+    """Fixture representing the dummy in-memory repository."""
+
     return InMemoryRepository()
 
 
-# Core Generic Use Case Fixtures
 @pytest.fixture
 def generic_delete_entity_id():
-    """
-    Fixture for an entity ID.
-    """
+    """Fixture representing the generic delete entity id."""
+
     return uuid4()
 
 
 @pytest.fixture
 def generic_delete_use_case(dummy_in_memory_repository, generic_delete_entity_id):
-    """
-    Fixture for a delete use case.
-    """
+    """Fixture representing the generic delete use case."""
+
     return GenericDeleteUseCase[DummyEntity](
         dummy_in_memory_repository,
         AppPermission.USER_DELETE,
@@ -505,9 +483,8 @@ def generic_delete_use_case(dummy_in_memory_repository, generic_delete_entity_id
 
 @pytest.fixture
 def generic_get_by_id_use_case(dummy_in_memory_repository):
-    """
-    Fixture for a get by id use case.
-    """
+    """Fixture representing the generic get by id use case."""
+
     return GenericGetByIdUseCase[DummyEntity](
         dummy_in_memory_repository,
         AppPermission.USER_READ,
@@ -518,146 +495,161 @@ def generic_get_by_id_use_case(dummy_in_memory_repository):
 
 @pytest.fixture
 def generic_list_use_case(dummy_in_memory_repository):
-    """
-    Fixture for a list use case.
-    """
+    """Fixture representing the generic list use case."""
+
     return GenericListUseCase[DummyEntity](
         dummy_in_memory_repository,
         AppPermission.USER_READ,
     )
 
 
-# --- COMMON REPOSITORY FIXTURES ---
-
-
 @pytest.fixture
 def user_in_memory_repo():
-    """Fixture that returns a UserInMemoryRepository."""
+    """Fixture representing the user in-memory repository."""
+
     return UserInMemoryRepository()
 
 
 @pytest.fixture
 def role_in_memory_repo():
-    """Fixture that returns a RoleInMemoryRepository."""
+    """Fixture representing the role in-memory repository."""
+
     return RoleInMemoryRepository()
 
 
 @pytest.fixture
 def permission_in_memory_repo():
-    """Fixture that returns a PermissionInMemoryRepository."""
+    """Fixture representing the permission in-memory repository."""
+
     return PermissionInMemoryRepository()
 
 
 @pytest.fixture
 def plan_in_memory_repo():
-    """Fixture that returns a PlanInMemoryRepository."""
+    """Fixture representing the plan in-memory repository."""
+
     return PlanInMemoryRepository()
 
 
 @pytest.fixture
 def tenant_in_memory_repo():
-    """Fixture that returns a TenantInMemoryRepository."""
+    """Fixture representing the tenant in-memory repository."""
+
     return TenantInMemoryRepository()
 
 
 @pytest.fixture
 def area_in_memory_repo():
-    """Fixture that returns an AreaInMemoryRepository."""
+    """Fixture representing the area in-memory repository."""
+
     return AreaInMemoryRepository()
 
 
 @pytest.fixture
 def scenario_in_memory_repo():
-    """Fixture that returns a ScenarioInMemoryRepository."""
+    """Fixture representing the scenario in-memory repository."""
+
     return ScenarioInMemoryRepository()
 
 
 @pytest.fixture
 def organizational_unit_in_memory_repo():
-    """Fixture that returns an OrganizationalUnitInMemoryRepository."""
+    """Fixture representing the organizational unit in-memory repository."""
+
     return OrganizationalUnitInMemoryRepository()
 
 
 @pytest.fixture(scope="function")
 def permission_sqlalchemy_repo(db_session_for_test):
-    """Fixture that returns a PermissionRepository."""
+    """Fixture representing the permission repository."""
+
     return PermissionRepository(db_session_for_test)
 
 
 @pytest.fixture(scope="function")
 def user_sqlalchemy_repo(db_session_for_test):
-    """Fixture that returns a UserRepository."""
+    """Fixture representing the user repository."""
+
     return UserRepository(db_session_for_test)
 
 
 @pytest.fixture(scope="function")
 def role_sqlalchemy_repo(db_session_for_test):
-    """Fixture that returns a RoleRepository."""
+    """Fixture representing the role repository."""
+
     return RoleRepository(db_session_for_test)
-
-
-# --- IAM USER USE CASE FIXTURES ---
 
 
 @pytest.fixture
 def authenticate_user_use_case(user_in_memory_repo):
-    """Fixture for AuthenticateUserUseCase."""
+    """Fixture representing the authenticate user use case."""
+
     return AuthenticateUserUseCase(repository=user_in_memory_repo)
 
 
 @pytest.fixture
 def update_user_profile_use_case(user_in_memory_repo):
-    """Fixture for UpdateUserProfileUseCase."""
+    """Fixture representing the update user profile use case."""
+
     return UpdateUserProfileUseCase(user_in_memory_repo)
 
 
 @pytest.fixture
 def create_user_use_case(user_in_memory_repo, role_in_memory_repo):
-    """Fixture for CreateUserUseCase."""
+    """Fixture representing the create user use case."""
+
     return CreateUserUseCase(user_in_memory_repo, role_in_memory_repo)
 
 
 @pytest.fixture
 def restore_user_use_case(user_in_memory_repo):
-    """Fixture for RestoreUserUseCase."""
+    """Fixture representing the restore user use case."""
+
     return RestoreUserUseCase(repository=user_in_memory_repo)
 
 
 @pytest.fixture
 def set_user_roles_use_case(user_in_memory_repo, role_in_memory_repo):
-    """Fixture for SetUserRolesUseCase."""
+    """Fixture representing the set user roles use case."""
+
     return SetUserRolesUseCase(
-        user_repository=user_in_memory_repo, role_repository=role_in_memory_repo
+        user_repository=user_in_memory_repo,
+        role_repository=role_in_memory_repo,
     )
 
 
 @pytest.fixture
 def delete_user_use_case(user_in_memory_repo):
-    """Fixture for DeleteUserUseCase."""
+    """Fixture representing the delete user use case."""
+
     return DeleteUserUseCase(repository=user_in_memory_repo)
 
 
 @pytest.fixture
 def change_password_use_case(user_in_memory_repo):
-    """Fixture for ChangePasswordUseCase."""
+    """Fixture representing the change password use case."""
+
     return ChangePasswordUseCase(user_in_memory_repo)
 
 
 @pytest.fixture
 def get_user_by_id_use_case(user_in_memory_repo):
-    """Fixture for GetUserByIdUseCase."""
+    """Fixture representing the get user by id use case."""
+
     return GetUserByIdUseCase(repository=user_in_memory_repo)
 
 
 @pytest.fixture
 def list_user_use_case(user_in_memory_repo):
-    """Fixture for ListUserUseCase."""
+    """Fixture representing the list user use case."""
+
     return ListUserUseCase(repository=user_in_memory_repo)
 
 
 @pytest.fixture
 def set_user_permissions_use_case(user_in_memory_repo, permission_in_memory_repo):
-    """Fixture for SetUserPermissionsUseCase."""
+    """Fixture representing the set user permissions use case."""
+
     return SetUserPermissionsUseCase(
         user_repository=user_in_memory_repo,
         permission_repository=permission_in_memory_repo,
@@ -672,7 +664,8 @@ def onboarding_use_case(
     user_in_memory_repo,
     permission_in_memory_repo,
 ):
-    """Fixture for OnboardingUseCase."""
+    """Fixture representing the onboarding use case."""
+
     return OnboardingUseCase(
         plan_repository=plan_in_memory_repo,
         tenant_repository=tenant_in_memory_repo,
@@ -682,240 +675,262 @@ def onboarding_use_case(
     )
 
 
-# --- SHARED KERNEL USE CASE FIXTURES ---
-
-
 @pytest.fixture
 def create_area_use_case(area_in_memory_repo):
-    """Fixture for CreateAreaUseCase."""
+    """Fixture representing the create area use case."""
+
     return CreateAreaUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def delete_area_use_case(area_in_memory_repo):
-    """Fixture for DeleteAreaUseCase."""
+    """Fixture representing the delete area use case."""
+
     return DeleteAreaUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def restore_area_use_case(area_in_memory_repo):
-    """Fixture for RestoreAreaUseCase."""
+    """Fixture representing the restore area use case."""
+
     return RestoreAreaUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def update_area_use_case(area_in_memory_repo):
-    """Fixture for UpdateAreaUseCase."""
+    """Fixture representing the update area use case."""
+
     return UpdateAreaUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def get_area_by_id_use_case(area_in_memory_repo):
-    """Fixture for GetAreaByIdUseCase."""
+    """Fixture representing the get area by id use case."""
+
     return GetAreaByIdUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def list_area_use_case(area_in_memory_repo):
-    """Fixture for ListAreaUseCase."""
+    """Fixture representing the list area use case."""
+
     return ListAreaUseCase(area_in_memory_repo)
 
 
 @pytest.fixture
 def create_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for CreateScenarioUseCase."""
+    """Fixture representing the create scenario use case."""
+
     return CreateScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def delete_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for DeleteScenarioUseCase."""
+    """Fixture representing the delete scenario use case."""
+
     return DeleteScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def lock_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for LockScenarioUseCase."""
+    """Fixture representing the lock scenario use case."""
+
     return LockScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def restore_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for RestoreScenarioUseCase."""
+    """Fixture representing the restore scenario use case."""
+
     return RestoreScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def unlock_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for UnlockScenarioUseCase."""
+    """Fixture representing the unlock scenario use case."""
+
     return UnlockScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def update_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for UpdateScenarioUseCase."""
+    """Fixture representing the update scenario use case."""
+
     return UpdateScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def get_scenario_by_id_use_case(scenario_in_memory_repo):
-    """Fixture for GetScenarioByIdUseCase."""
+    """Fixture representing the get scenario by id use case."""
+
     return GetScenarioByIdUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def list_scenario_use_case(scenario_in_memory_repo):
-    """Fixture for ListScenarioUseCase."""
+    """Fixture representing the list scenario use case."""
+
     return ListScenarioUseCase(scenario_in_memory_repo)
 
 
 @pytest.fixture
 def create_organizational_unit_use_case(organizational_unit_in_memory_repo):
-    """Fixture for CreateOrganizationalUnitUseCase."""
+    """Fixture representing the create organizational unit use case."""
+
     return CreateOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def delete_organizational_unit_use_case(organizational_unit_in_memory_repo):
-    """Fixture for DeleteOrganizationalUnitUseCase."""
+    """Fixture representing the delete organizational unit use case."""
+
     return DeleteOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def restore_organizational_unit_use_case(organizational_unit_in_memory_repo):
-    """Fixture for RestoreOrganizationalUnitUseCase."""
+    """Fixture representing the restore organizational unit use case."""
+
     return RestoreOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def update_organizational_unit_use_case(organizational_unit_in_memory_repo):
-    """Fixture for UpdateOrganizationalUnitUseCase."""
+    """Fixture representing the update organizational unit use case."""
+
     return UpdateOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def get_organizational_unit_by_id_use_case(organizational_unit_in_memory_repo):
-    """Fixture for GetOrganizationalUnitByIdUseCase."""
+    """Fixture representing the get organizational unit by id use case."""
+
     return GetOrganizationalUnitByIdUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def get_organizational_unit_by_parent_id_use_case(organizational_unit_in_memory_repo):
-    """Fixture for GetOrganizationalUnitByParentIdUseCase."""
+    """Fixture representing the get organizational unit by parent id use case."""
+
     return GetOrganizationalUnitByParentIdUseCase(organizational_unit_in_memory_repo)
 
 
 @pytest.fixture
 def list_organizational_unit_use_case(organizational_unit_in_memory_repo):
-    """Fixture for ListOrganizationalUnitUseCase."""
+    """Fixture representing the list organizational unit use case."""
+
     return ListOrganizationalUnitUseCase(organizational_unit_in_memory_repo)
-
-
-# --- TENANT MANAGEMENT USE CASE FIXTURES ---
 
 
 @pytest.fixture
 def create_plan_use_case(plan_in_memory_repo):
-    """Fixture for CreatePlanUseCase."""
+    """Fixture representing the create plan use case."""
+
     return CreatePlanUseCase(plan_in_memory_repo)
 
 
 @pytest.fixture
 def list_plans_use_case(plan_in_memory_repo):
-    """Fixture for ListPlansUseCase."""
+    """Fixture representing the list plans use case."""
+
     return ListPlansUseCase(plan_in_memory_repo)
 
 
 @pytest.fixture
 def update_tenant_status_use_case(tenant_in_memory_repo):
-    """Fixture for UpdateTenantStatusUseCase."""
+    """Fixture representing the update tenant status use case."""
+
     return UpdateTenantStatusUseCase(tenant_in_memory_repo)
 
 
 @pytest.fixture
 def list_tenants_use_case(tenant_in_memory_repo):
-    """Fixture for ListTenantsUseCase."""
+    """Fixture representing the list tenants use case."""
+
     return ListTenantsUseCase(tenant_in_memory_repo)
-
-
-# --- GENERIC MOCK FIXTURES ---
 
 
 @pytest.fixture
 def mock_user_repository():
-    """Fixture that returns a mock user repository."""
+    """Fixture mocking the user repository"""
+
     return Mock()
 
 
 @pytest.fixture
 def mock_role_repository():
-    """Fixture that returns a mock role repository."""
+    """Fixture mocking the role repository"""
+
     return Mock()
 
 
 @pytest.fixture
 def mock_permission_repository():
-    """Fixture that returns a mock permission repository."""
+    """Fixture mocking the permission repository"""
+
     return Mock()
-
-
-# --- IAM ROLE AND PERMISSION USE CASE FIXTURES ---
 
 
 @pytest.fixture
 def create_role_use_case(role_in_memory_repo, permission_in_memory_repo):
-    """Fixture for CreateRoleUseCase."""
+    """Fixture representing the create role use case."""
+
     return CreateRoleUseCase(role_in_memory_repo, permission_in_memory_repo)
 
 
 @pytest.fixture
 def delete_role_use_case_iam(role_in_memory_repo, user_in_memory_repo):
-    """Fixture for DeleteRoleUseCase (IAM)."""
+    """Fixture representing the delete role use case."""
+
     return DeleteRoleUseCase_IAM(role_in_memory_repo, user_in_memory_repo)
 
 
 @pytest.fixture
 def restore_role_use_case_iam(role_in_memory_repo):
-    """Fixture for RestoreRoleUseCase (IAM)."""
+    """Fixture representing the restore role use case."""
+
     return RestoreRoleUseCase_IAM(role_in_memory_repo)
 
 
 @pytest.fixture
 def update_role_use_case_iam(role_in_memory_repo):
-    """Fixture for UpdateRoleUseCase (IAM)."""
+    """Fixture representing the update role use case."""
+
     return UpdateRoleUseCase_IAM(repository=role_in_memory_repo)
 
 
 @pytest.fixture
 def get_role_by_id_use_case(role_in_memory_repo):
-    """Fixture for GetRoleByIdUseCase."""
+    """Fixture representing the get role by id use case."""
+
     return GetRoleByIdUseCase(repository=role_in_memory_repo)
 
 
 @pytest.fixture
 def list_role_use_case(role_in_memory_repo):
-    """Fixture for ListRoleUseCase."""
+    """Fixture representing the list role use case."""
+
     return ListRoleUseCase(repository=role_in_memory_repo)
 
 
 @pytest.fixture
 def set_role_permissions_use_case(role_in_memory_repo, permission_in_memory_repo):
-    """Fixture for SetRolePermissionsUseCase."""
+    """Fixture representing the set role permissions use case."""
+
     return SetRolePermissionsUseCase(role_in_memory_repo, permission_in_memory_repo)
 
 
 @pytest.fixture
 def list_permissions_use_case(permission_in_memory_repo):
-    """Fixture for ListPermissionsUseCase."""
+    """Fixture representing the list permissions use case."""
+
     return ListPermissionsUseCase(repository=permission_in_memory_repo)
-
-
-# --- REMAINING SPECIFIC FIXTURES ---
 
 
 @pytest.fixture
 def mock_tenant_entity():
-    """Provides a valid Tenant entity mock for tests."""
+    """Fixture representing the mock tenant entity."""
+
     tenant = Mock(spec=Tenant)
     tenant.id = uuid4()
     tenant.name = "Test Tenant"
@@ -926,7 +941,8 @@ def mock_tenant_entity():
 
 @pytest.fixture(scope="function")
 def organizational_unit_sqlalchemy_repo(db_session_for_test):
-    """Fixture that returns an OrganizationalUnitRepository."""
+    """Fixture representing the organizational unit repository."""
+
     return OrganizationalUnitRepository(
         session=db_session_for_test,
     )
@@ -934,32 +950,34 @@ def organizational_unit_sqlalchemy_repo(db_session_for_test):
 
 @pytest.fixture
 def create_user_use_case_mocked(mock_user_repository, mock_role_repository):
-    """Fixture for CreateUserUseCase initialized with mock repositories."""
+    """Fixture representing the create user use case."""
+
     return CreateUserUseCase(mock_user_repository, mock_role_repository)
-
-
-# --- FINANCE FIXTURES ---
 
 
 @pytest.fixture
 def brl_currency():
-    """Fixture for BRL currency code."""
+    """Fixture representing the Brazilian Real currency."""
+
     return CurrencyCode(value="BRL")
 
 
 @pytest.fixture
 def usd_currency():
-    """Fixture for USD currency code."""
+    """Fixture representing the US Dollar currency."""
+
     return CurrencyCode(value="USD")
 
 
 @pytest.fixture
 def money_brl_100(brl_currency):
-    """Fixture for 100.00 BRL."""
+    """Fixture representing the Brazilian Real money."""
+
     return Money(amount=Decimal("100.00"), currency=brl_currency)
 
 
 @pytest.fixture
 def money_usd_100(usd_currency):
-    """Fixture for 100.00 USD."""
+    """Fixture representing the US Dollar money."""
+
     return Money(amount=Decimal("100.00"), currency=usd_currency)
