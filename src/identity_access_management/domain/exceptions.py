@@ -23,6 +23,10 @@ class InvalidRoleError(EntityValidationError):
     """Exception raised when role is invalid."""
 
 
+class InvalidTokenError(AuthorizationError):
+    """Exception raised when token is invalid."""
+
+
 class InvalidUserError(EntityValidationError):
     """Exception raised when user is invalid."""
 
