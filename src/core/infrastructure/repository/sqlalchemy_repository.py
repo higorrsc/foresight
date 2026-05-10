@@ -118,10 +118,32 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         :return: The updated entity.
         """
 
-        model = self._mapper.to_model(entity)
-        merged_model = await self._session.merge(model)
+        id_column = self._get_column("id")
+        if id_column is None or not hasattr(entity, "id"):
+            return None
+
+        stmt = self._get_base_query().where(id_column == entity.id)  # type:ignore
+
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None and hasattr(entity, "tenant_id"):
+            stmt = stmt.where(tenant_column == entity.tenant_id)  # type:ignore
+
+        result = await self._session.execute(stmt)
+        existing_model = result.unique().scalar_one_or_none()
+
+        if not existing_model:
+            return None
+
+        updated_model = self._mapper.to_model(entity)
+
+        mapper_info = inspect(self._model_cls)
+        for column in mapper_info.columns:  # type: ignore
+            col_name = column.name
+            if hasattr(updated_model, col_name):
+                setattr(existing_model, col_name, getattr(updated_model, col_name))
+
         await self._session.flush()
-        return self._mapper.to_entity(merged_model)
+        return self._mapper.to_entity(existing_model)
 
     async def delete(
         self,
@@ -146,7 +168,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
             stmt = stmt.where(tenant_column == tenant_id)
 
         await self._session.execute(stmt)
-        await self._session.commit()
+        await self._session.flush()
 
     async def search(
         self,
