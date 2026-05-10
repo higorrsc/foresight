@@ -4,7 +4,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.api.dependencies import (
     PermissionChecker,
@@ -90,6 +90,17 @@ class ExchangeRateResponse(BaseModel):
     to_currency: str
     rate: Decimal
     effective_date: date
+
+    # A MÁGICA ACONTECE AQUI:
+    @field_validator("from_currency", "to_currency", mode="before")
+    @classmethod
+    def extract_currency_code(cls, v):
+        """Extract the currency code from the value."""
+
+        if hasattr(v, "value"):
+            return str(v.value)
+
+        return str(v)
 
     model_config = ConfigDict(from_attributes=True)
 
