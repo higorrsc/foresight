@@ -12,7 +12,7 @@ class TestSecurity:
     Test suite for security-related utilities.
     """
 
-    def test_create_access_token_success(self):
+    async def test_create_access_token_success(self):
         """
         Test successful access token creation.
         """
@@ -31,7 +31,7 @@ class TestSecurity:
         assert payload["tenant_id"] == str(tenant_id)
         assert "exp" in payload
 
-    def test_create_access_token_no_tenant(self):
+    async def test_create_access_token_no_tenant(self):
         """
         Test access token creation without a tenant ID.
         """
@@ -48,7 +48,7 @@ class TestSecurity:
         assert payload["sub"] == "testuser"
         assert payload["tenant_id"] is None
 
-    def test_create_access_token_custom_expiry(self):
+    async def test_create_access_token_custom_expiry(self):
         """
         Test access token creation with a custom expiration delta.
         """
