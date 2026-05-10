@@ -31,7 +31,7 @@ class TestSettings:
             db_host="host",
             db_port=26257,
             db_database="db",
-            # db_ssl_root_cert="cert.pem",
+            db_ssl_root_cert="cert.pem",
         )
 
         url = settings.database_url

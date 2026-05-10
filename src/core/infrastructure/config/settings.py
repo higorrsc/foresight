@@ -72,7 +72,8 @@ class Settings(BaseSettings):
             ]
             if not all(required):
                 raise ValueError(
-                    f"{self.db_driver} requires DB_HOST, DB_PORT, DB_DATABASE"
+                    f"{self.db_driver} requires DB_HOST, DB_PORT, "
+                    "DB_DATABASE, DB_USER, DB_PASSWORD, DB_SSL_ROOT_CERT"
                 )
 
         if self.db_driver in {
