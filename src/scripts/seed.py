@@ -134,7 +134,9 @@ async def seed_app_permissions(
     Create application permissions if they don't exist, using PermissionModel
     for queries. Assigns all permissions to the admin role.
     """
+
     print("Checking for app permissions...")
+
     permissions = AppPermission.get_all_permissions()
     admin_role_permissions = {p.codename for p in admin_role.permissions_rel}
     guest_role_permissions = (
@@ -142,17 +144,14 @@ async def seed_app_permissions(
     )
 
     guest_allowed_codenames = AppPermission.get_guest_permissions()
-
     for permission_codename in permissions:
         stmt = select(PermissionModel).where(
             PermissionModel.codename == permission_codename
         )
-
         result = await db_session.execute(stmt)
+        permission_model = result.scalar_one_or_none()
 
-        permission_model = result.unique().scalar_one_or_none()
-
-        if not permission_model:
+        if permission_model is None:
             permission_model = PermissionModel(
                 codename=permission_codename,
                 description=(
@@ -160,21 +159,36 @@ async def seed_app_permissions(
                     f"{permission_codename.split(':')[0].replace('_', ' ')}"
                 ),
             )
+
             db_session.add(permission_model)
+
+            # IMPORTANTE
+            await db_session.flush()
+
             print(f"Permission '{permission_codename}' created.")
 
+        # ADMIN
         if permission_codename not in admin_role_permissions:
             admin_role.permissions_rel.append(permission_model)
+
+            # atualiza cache local
+            admin_role_permissions.add(permission_codename)
+
             print(f"Permission '{permission_codename}' set for role 'admin'.")
 
-        if guest_role and permission_codename in guest_allowed_codenames:
-            if permission_codename not in guest_role_permissions:
-                guest_role.permissions_rel.append(permission_model)
-                print(f"Permission '{permission_codename}' set for role 'guest'.")
+        # GUEST
+        if (
+            guest_role
+            and permission_codename in guest_allowed_codenames
+            and permission_codename not in guest_role_permissions
+        ):
+            guest_role.permissions_rel.append(permission_model)
 
-    db_session.add(admin_role)
-    if guest_role:
-        db_session.add(guest_role)
+            guest_role_permissions.add(permission_codename)
+
+            print(f"Permission '{permission_codename}' set for role 'guest'.")
+
+    await db_session.flush()
 
     print("App permissions seeding completed.")
 
