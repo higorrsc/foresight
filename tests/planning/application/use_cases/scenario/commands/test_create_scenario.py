@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from src.identity_access_management.domain.entities import User
@@ -51,6 +52,7 @@ class TestCreateScenarioUseCase:
                 from_currency="USD",
                 to_currency="BRL",
                 rate=Decimal("5.0"),
+                effective_date=date.today(),
             )
         ]
 

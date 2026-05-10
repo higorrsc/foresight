@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import uuid4
 
@@ -91,6 +91,7 @@ class TestScenarioMapper:
             from_currency=CurrencyCode(value="USD"),
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
+            effective_date=date.today(),
         )
         entity.exchange_rates = [rate]
 

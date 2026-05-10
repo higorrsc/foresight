@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -143,6 +144,7 @@ class TestScenarioRepository:
             from_currency=CurrencyCode(value="USD"),
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
+            effective_date=date.today(),
         )
         scenario.exchange_rates = [rate]
 
@@ -178,6 +180,7 @@ class TestScenarioRepository:
             from_currency=CurrencyCode(value="EUR"),
             to_currency=CurrencyCode(value="USD"),
             rate=Decimal("1.1"),
+            effective_date=date.today(),
         )
         await er_repo.save(rate)
 

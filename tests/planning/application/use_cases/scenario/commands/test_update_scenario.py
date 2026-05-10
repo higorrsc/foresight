@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from uuid import uuid4
 
@@ -114,6 +115,7 @@ class TestUpdateScenarioUseCase:
                 from_currency="GBP",
                 to_currency="USD",
                 rate=Decimal("1.25"),
+                effective_date=date.today(),
             )
         ]
 

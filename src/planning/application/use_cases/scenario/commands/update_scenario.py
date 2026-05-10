@@ -86,6 +86,7 @@ class UpdateScenarioUseCase:
                         from_currency=CurrencyCode(value=rate.from_currency),
                         to_currency=CurrencyCode(value=rate.to_currency),
                         rate=rate.rate,
+                        effective_date=rate.effective_date,
                     )
                     for rate in input_dto.exchange_rates
                 ]

@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from uuid import uuid4
 
@@ -43,6 +44,7 @@ class TestUpdateExchangeRateUseCase:
             from_currency=CurrencyCode(value="USD"),
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
+            effective_date=date.today(),
         )
         await exchange_rate_repo.save(rate)
 
@@ -99,6 +101,7 @@ class TestUpdateExchangeRateUseCase:
             from_currency=CurrencyCode(value="USD"),
             to_currency=CurrencyCode(value="BRL"),
             rate=Decimal("5.0"),
+            effective_date=date.today(),
         )
         await exchange_rate_repo.save(rate)
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
@@ -89,6 +89,7 @@ class ExchangeRateResponse(BaseModel):
     from_currency: str
     to_currency: str
     rate: Decimal
+    effective_date: date
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -162,6 +163,7 @@ class ExchangeRateCreateBody(BaseModel):
     from_currency: str = Field(..., min_length=3, max_length=3)
     to_currency: str = Field(..., min_length=3, max_length=3)
     rate: Decimal = Field(..., gt=0)
+    effective_date: date
 
 
 class ExchangeRateUpdateBody(BaseModel):
@@ -488,6 +490,7 @@ async def add_exchange_rate_to_scenario(
             from_currency=request_body.from_currency,
             to_currency=request_body.to_currency,
             rate=request_body.rate,
+            effective_date=request_body.effective_date,
         )
         result = await use_case.execute(input_dto)
         return {"id": result.id}

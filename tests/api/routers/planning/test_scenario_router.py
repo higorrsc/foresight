@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any
 
 from httpx import AsyncClient
@@ -315,6 +316,7 @@ class TestScenarioRouter:
                 "from_currency": "USD",
                 "to_currency": "BRL",
                 "rate": 5.25,
+                "effective_date": str(date.today()),
             },
         )
 
@@ -347,6 +349,7 @@ class TestScenarioRouter:
             from_currency="USD",
             to_currency="BRL",
             rate=5.0,
+            effective_date=date.today(),
         )
         db_session_for_test.add(rate)
         await db_session_for_test.commit()
@@ -388,6 +391,7 @@ class TestScenarioRouter:
             from_currency="USD",
             to_currency="BRL",
             rate=5.0,
+            effective_date=date.today(),
         )
         db_session_for_test.add(rate)
         await db_session_for_test.commit()

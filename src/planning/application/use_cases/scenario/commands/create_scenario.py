@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -22,6 +23,7 @@ class ExchangeRateInputDTO:
     from_currency: str
     to_currency: str
     rate: Decimal
+    effective_date: date
 
 
 @dataclass(frozen=True)
@@ -83,6 +85,7 @@ class CreateScenarioUseCase:
                         from_currency=CurrencyCode(value=rate.from_currency),
                         to_currency=CurrencyCode(value=rate.to_currency),
                         rate=rate.rate,
+                        effective_date=rate.effective_date,
                     )
                     for rate in input_dto.exchange_rates
                 ]

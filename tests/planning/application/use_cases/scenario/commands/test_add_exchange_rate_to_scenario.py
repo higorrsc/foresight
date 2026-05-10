@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from uuid import uuid4
 
@@ -44,6 +45,7 @@ class TestAddExchangeRateToScenarioUseCase:
             from_currency="USD",
             to_currency="BRL",
             rate=Decimal("5.25"),
+            effective_date=date.today(),
         )
 
         result = await use_case.execute(input_dto)
@@ -70,6 +72,7 @@ class TestAddExchangeRateToScenarioUseCase:
             from_currency="USD",
             to_currency="BRL",
             rate=Decimal("5.25"),
+            effective_date=date.today(),
         )
 
         with pytest.raises(ScenarioNotFoundError):
@@ -98,6 +101,7 @@ class TestAddExchangeRateToScenarioUseCase:
             from_currency="USD",
             to_currency="BRL",
             rate=Decimal("5.25"),
+            effective_date=date.today(),
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
@@ -117,6 +121,7 @@ class TestAddExchangeRateToScenarioUseCase:
             from_currency="USD",
             to_currency="BRL",
             rate=Decimal("5.25"),
+            effective_date=date.today(),
         )
 
         with pytest.raises(InsufficientPermissionError):
