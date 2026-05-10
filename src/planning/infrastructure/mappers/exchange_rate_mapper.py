@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from src.core.infrastructure.mappers import AbstractMapper
 from src.finance.domain.value_objects import CurrencyCode
 from src.planning.domain.entities import ExchangeRate
@@ -32,5 +34,5 @@ class ExchangeRateMapper(AbstractMapper[ExchangeRate, ExchangeRateModel]):
             scenario_id=model.scenario_id,  # type: ignore
             from_currency=CurrencyCode(value=model.from_currency),  # type: ignore
             to_currency=CurrencyCode(value=model.to_currency),  # type: ignore
-            rate=model.rate,  # type: ignore
+            rate=Decimal(str(model.rate)),  # type: ignore
         )
