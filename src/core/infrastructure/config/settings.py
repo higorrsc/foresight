@@ -9,19 +9,19 @@ from src.core.infrastructure.db.builders import BUILDERS
 
 
 class Settings(BaseSettings):
-    """
-    Load and validate environment variables.
-    """
+    """Load and validate environment variables."""
 
     # =========================
     # DB ENV VARS
     # =========================
 
     db_driver: Literal[
-        "sqlite",
-        "postgresql+psycopg2",
-        "mssql+pyodbc",
         "cockroachdb",
+        "mssql+aioodbc",
+        "mssql+pyodbc",
+        "postgresql+asyncpg",
+        "postgresql+psycopg2",
+        "sqlite",
     ] = "sqlite"
 
     db_user: str | None = Field(default=None, validate_default=True)
@@ -55,9 +55,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_environment(self) -> "Settings":
-        """
-        Validate environment variables.
-        """
+        """Validate environment variables."""
 
         if self.db_driver == "sqlite":
             if not self.db_database:
@@ -78,8 +76,10 @@ class Settings(BaseSettings):
                 )
 
         if self.db_driver in {
-            "postgresql+psycopg2",
+            "mssql+aioodbc",
             "mssql+pyodbc",
+            "postgresql+asyncpg",
+            "postgresql+psycopg2",
         }:
             required = [
                 self.db_host,
@@ -99,9 +99,7 @@ class Settings(BaseSettings):
 
     @cached_property
     def database_config(self) -> DatabaseConfig:
-        """
-        Database configuration.
-        """
+        """Database configuration."""
 
         return DatabaseConfig(
             driver=self.db_driver,
@@ -120,9 +118,7 @@ class Settings(BaseSettings):
 
     @cached_property
     def database_url(self) -> str:
-        """
-        Database URL.
-        """
+        """Database URL."""
 
         builder = BUILDERS.get(self.db_driver)
 
