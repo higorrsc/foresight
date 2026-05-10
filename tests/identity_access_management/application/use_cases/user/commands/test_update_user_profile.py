@@ -17,7 +17,7 @@ class TestUpdateUserProfileUseCase:
     Test suite for the UpdateUserProfileUseCase.
     """
 
-    def test_user_can_update_own_profile(
+    async def test_user_can_update_own_profile(
         self,
         update_user_profile_use_case,
         user_in_memory_repo,
@@ -27,7 +27,7 @@ class TestUpdateUserProfileUseCase:
         Test if a user can update their own profile.
         """
 
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = UserProfileInputDTO(
             actor=guest_actor,
@@ -35,15 +35,15 @@ class TestUpdateUserProfileUseCase:
             first_name="Guesty",
         )
 
-        update_user_profile_use_case.execute(input_dto)
+        await update_user_profile_use_case.execute(input_dto)
 
-        updated_user = user_in_memory_repo.get_by_id(
+        updated_user = await user_in_memory_repo.get_by_id(
             guest_actor.id, guest_actor.tenant_id
         )
         assert updated_user.first_name == "Guesty"
         assert updated_user.updated_by == guest_actor.id
 
-    def test_admin_can_update_other_user_profile(
+    async def test_admin_can_update_other_user_profile(
         self,
         update_user_profile_use_case,
         user_in_memory_repo,
@@ -56,8 +56,8 @@ class TestUpdateUserProfileUseCase:
 
         admin_actor.permissions.add(AppPermission.USER_UPDATE)
 
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = UserProfileInputDTO(
             actor=admin_actor,
@@ -65,27 +65,27 @@ class TestUpdateUserProfileUseCase:
             last_name="McGuest",
         )
 
-        update_user_profile_use_case.execute(input_dto)
+        await update_user_profile_use_case.execute(input_dto)
 
-        updated_guest = user_in_memory_repo.get_by_id(
+        updated_guest = await user_in_memory_repo.get_by_id(
             guest_actor.id, admin_actor.tenant_id
         )
         assert updated_guest.last_name == "McGuest"
         assert updated_guest.updated_by == admin_actor.id
 
-    def test_user_cannot_update_other_user_profile(
+    async def test_user_cannot_update_other_user_profile(
         self,
         update_user_profile_use_case,
         user_in_memory_repo,
-        guest_actor: User,
         admin_actor: User,
+        guest_actor: User,
     ):
         """
         Test if a user cannot update the profile of another user.
         """
 
-        user_in_memory_repo.save(deepcopy(admin_actor))
-        user_in_memory_repo.save(deepcopy(guest_actor))
+        await user_in_memory_repo.save(deepcopy(admin_actor))
+        await user_in_memory_repo.save(deepcopy(guest_actor))
 
         input_dto = UserProfileInputDTO(
             actor=guest_actor,
@@ -97,4 +97,4 @@ class TestUpdateUserProfileUseCase:
             InsufficientPermissionError,
             match="User does not have permission to update another user's profile.",
         ):
-            update_user_profile_use_case.execute(input_dto)
+            await update_user_profile_use_case.execute(input_dto)

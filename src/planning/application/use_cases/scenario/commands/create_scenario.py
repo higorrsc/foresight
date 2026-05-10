@@ -59,7 +59,7 @@ class CreateScenarioUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: CreateScenarioInputDTO,
     ) -> CreateScenarioOutputDTO:
@@ -92,5 +92,5 @@ class CreateScenarioUseCase:
         except EntityValidationError as e:
             raise InvalidScenarioError(f"Invalid input data: {e}") from e
 
-        self._repository.save(entity)
+        await self._repository.save(entity)
         return CreateScenarioOutputDTO(id=entity.id)

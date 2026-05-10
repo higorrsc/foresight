@@ -42,7 +42,7 @@ async def login_for_access_token(
     )
 
     try:
-        user = use_case.execute(input_dto)
+        user = await use_case.execute(input_dto)
     except (UserNotFoundError, InvalidPasswordError) as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

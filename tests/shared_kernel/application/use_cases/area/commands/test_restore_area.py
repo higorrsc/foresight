@@ -11,8 +11,11 @@ class TestRestoreArea:
     Test suite for the restore area use case.
     """
 
-    def test_restore_area_with_valid_id(
-        self, admin_actor, area_in_memory_repo, restore_area_use_case
+    async def test_restore_area_with_valid_id(
+        self,
+        admin_actor,
+        area_in_memory_repo,
+        restore_area_use_case,
     ):
         """
         Test restoring an area with a valid ID.
@@ -24,15 +27,15 @@ class TestRestoreArea:
         )
         area.is_active = False
         area.deleted_at = datetime.now()
-        area_in_memory_repo.save(area)
+        await area_in_memory_repo.save(area)
 
-        restore_area_use_case.execute(
+        await restore_area_use_case.execute(
             RestoreRequestInputDTO(
                 actor=admin_actor,
                 id=area.id,
             )
         )
-        restored_area = area_in_memory_repo.get_by_id(
+        restored_area = await area_in_memory_repo.get_by_id(
             entity_id=area.id,
             tenant_id=admin_actor.tenant_id,
         )
@@ -41,7 +44,7 @@ class TestRestoreArea:
         assert restored_area.is_active is True
         assert restored_area.deleted_at is None
 
-    def test_restore_non_existent_area(self, admin_actor, restore_area_use_case):
+    async def test_restore_non_existent_area(self, admin_actor, restore_area_use_case):
         """
         Test restoring a non-existent area.
         """
@@ -49,7 +52,7 @@ class TestRestoreArea:
         non_existent_id: UUID = UUID("123e4567-e89b-12d3-a456-426614174000")
 
         try:
-            restore_area_use_case.execute(
+            await restore_area_use_case.execute(
                 RestoreRequestInputDTO(
                     actor=admin_actor,
                     id=non_existent_id,

@@ -55,7 +55,7 @@ class CreateRoleUseCase:
         self._role_repository = role_repository
         self._permission_repository = permission_repository
 
-    def execute(self, input_dto: CreateRoleInputDTO) -> CreateRoleOutputDTO:
+    async def execute(self, input_dto: CreateRoleInputDTO) -> CreateRoleOutputDTO:
         """
         Execute the use case to create a new role.
         """
@@ -63,7 +63,7 @@ class CreateRoleUseCase:
         try:
             permission_codes_set = set(input_dto.permissions)
             for permission_code in permission_codes_set:
-                if not self._permission_repository.get_by_codename(
+                if not await self._permission_repository.get_by_codename(
                     permission_code,
                 ):
                     raise PermissionNotFoundError(
@@ -79,5 +79,5 @@ class CreateRoleUseCase:
         except EntityValidationError as e:
             raise InvalidRoleError(f"Invalid input data: {e}") from e
 
-        self._role_repository.save(role)
+        await self._role_repository.save(role)
         return CreateRoleOutputDTO(id=role.id)

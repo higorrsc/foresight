@@ -53,7 +53,7 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
         self._not_found_exception = not_found_exception
         self._invalid_data_exception = invalid_data_exception
 
-    def execute(
+    async def execute(
         self,
         input_dto: UpdateDescribedEntityInputDTO,
     ) -> UpdateDescribedEntityOutputDTO:
@@ -66,7 +66,7 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
                 "User does not have permission to update data."
             )
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             input_dto.id,
             input_dto.actor.tenant_id,
         )
@@ -81,7 +81,8 @@ class UpdateDescribedEntityUseCase[T: DescribedEntity]:
         except EntityValidationError as e:
             raise self._invalid_data_exception(f"Invalid input data: {e}") from e
 
-        self._repository.update(entity)
+        await self._repository.update(entity)
+
         return UpdateDescribedEntityOutputDTO(
             id=entity.id,
             description=entity.description,

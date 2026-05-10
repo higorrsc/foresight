@@ -1,10 +1,10 @@
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.infrastructure.config import SessionLocal
+from src.core.infrastructure.config import AsyncSessionLocal
 from src.identity_access_management.domain.repositories import (
     IPermissionRepository,
     IRoleRepository,
@@ -38,23 +38,17 @@ from src.tenant_management.infrastructure.repositories import (
 )
 
 
-def get_db_session() -> Generator:  # pragma: no cover
+async def get_db_session() -> AsyncGenerator[AsyncSession]:  # pragma: no cover
     """
     Create a database session by request.
     """
 
-    db = None
-
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        if db:
-            db.close()
+    async with AsyncSessionLocal() as session:
+        yield session
 
 
 def get_area_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IAreaRepository:
     """
     Return an AreaRepository instance with database session.
@@ -64,7 +58,7 @@ def get_area_repository(
 
 
 def get_user_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IUserRepository:
     """
     Return an UserRepository instance with database session.
@@ -74,7 +68,7 @@ def get_user_repository(
 
 
 def get_role_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IRoleRepository:
     """
     Return an RoleRepository instance with database session.
@@ -84,7 +78,7 @@ def get_role_repository(
 
 
 def get_permission_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IPermissionRepository:
     """
     Return an PermissionRepository instance with database session.
@@ -94,7 +88,7 @@ def get_permission_repository(
 
 
 def get_tenant_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ITenantRepository:
     """
     Return an TenantRepository instance with database session.
@@ -104,7 +98,7 @@ def get_tenant_repository(
 
 
 def get_plan_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IPlanRepository:
     """
     Return an PlanRepository instance with database session.
@@ -114,7 +108,7 @@ def get_plan_repository(
 
 
 def get_organizational_unit_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IOrganizationalUnitRepository:
     """
     Return an OrganizationalUnitRepository instance with database session.
@@ -124,7 +118,7 @@ def get_organizational_unit_repository(
 
 
 def get_scenario_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IScenarioRepository:
     """
     Return an ScenarioRepository instance with database session.
@@ -134,7 +128,7 @@ def get_scenario_repository(
 
 
 def get_exchange_rate_repository(
-    session: Annotated[Session, Depends(get_db_session)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> IExchangeRateRepository:
     """
     Return an ExchangeRateRepository instance with database session.

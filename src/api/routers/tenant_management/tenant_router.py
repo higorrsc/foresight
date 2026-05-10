@@ -104,7 +104,7 @@ router = APIRouter(prefix="/tenants", tags=["Tenant Management"])
     status_code=status.HTTP_201_CREATED,
     response_model=SignupResponse,
 )
-def signup_endpoint(
+async def signup_endpoint(
     request: SignupRequest,
     plan_repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     tenant_repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
@@ -134,7 +134,7 @@ def signup_endpoint(
             plan_name=request.plan_name,
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
 
         return {
             "tenant_id": result.tenant_id,
@@ -160,7 +160,7 @@ def signup_endpoint(
     response_model=PaginatedTenantResponse,
     dependencies=[Depends(require_tenant_read)],
 )
-def list_tenants_endpoint(
+async def list_tenants_endpoint(
     repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
     actor: Annotated[User, Depends(get_current_user)],
 ):
@@ -170,7 +170,7 @@ def list_tenants_endpoint(
     try:
         use_case = ListTenantsUseCase(repo)
         input_dto = ListTenantsInputDTO(actor=actor)
-        tenants = use_case.execute(input_dto)
+        tenants = await use_case.execute(input_dto)
         return tenants
     except InsufficientPermissionError as e:
         raise HTTPException(
@@ -184,7 +184,7 @@ def list_tenants_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_tenant_update)],
 )
-def update_tenant_status_endpoint(
+async def update_tenant_status_endpoint(
     tenant_id: UUID,
     body: TenantStatusUpdateBody,
     repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
@@ -200,7 +200,7 @@ def update_tenant_status_endpoint(
             tenant_id_to_update=tenant_id,
             new_status=body.status,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except TenantNotFoundError as e:  # Tenant not found
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -10,7 +10,7 @@ class IPermissionRepository(AbstractRepository[Permission]):
     """
 
     @abstractmethod
-    def list_all(self) -> list[Permission]:
+    async def list_all(self) -> list[Permission]:
         """
         Lists all permissions in the system.
         """
@@ -18,7 +18,7 @@ class IPermissionRepository(AbstractRepository[Permission]):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_codename(self, codename: str) -> Permission | None:
+    async def get_by_codename(self, codename: str) -> Permission | None:
         """
         Retrieves a permission by its codename.
         """

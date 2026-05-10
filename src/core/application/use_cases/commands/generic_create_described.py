@@ -52,7 +52,7 @@ class CreateDescribedEntityUseCase[T: DescribedEntity]:
         self._entity_cls = entity_cls
         self._invalid_data_exception = invalid_data_exception
 
-    def execute(
+    async def execute(
         self,
         input_dto: CreateDescribedEntityInputDTO,
     ) -> CreateDescribedEntityOutputDTO:
@@ -74,5 +74,5 @@ class CreateDescribedEntityUseCase[T: DescribedEntity]:
         except EntityValidationError as e:
             raise self._invalid_data_exception(f"Invalid input data: {e}") from e
 
-        self._repository.save(entity)
+        await self._repository.save(entity)
         return CreateDescribedEntityOutputDTO(id=entity.id)

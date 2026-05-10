@@ -20,7 +20,7 @@ class TestLockScenarioUseCase:
     Test suite for the LockScenarioUseCase.
     """
 
-    def test_lock_scenario_success(self, admin_actor: User):
+    async def test_lock_scenario_success(self, guest_actor: User):
         """
         Test successful locking of a financial scenario.
         """
@@ -28,22 +28,22 @@ class TestLockScenarioUseCase:
         scenario = Scenario(
             description="To be locked",
             scenario_type=ScenarioType.ACTUAL,
-            tenant_id=admin_actor.tenant_id,
+            tenant_id=guest_actor.tenant_id,
             assumptions=None,
             is_locked=False,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = LockScenarioUseCase(repository)
-        input_dto = LockScenarioInputDTO(actor=admin_actor, id=scenario.id)
+        input_dto = LockScenarioInputDTO(actor=guest_actor, id=scenario.id)
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        locked_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        locked_scenario = await repository.get_by_id(scenario.id, guest_actor.tenant_id)
         assert locked_scenario.is_locked is True  # type: ignore
-        assert locked_scenario.updated_by == admin_actor.id  # type: ignore
+        assert locked_scenario.updated_by == guest_actor.id  # type: ignore
 
-    def test_lock_scenario_already_locked(self, admin_actor: User):
+    async def test_lock_scenario_already_locked(self, guest_actor: User):
         """
         Test that locking an already locked financial scenario raises an error.
         """
@@ -51,25 +51,25 @@ class TestLockScenarioUseCase:
         scenario = Scenario(
             description="Already locked",
             scenario_type=ScenarioType.ACTUAL,
-            tenant_id=admin_actor.tenant_id,
+            tenant_id=guest_actor.tenant_id,
             assumptions=None,
             is_locked=True,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = LockScenarioUseCase(repository)
-        input_dto = LockScenarioInputDTO(actor=admin_actor, id=scenario.id)
+        input_dto = LockScenarioInputDTO(actor=guest_actor, id=scenario.id)
 
         with pytest.raises(ScenarioAlreadyLockedError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_lock_scenario_not_found(self, admin_actor: User):
+    async def test_lock_scenario_not_found(self, guest_actor: User):
         """
         Test that locking a non-existent financial scenario raises an error.
         """
         repository = ScenarioInMemoryRepository()
         use_case = LockScenarioUseCase(repository)
-        input_dto = LockScenarioInputDTO(actor=admin_actor, id=uuid4())
+        input_dto = LockScenarioInputDTO(actor=guest_actor, id=uuid4())
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

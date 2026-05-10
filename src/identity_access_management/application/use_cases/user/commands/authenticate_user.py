@@ -30,12 +30,12 @@ class AuthenticateUserUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: AuthenticateUserInputDTO) -> User:
+    async def execute(self, input_dto: AuthenticateUserInputDTO) -> User:
         """
         Execute the AuthenticateUserUseCase.
         """
 
-        user = self._repository.get_by_username_global(input_dto.username)
+        user = await self._repository.get_by_username_global(input_dto.username)
         if not user:
             raise UserNotFoundError("Invalid username or password")
 

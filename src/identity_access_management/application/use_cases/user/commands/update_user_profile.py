@@ -40,7 +40,7 @@ class UpdateUserProfileUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: UserProfileInputDTO,
     ) -> None:
@@ -56,7 +56,7 @@ class UpdateUserProfileUseCase:
                 "User does not have permission to update another user's profile."
             )
 
-        user_to_update = self._repository.get_by_id(
+        user_to_update = await self._repository.get_by_id(
             entity_id=input_dto.user_id_to_update,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -88,4 +88,4 @@ class UpdateUserProfileUseCase:
         except EntityValidationError as e:
             raise InvalidUserError(f"Invalid user data: {e}") from e
 
-        self._repository.update(user_to_update)
+        await self._repository.update(user_to_update)

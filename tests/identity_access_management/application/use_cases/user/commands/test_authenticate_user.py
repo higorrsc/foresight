@@ -16,7 +16,7 @@ class TestAuthenticateUserUseCase:
     Test suite for the AuthenticateUserUseCase.
     """
 
-    def test_authenticate_user_successfully(
+    async def test_authenticate_user_successfully(
         self,
         user_in_memory_repo,
         authenticate_user_use_case,
@@ -30,19 +30,19 @@ class TestAuthenticateUserUseCase:
             username="testuser",
             hashed_password=hash_password(plain_password),
         )
-        user_in_memory_repo.save(user)
+        await user_in_memory_repo.save(user)
 
         input_dto = AuthenticateUserInputDTO(
             username="testuser",
             password=plain_password,
         )
 
-        authenticated_user = authenticate_user_use_case.execute(input_dto)
+        authenticated_user = await authenticate_user_use_case.execute(input_dto)
 
         assert authenticated_user is not None
         assert authenticated_user.username == "testuser"
 
-    def test_authenticate_user_with_invalid_username_raises_error(
+    async def test_authenticate_user_with_invalid_username_raises_error(
         self,
         authenticate_user_use_case,
     ):
@@ -59,9 +59,9 @@ class TestAuthenticateUserUseCase:
             UserNotFoundError,
             match="Invalid username or password",
         ):
-            authenticate_user_use_case.execute(input_dto)
+            await authenticate_user_use_case.execute(input_dto)
 
-    def test_authenticate_user_with_invalid_password_raises_error(
+    async def test_authenticate_user_with_invalid_password_raises_error(
         self,
         user_in_memory_repo,
         authenticate_user_use_case,
@@ -75,7 +75,7 @@ class TestAuthenticateUserUseCase:
             username="testuser",
             hashed_password=hash_password(plain_password),
         )
-        user_in_memory_repo.save(user)
+        await user_in_memory_repo.save(user)
 
         input_dto = AuthenticateUserInputDTO(
             username="testuser",
@@ -86,9 +86,9 @@ class TestAuthenticateUserUseCase:
             InvalidPasswordError,
             match="Invalid username or password",
         ):
-            authenticate_user_use_case.execute(input_dto)
+            await authenticate_user_use_case.execute(input_dto)
 
-    def test_authenticate_inactive_user_raises_error(
+    async def test_authenticate_inactive_user_raises_error(
         self,
         user_in_memory_repo,
         authenticate_user_use_case,
@@ -102,7 +102,7 @@ class TestAuthenticateUserUseCase:
             hashed_password=hash_password("password123"),
             is_active=False,
         )
-        user_in_memory_repo.save(user)
+        await user_in_memory_repo.save(user)
 
         input_dto = AuthenticateUserInputDTO(
             username="inactive_user",
@@ -113,4 +113,4 @@ class TestAuthenticateUserUseCase:
             UserNotFoundError,
             match="User account is inactive.",
         ):
-            authenticate_user_use_case.execute(input_dto)
+            await authenticate_user_use_case.execute(input_dto)

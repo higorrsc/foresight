@@ -22,7 +22,7 @@ class TestUpdateScenarioUseCase:
     Test suite for the UpdateScenarioUseCase.
     """
 
-    def test_update_scenario_success(self, admin_actor: User):
+    async def test_update_scenario_success(self, admin_actor: User):
         """
         Test successful update of a financial scenario.
         """
@@ -33,7 +33,7 @@ class TestUpdateScenarioUseCase:
             tenant_id=admin_actor.tenant_id,
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = UpdateScenarioUseCase(repository)
         input_dto = UpdateScenarioInputDTO(
@@ -44,15 +44,17 @@ class TestUpdateScenarioUseCase:
             is_locked=False,
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
 
         assert result.description == "New Description"
-        updated_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        updated_scenario = await repository.get_by_id(
+            scenario.id, admin_actor.tenant_id
+        )
         assert updated_scenario.description == "New Description"  # type: ignore
         assert updated_scenario.scenario_type == ScenarioType.FORECAST  # type: ignore
         assert updated_scenario.updated_by == admin_actor.id  # type: ignore
 
-    def test_update_scenario_not_found(self, admin_actor: User):
+    async def test_update_scenario_not_found(self, admin_actor: User):
         """
         Test that updating a non-existent financial scenario raises an error.
         """
@@ -66,9 +68,9 @@ class TestUpdateScenarioUseCase:
         )
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_update_locked_scenario_fails(self, admin_actor: User):
+    async def test_update_locked_scenario_fails(self, admin_actor: User):
         """
         Test that updating a locked financial scenario raises an error.
         """
@@ -80,7 +82,7 @@ class TestUpdateScenarioUseCase:
             assumptions=None,
             is_locked=True,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = UpdateScenarioUseCase(repository)
         input_dto = UpdateScenarioInputDTO(
@@ -91,9 +93,9 @@ class TestUpdateScenarioUseCase:
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_update_scenario_with_exchange_rates(self, admin_actor: User):
+    async def test_update_scenario_with_exchange_rates(self, admin_actor: User):
         """
         Test successful update of a financial scenario with exchange rates.
         """
@@ -104,7 +106,7 @@ class TestUpdateScenarioUseCase:
             tenant_id=admin_actor.tenant_id,
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = UpdateScenarioUseCase(repository)
         exchange_rates = [
@@ -123,9 +125,12 @@ class TestUpdateScenarioUseCase:
             exchange_rates=exchange_rates,
         )
 
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
 
-        updated_scenario = repository.get_by_id(scenario.id, admin_actor.tenant_id)
+        updated_scenario = await repository.get_by_id(
+            scenario.id,
+            admin_actor.tenant_id,
+        )
         assert updated_scenario.exchange_rates is not None  # type: ignore
         assert len(updated_scenario.exchange_rates) == 1  # type: ignore
         assert str(updated_scenario.exchange_rates[0].from_currency) == "GBP"  # type: ignore

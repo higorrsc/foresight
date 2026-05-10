@@ -38,7 +38,9 @@ class ListTenantsUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: ListTenantsInputDTO) -> PaginatedResponseDTO[Tenant]:
+    async def execute(
+        self, input_dto: ListTenantsInputDTO
+    ) -> PaginatedResponseDTO[Tenant]:
         """
         Execute the use case to list tenants.
         """
@@ -48,7 +50,7 @@ class ListTenantsUseCase:
                 "User does not have permission to list tenants."
             )
 
-        paginated_result = self._repository.search(
+        paginated_result = await self._repository.search(
             tenant_id=None,  # <-- Força None porque Plan é global
             filters=input_dto.filters,
             sort_by=input_dto.sort_by,

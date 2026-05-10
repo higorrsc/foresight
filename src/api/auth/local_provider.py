@@ -37,7 +37,7 @@ class LocalAuthenticationProvider(AbstractAuthenticationProvider):
         except JWTError:
             return None
 
-        user = self._repository.get_by_username(
+        user = await self._repository.get_by_username(
             username=username,
             tenant_id=tenant_id,
         )

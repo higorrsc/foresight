@@ -20,6 +20,7 @@ class RoleMapper(AbstractMapper[Role, RoleModel]):
             name=entity.name,
             description=entity.description,
         )
+        model.permissions_rel = []
 
         BaseMapper.map_auditing_fields_to_model(entity, model)
         return model

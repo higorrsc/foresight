@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.planning.domain.entities import Scenario
@@ -15,11 +17,22 @@ class ScenarioRepository(
     Repository for managing Scenario entities using SQLAlchemy.
     """
 
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         """
         Initialize the ScenarioRepository with a SQLAlchemy session.
 
         :param session: SQLAlchemy session.
         """
 
-        super().__init__(session, ScenarioModel, ScenarioMapper())
+        super().__init__(
+            session,
+            ScenarioModel,
+            ScenarioMapper(),
+        )
+
+    def _get_base_query(self):
+        """Hook to allow children repos add eager loads (options)."""
+
+        return select(self._model_cls).options(
+            selectinload(self._model_cls.exchange_rates)
+        )

@@ -46,7 +46,7 @@ class GenericDeleteUseCase[T]:
         self._not_found_exception = not_found_exception
         self._not_found_message = not_found_message
 
-    def execute(self, request: DeleteRequestInputDTO) -> None:
+    async def execute(self, request: DeleteRequestInputDTO) -> None:
         """
         Execute the delete use case.
 
@@ -59,7 +59,7 @@ class GenericDeleteUseCase[T]:
                 "User does not have permission to delete data."
             )
 
-        entity = self._repository.get_by_id(
+        entity = await self._repository.get_by_id(
             request.id,
             request.actor.tenant_id,
         )
@@ -72,9 +72,9 @@ class GenericDeleteUseCase[T]:
             entity.soft_delete()
             if hasattr(entity, "updated_by"):
                 entity.updated_by = request.actor.id  # type: ignore
-            self._repository.update(entity)  # type: ignore
+            await self._repository.update(entity)  # type: ignore
         else:
-            self._repository.delete(
+            await self._repository.delete(
                 request.id,
                 request.actor.tenant_id,
             )

@@ -28,7 +28,7 @@ class DeleteRoleUseCase:
         self._role_repository = role_repository
         self._user_repository = user_repository
 
-    def execute(self, input_dto: DeleteRequestInputDTO) -> None:
+    async def execute(self, input_dto: DeleteRequestInputDTO) -> None:
         """
         Execute the delete use case.
         """
@@ -38,7 +38,7 @@ class DeleteRoleUseCase:
                 "User does not have permission to set permissions."
             )
 
-        role_to_delete = self._role_repository.get_by_id(
+        role_to_delete = await self._role_repository.get_by_id(
             input_dto.id,
             input_dto.actor.tenant_id,
         )
@@ -46,7 +46,7 @@ class DeleteRoleUseCase:
         if not role_to_delete:
             raise RoleNotFoundError(f"Role with ID '{input_dto.id}' not found.")
 
-        users_count = self._user_repository.count_users_by_role(role_to_delete.id)
+        users_count = await self._user_repository.count_users_by_role(role_to_delete.id)
 
         if users_count > 0:
             raise RoleDeletionIntegrityError(
@@ -57,4 +57,4 @@ class DeleteRoleUseCase:
         role_to_delete.soft_delete()
         role_to_delete.updated_by = input_dto.actor.id
 
-        self._role_repository.update(role_to_delete)
+        await self._role_repository.update(role_to_delete)

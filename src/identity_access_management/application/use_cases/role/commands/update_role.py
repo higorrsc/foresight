@@ -48,12 +48,12 @@ class UpdateRoleUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: UpdateRoleInputDTO) -> UpdateRoleResponseDTO:
+    async def execute(self, input_dto: UpdateRoleInputDTO) -> UpdateRoleResponseDTO:
         """
         Execute the use case to update a role.
         """
 
-        role = self._repository.get_by_id(
+        role = await self._repository.get_by_id(
             input_dto.id,
             input_dto.actor.tenant_id,
         )
@@ -74,7 +74,7 @@ class UpdateRoleUseCase:
         except EntityValidationError as e:
             raise InvalidRoleError(f"Invalid input data: {e}") from e
 
-        self._repository.update(role)
+        await self._repository.update(role)
 
         return UpdateRoleResponseDTO(
             id=role.id,

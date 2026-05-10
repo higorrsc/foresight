@@ -28,6 +28,8 @@ class ScenarioMapper(AbstractMapper[Scenario, ScenarioModel]):
             assumptions=entity.assumptions,
         )
 
+        model.exchange_rates = []
+
         if entity.exchange_rates:
             model.exchange_rates = [
                 self._exchange_rate_mapper.to_model(er) for er in entity.exchange_rates

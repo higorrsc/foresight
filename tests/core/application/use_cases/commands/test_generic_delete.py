@@ -10,7 +10,7 @@ class TestGenericDeleteUseCase:
     Test suite for the GenericDeleteUseCase.
     """
 
-    def test_delete_existing_entity(
+    async def test_delete_existing_entity(
         self,
         dummy_in_memory_repository,
         generic_delete_use_case,
@@ -24,20 +24,20 @@ class TestGenericDeleteUseCase:
             name="Test Entity",
             tenant_id=admin_actor.tenant_id,
         )
-        dummy_in_memory_repository.save(entity)
+        await dummy_in_memory_repository.save(entity)
 
         request = DeleteRequestInputDTO(
             actor=admin_actor,
             id=entity.id,
         )
-        generic_delete_use_case.execute(request=request)
+        await generic_delete_use_case.execute(request=request)
 
-        assert (
-            dummy_in_memory_repository.get_by_id(entity.id, admin_actor.tenant_id)
-            is None
+        result = await dummy_in_memory_repository.get_by_id(
+            entity.id, admin_actor.tenant_id
         )
+        assert result is None
 
-    def test_delete_non_existing_entity_raises_exception(
+    async def test_delete_non_existing_entity_raises_exception(
         self,
         generic_delete_use_case,
         admin_actor,
@@ -53,7 +53,7 @@ class TestGenericDeleteUseCase:
         )
 
         with pytest.raises(EntityNotFoundError) as exc_info:
-            generic_delete_use_case.execute(request=invalid_entity)
+            await generic_delete_use_case.execute(request=invalid_entity)
 
         assert (
             str(exc_info.value)

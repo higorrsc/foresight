@@ -35,7 +35,7 @@ class UpdateTenantStatusUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: UpdateTenantStatusInputDTO) -> None:
+    async def execute(self, input_dto: UpdateTenantStatusInputDTO) -> None:
         """
         Execute the use case to update a tenant's status.
         """
@@ -45,7 +45,7 @@ class UpdateTenantStatusUseCase:
                 "User does not have permission to update tenants."
             )
 
-        tenant = self._repository.get_by_id_global(input_dto.tenant_id_to_update)
+        tenant = await self._repository.get_by_id_global(input_dto.tenant_id_to_update)
 
         if not tenant:
             raise TenantNotFoundError("Tenant not found.")
@@ -53,4 +53,4 @@ class UpdateTenantStatusUseCase:
         tenant.status = input_dto.new_status
         tenant.updated_by = input_dto.actor.id
 
-        self._repository.update(tenant)
+        await self._repository.update(tenant)

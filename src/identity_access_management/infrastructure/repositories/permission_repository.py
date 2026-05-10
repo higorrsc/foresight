@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.infrastructure.repository import SQLAlchemyRepository
 from src.identity_access_management.domain.entities import Permission
@@ -16,7 +16,7 @@ class PermissionRepository(
     Concrete implementation of the Permission repository using SQLAlchemy.
     """
 
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         """
         Initialize the PermissionRepository with a SQLAlchemy session.
         """
@@ -27,20 +27,22 @@ class PermissionRepository(
             PermissionMapper(),
         )
 
-    def list_all(self) -> list[Permission]:
+    async def list_all(self) -> list[Permission]:
         """
         Lists all permissions.
         """
 
         stmt = select(self._model_cls)
-        models = self._session.scalars(stmt).all()
+        result = await self._session.execute(stmt)
+        models = result.unique().scalars().all()
         return [self._mapper.to_entity(m) for m in models]
 
-    def get_by_codename(self, codename: str) -> Permission | None:
+    async def get_by_codename(self, codename: str) -> Permission | None:
         """
         Retrieves a permission by its codename.
         """
 
         stmt = select(self._model_cls).filter_by(codename=codename)
-        model = self._session.scalars(stmt).first()
+        result = await self._session.execute(stmt)
+        model = result.unique().scalars().first()
         return self._mapper.to_entity(model) if model else None

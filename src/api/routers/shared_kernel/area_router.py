@@ -110,7 +110,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_area_create_or_update)],
 )
-def create_area_endpoint(
+async def create_area_endpoint(
     request_body: AreaCreateBody,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -126,7 +126,7 @@ def create_area_endpoint(
             actor=actor, description=request_body.description
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except InvalidAreaError as e:
         raise HTTPException(
@@ -141,7 +141,7 @@ def create_area_endpoint(
     response_model=PaginatedAreaResponse,
     dependencies=[Depends(require_area_read)],
 )
-def list_areas_endpoint(
+async def list_areas_endpoint(
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
     description: str | None = Query(None, description="Filter by description"),
@@ -168,7 +168,7 @@ def list_areas_endpoint(
     )
 
     use_case = ListAreaUseCase(repo)
-    result = use_case.execute(input_dto)
+    result = await use_case.execute(input_dto)
     return result
 
 
@@ -178,7 +178,7 @@ def list_areas_endpoint(
     response_model=AreaResponseDetail,
     dependencies=[Depends(require_area_read)],
 )
-def get_area_by_id_endpoint(
+async def get_area_by_id_endpoint(
     area_id: UUID,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -190,7 +190,7 @@ def get_area_by_id_endpoint(
     try:
         use_case = GetAreaByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=area_id, actor=actor)
-        area = use_case.execute(input_dto)
+        area = await use_case.execute(input_dto)
         return area
     except AreaNotFoundError as e:
         raise HTTPException(
@@ -209,7 +209,7 @@ def get_area_by_id_endpoint(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(require_area_create_or_update)],
 )
-def update_area_endpoint(
+async def update_area_endpoint(
     area_id: UUID,
     request_body: AreaUpdateBody,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
@@ -228,7 +228,7 @@ def update_area_endpoint(
             description=request_body.description,
         )
 
-        output_dto = use_case.execute(input_dto)
+        output_dto = await use_case.execute(input_dto)
         return {
             "id": output_dto.id,
             "description": output_dto.description,
@@ -250,7 +250,7 @@ def update_area_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_area_delete)],
 )
-def delete_area_endpoint(
+async def delete_area_endpoint(
     area_id: UUID,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -261,7 +261,7 @@ def delete_area_endpoint(
 
     try:
         use_case = DeleteAreaUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(id=area_id, actor=actor))
+        await use_case.execute(DeleteRequestInputDTO(id=area_id, actor=actor))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -274,7 +274,7 @@ def delete_area_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_area_delete)],
 )
-def restore_area_endpoint(
+async def restore_area_endpoint(
     area_id: UUID,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -285,7 +285,7 @@ def restore_area_endpoint(
 
     try:
         use_case = RestoreAreaUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(id=area_id, actor=actor))
+        await use_case.execute(RestoreRequestInputDTO(id=area_id, actor=actor))
     except AreaNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

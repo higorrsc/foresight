@@ -20,7 +20,7 @@ class AbstractRepository[T](ABC):
     """
 
     @abstractmethod
-    def save(self, entity: T) -> T | None:
+    async def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -30,7 +30,7 @@ class AbstractRepository[T](ABC):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_by_id(
+    async def get_by_id(
         self,
         entity_id: UUID,
         tenant_id: UUID | None,
@@ -46,7 +46,7 @@ class AbstractRepository[T](ABC):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def get_all(
+    async def get_all(
         self,
         tenant_id: UUID | None,
     ) -> list[T]:
@@ -60,7 +60,7 @@ class AbstractRepository[T](ABC):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def update(self, entity: T) -> T | None:
+    async def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -71,7 +71,7 @@ class AbstractRepository[T](ABC):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def delete(
+    async def delete(
         self,
         entity_id: UUID,
         tenant_id: UUID | None,
@@ -86,7 +86,7 @@ class AbstractRepository[T](ABC):
         raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def search(
+    async def search(
         self,
         tenant_id: UUID | None,
         filters: dict[str, Any] | None = None,

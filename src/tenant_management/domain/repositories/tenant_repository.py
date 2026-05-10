@@ -11,7 +11,7 @@ class ITenantRepository(AbstractRepository[Tenant]):
     """
 
     @abstractmethod
-    def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
+    async def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """
         Finds a tenant by its unique id.
         """

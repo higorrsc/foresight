@@ -18,7 +18,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
 
         self._entities = entities or []
 
-    def save(self, entity: T) -> T | None:
+    async def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -29,7 +29,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
         self._entities.append(entity)
         return entity
 
-    def get_by_id(
+    async def get_by_id(
         self,
         entity_id: UUID,
         tenant_id: UUID | None,
@@ -49,7 +49,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
 
         return None
 
-    def get_all(
+    async def get_all(
         self,
         tenant_id: UUID | None,
     ) -> list[T]:
@@ -67,7 +67,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
 
         return list(self._entities)
 
-    def update(self, entity: T) -> T | None:
+    async def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -76,7 +76,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
         """
 
         tenant_id = entity.tenant_id if has_tenant(entity) else None
-        old_entity = self.get_by_id(
+        old_entity = await self.get_by_id(
             entity.id,  # type: ignore
             tenant_id,
         )
@@ -88,14 +88,14 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
 
         return None
 
-    def delete(self, entity_id: UUID, tenant_id: UUID | None) -> None:
+    async def delete(self, entity_id: UUID, tenant_id: UUID | None) -> None:
         """
         Delete an entity from the repository.
 
         :param entity_id: The ID of the entity to be deleted.
         """
 
-        entity = self.get_by_id(
+        entity = await self.get_by_id(
             entity_id,
             tenant_id,
         )
@@ -146,7 +146,7 @@ class InMemoryRepository[T: AbstractEntity](AbstractRepository[T]):
 
         return entities
 
-    def search(
+    async def search(
         self,
         tenant_id: UUID | None,
         filters: dict[str, Any] | None = None,

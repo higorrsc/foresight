@@ -1,4 +1,4 @@
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 
 class TestAuthRouter:
@@ -6,12 +6,12 @@ class TestAuthRouter:
     Test Auth Router.
     """
 
-    def test_get_token(self, client: TestClient):
+    async def test_get_token(self, client: AsyncClient):
         """
         Test get token.
         """
 
-        response = client.post(
+        response = await client.post(
             "/auth/token",
             data={
                 "username": "admin",
@@ -23,12 +23,12 @@ class TestAuthRouter:
         assert "access_token" in response.json()
         assert response.json()["token_type"] == "bearer"
 
-    def test_get_token_invalid_credentials(self, client: TestClient):
+    async def test_get_token_invalid_credentials(self, client: AsyncClient):
         """
         Test get token with invalid credentials.
         """
 
-        response = client.post(
+        response = await client.post(
             "/auth/token",
             data={
                 "username": "admin",

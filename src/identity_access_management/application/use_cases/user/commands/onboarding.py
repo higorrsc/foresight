@@ -61,22 +61,23 @@ class OnboardingUseCase:
         self._user_repo = user_repository
         self._perm_repo = permission_repository
 
-    def execute(self, input_dto: OnboardingInputDTO) -> OnboardingOutputDTO:
+    async def execute(self, input_dto: OnboardingInputDTO) -> OnboardingOutputDTO:
         """
         Execute the use case to create a new user.
         """
 
-        if self._user_repo.get_by_username_global(input_dto.username):
+        user = await self._user_repo.get_by_username_global(input_dto.username)
+        if user:
             raise UsernameAlreadyExistsError(
                 f"Username '{input_dto.username}' already exists."
             )
 
-        plan = self._plan_repo.get_by_name(input_dto.plan_name)
+        plan = await self._plan_repo.get_by_name(input_dto.plan_name)
         if not plan:
             raise ValueError(f"Plan '{input_dto.plan_name}' not found.")
 
         new_tenant = Tenant(name=input_dto.tenant_name, plan_id=plan.id)
-        self._tenant_repo.save(new_tenant)
+        await self._tenant_repo.save(new_tenant)
 
         admin_role = Role(
             name="admin",
@@ -89,11 +90,11 @@ class OnboardingUseCase:
             tenant_id=new_tenant.id,
         )
 
-        all_permissions = self._perm_repo.list_all()
+        all_permissions = await self._perm_repo.list_all()
         admin_role.permissions = {p.codename for p in all_permissions}
 
-        self._role_repo.save(admin_role)
-        self._role_repo.save(guest_role)
+        await self._role_repo.save(admin_role)
+        await self._role_repo.save(guest_role)
 
         new_user = User(
             tenant_id=new_tenant.id,
@@ -111,6 +112,6 @@ class OnboardingUseCase:
         if hasattr(new_user, "updated_at"):
             new_user.updated_at = datetime.now(UTC)
 
-        self._user_repo.save(new_user)
+        await self._user_repo.save(new_user)
 
         return OnboardingOutputDTO(user_id=new_user.id, tenant_id=new_tenant.id)

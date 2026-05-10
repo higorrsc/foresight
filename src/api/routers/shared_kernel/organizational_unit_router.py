@@ -131,7 +131,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_organizational_unit_create_or_update)],
 )
-def create_organizational_unit(
+async def create_organizational_unit(
     request_body: OrganizationalUnitCreateBody,
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
@@ -151,7 +151,7 @@ def create_organizational_unit(
             description=request_body.description,
             parent_id=request_body.parent_id,
         )
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except InvalidOrganizationalUnitError as e:
         raise HTTPException(
@@ -166,7 +166,7 @@ def create_organizational_unit(
     response_model=PaginatedOrganizationalUnitResponse,
     dependencies=[Depends(require_organizational_unit_read)],
 )
-def list_organizational_units_endpoint(
+async def list_organizational_units_endpoint(
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],
@@ -195,7 +195,7 @@ def list_organizational_units_endpoint(
     )
 
     use_case = ListOrganizationalUnitUseCase(repo)
-    result = use_case.execute(input_dto)
+    result = await use_case.execute(input_dto)
     return result
 
 
@@ -205,7 +205,7 @@ def list_organizational_units_endpoint(
     response_model=OrganizationalUnitDetailResponse,
     dependencies=[Depends(require_organizational_unit_read)],
 )
-def get_organizational_unit_by_id_endpoint(
+async def get_organizational_unit_by_id_endpoint(
     organizational_unit_id: UUID,
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
@@ -219,7 +219,7 @@ def get_organizational_unit_by_id_endpoint(
     try:
         use_case = GetOrganizationalUnitByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=organizational_unit_id, actor=actor)
-        organizational_unit = use_case.execute(input_dto)
+        organizational_unit = await use_case.execute(input_dto)
         return organizational_unit
     except OrganizationalUnitNotFoundError as e:
         raise HTTPException(
@@ -239,7 +239,7 @@ def get_organizational_unit_by_id_endpoint(
     response_model=OrganizationalUnitResponse,
     dependencies=[Depends(require_organizational_unit_create_or_update)],
 )
-def update_organizational_unit_endpoint(
+async def update_organizational_unit_endpoint(
     organizational_unit_id: UUID,
     request_body: OrganizationalUnitUpdateBody,
     repo: Annotated[
@@ -262,7 +262,7 @@ def update_organizational_unit_endpoint(
             actor=actor,
         )
 
-        output_dto = use_case.execute(input_dto)
+        output_dto = await use_case.execute(input_dto)
 
         return output_dto
     except OrganizationalUnitNotFoundError as e:
@@ -282,7 +282,7 @@ def update_organizational_unit_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_organizational_unit_delete)],
 )
-def delete_organizational_unit_endpoint(
+async def delete_organizational_unit_endpoint(
     organizational_unit_id: UUID,
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
@@ -295,7 +295,9 @@ def delete_organizational_unit_endpoint(
 
     try:
         use_case = DeleteOrganizationalUnitUseCase(repo)
-        use_case.execute(DeleteRequestInputDTO(id=organizational_unit_id, actor=actor))
+        await use_case.execute(
+            DeleteRequestInputDTO(id=organizational_unit_id, actor=actor)
+        )
     except OrganizationalUnitNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -308,7 +310,7 @@ def delete_organizational_unit_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_organizational_unit_delete)],
 )
-def restore_organizational_unit_endpoint(
+async def restore_organizational_unit_endpoint(
     organizational_unit_id: UUID,
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
@@ -321,7 +323,9 @@ def restore_organizational_unit_endpoint(
 
     try:
         use_case = RestoreOrganizationalUnitUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(id=organizational_unit_id, actor=actor))
+        await use_case.execute(
+            RestoreRequestInputDTO(id=organizational_unit_id, actor=actor)
+        )
     except OrganizationalUnitNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

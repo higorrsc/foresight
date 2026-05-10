@@ -11,7 +11,7 @@ def build_cockroach_url(config: DatabaseConfig) -> str:
     """
 
     return (
-        f"cockroachdb://{config.user}:{config.password}"
+        f"cockroachdb+asyncpg://{config.user}:{config.password}"
         f"@{config.host}:{config.port}/{config.database}"
-        f"?sslmode=verify-full&sslrootcert={config.ssl_root_cert}"
+        # f"?sslmode=verify-full&sslrootcert={config.ssl_root_cert}"
     )

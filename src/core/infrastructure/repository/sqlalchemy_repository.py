@@ -1,8 +1,8 @@
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import asc, delete, desc, func, inspect, select  # Adicionado func
-from sqlalchemy.orm import Session
+from sqlalchemy import asc, delete, desc, func, inspect, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.domain import AbstractRepository, PaginatedResult
 from src.core.infrastructure.mappers.mapper import AbstractMapper
@@ -15,7 +15,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
     """
 
     def __init__(
-        self, session: Session, model_cls: type[M], mapper: AbstractMapper[T, M]
+        self, session: AsyncSession, model_cls: type[M], mapper: AbstractMapper[T, M]
     ):
         """
         Initialize the repository.
@@ -44,7 +44,12 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         return getattr(self._model_cls, column_name, None)
 
-    def save(self, entity: T) -> T | None:
+    def _get_base_query(self):
+        """Hook to allow children repos add eager loads (options)."""
+
+        return select(self._model_cls)
+
+    async def save(self, entity: T) -> T | None:
         """
         Save an entity to the repository.
 
@@ -54,11 +59,10 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         model = self._mapper.to_model(entity)
         self._session.add(model)
-        self._session.commit()
-        self._session.refresh(model)
+        await self._session.flush()
         return self._mapper.to_entity(model)
 
-    def get_by_id(
+    async def get_by_id(
         self,
         entity_id: UUID,
         tenant_id: UUID | None,
@@ -75,16 +79,17 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         if id_column is None:
             return None
 
-        stmt = select(self._model_cls).where(id_column == entity_id)
+        stmt = self._get_base_query().where(id_column == entity_id)
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
             stmt = stmt.where(tenant_column == tenant_id)
 
-        model = self._session.scalars(stmt).first()
+        result = await self._session.execute(stmt)
+        model = result.unique().scalars().first()
         return self._mapper.to_entity(model) if model else None
 
-    def get_all(
+    async def get_all(
         self,
         tenant_id: UUID | None,
     ) -> list[T]:
@@ -95,17 +100,17 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         :return: A list of all entities.
         """
 
-        stmt = select(self._model_cls)
+        stmt = self._get_base_query()
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
             stmt = stmt.where(tenant_column == tenant_id)
 
-        result = self._session.execute(stmt)
-        models = result.unique().scalars().all()
+        result = await self._session.execute(stmt)
+        models = result.unique().unique().scalars().all()
         return [self._mapper.to_entity(m) for m in models]
 
-    def update(self, entity: T) -> T | None:
+    async def update(self, entity: T) -> T | None:
         """
         Update an existing entity in the repository.
 
@@ -113,13 +118,34 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         :return: The updated entity.
         """
 
-        model = self._mapper.to_model(entity)
-        merged_model = self._session.merge(model)
-        self._session.commit()
-        self._session.refresh(merged_model)
-        return self._mapper.to_entity(merged_model)
+        id_column = self._get_column("id")
+        if id_column is None or not hasattr(entity, "id"):
+            return None
 
-    def delete(
+        stmt = self._get_base_query().where(id_column == entity.id)  # type:ignore
+
+        tenant_column = self._get_column("tenant_id")
+        if tenant_column is not None and hasattr(entity, "tenant_id"):
+            stmt = stmt.where(tenant_column == entity.tenant_id)  # type:ignore
+
+        result = await self._session.execute(stmt)
+        existing_model = result.unique().scalar_one_or_none()
+
+        if not existing_model:
+            return None
+
+        updated_model = self._mapper.to_model(entity)
+
+        mapper_info = inspect(self._model_cls)
+        for column in mapper_info.columns:  # type: ignore
+            col_name = column.name
+            if hasattr(updated_model, col_name):
+                setattr(existing_model, col_name, getattr(updated_model, col_name))
+
+        await self._session.flush()
+        return self._mapper.to_entity(existing_model)
+
+    async def delete(
         self,
         entity_id: UUID,
         tenant_id: UUID | None,
@@ -141,10 +167,10 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         if tenant_column is not None:
             stmt = stmt.where(tenant_column == tenant_id)
 
-        self._session.execute(stmt)
-        self._session.commit()
+        await self._session.execute(stmt)
+        await self._session.flush()
 
-    def search(
+    async def search(
         self,
         tenant_id: UUID | None,
         filters: dict[str, Any] | None = None,
@@ -158,7 +184,7 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
         Search for entities based on criteria, with sorting and pagination.
         """
 
-        stmt = select(self._model_cls)
+        stmt = self._get_base_query()
 
         tenant_column = self._get_column("tenant_id")
         if tenant_column is not None:
@@ -174,8 +200,8 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
                 if column is not None:
                     stmt = stmt.where(column.ilike(f"%{value}%"))
 
-        count_stmt = select(func.count()).select_from(stmt.subquery())
-        total = self._session.scalar(count_stmt) or 0
+        count_stmt = select(func.count()).select_from(stmt.subquery())  # type: ignore
+        total = await self._session.scalar(count_stmt) or 0
 
         if sort_by:
             column = self._get_column(sort_by)
@@ -186,8 +212,8 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         stmt = stmt.offset(offset).limit(limit)
 
-        result = self._session.execute(stmt)
-        models = result.unique().scalars().all()
+        result = await self._session.execute(stmt)
+        models = result.unique().unique().scalars().all()
         entities = [self._mapper.to_entity(model) for model in models]
 
         return PaginatedResult(

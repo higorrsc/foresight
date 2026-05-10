@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -7,7 +7,7 @@ from src.core.application.use_cases.commands.generic_update_described import (
     UpdateDescribedEntityInputDTO,
     UpdateDescribedEntityUseCase,
 )
-from src.core.domain.entities.described import DescribedEntity
+from src.core.domain.entities import DescribedEntity
 from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 
 
@@ -26,12 +26,12 @@ class TestUpdateDescribedEntityUseCase:
     Test suite for the UpdateDescribedEntityUseCase.
     """
 
-    def test_execute_success(self):
+    async def test_execute_success(self):
         """
         Test successful update of a described entity.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"test:update"}
         actor.tenant_id = uuid4()
         actor.id = uuid4()
@@ -54,19 +54,19 @@ class TestUpdateDescribedEntityUseCase:
             description="New description",
         )
 
-        output = use_case.execute(input_dto)
+        output = await use_case.execute(input_dto)
 
         assert output.description == "New description"
         assert entity.description == "New description"
         assert entity.updated_by == actor.id
         assert repository.update.called
 
-    def test_execute_insufficient_permission(self):
+    async def test_execute_insufficient_permission(self):
         """
         Test that update fails when the actor has insufficient permissions.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = set()
 
         use_case = UpdateDescribedEntityUseCase(
@@ -83,14 +83,14 @@ class TestUpdateDescribedEntityUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_execute_not_found(self):
+    async def test_execute_not_found(self):
         """
         Test that update fails when the entity is not found.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"test:update"}
         actor.tenant_id = uuid4()
         repository.get_by_id.return_value = None
@@ -110,15 +110,15 @@ class TestUpdateDescribedEntityUseCase:
         )
 
         with pytest.raises(ValueError) as excinfo:
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
         assert f"Entity with id {entity_id} not found" in str(excinfo.value)
 
-    def test_execute_invalid_data(self):
+    async def test_execute_invalid_data(self):
         """
         Test that update fails when provided with invalid data.
         """
-        repository = MagicMock()
-        actor = MagicMock()
+        repository = AsyncMock()
+        actor = AsyncMock()
         actor.permissions = {"test:update"}
         actor.tenant_id = uuid4()
 
@@ -141,5 +141,5 @@ class TestUpdateDescribedEntityUseCase:
         )
 
         with pytest.raises(TypeError) as excinfo:
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
         assert "Invalid input data" in str(excinfo.value)

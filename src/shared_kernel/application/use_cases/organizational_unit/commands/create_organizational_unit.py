@@ -44,7 +44,7 @@ class CreateOrganizationalUnitUseCase:
 
         self._repository = repository
 
-    def execute(
+    async def execute(
         self,
         input_dto: CreateOrganizationalUnitInputDTO,
     ) -> CreateOrganizationalUnitOutputDTO:
@@ -64,5 +64,6 @@ class CreateOrganizationalUnitUseCase:
         except EntityValidationError as e:
             raise InvalidOrganizationalUnitError(f"Invalid input data: {e}") from e
 
-        self._repository.save(entity)
+        await self._repository.save(entity)
+
         return CreateOrganizationalUnitOutputDTO(id=entity.id)

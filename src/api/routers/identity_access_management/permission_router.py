@@ -44,7 +44,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
     response_model=PaginatedPermissionResponse,
 )
-def list_permissions_endpoint(
+async def list_permissions_endpoint(
     repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
     actor: Annotated[User, Depends(get_current_user)],
     offset: int = Query(0, ge=0, description="Offset for pagination"),
@@ -62,4 +62,4 @@ def list_permissions_endpoint(
     )
 
     use_case = ListPermissionsUseCase(repo)
-    return use_case.execute(input_dto)
+    return await use_case.execute(input_dto)

@@ -20,7 +20,7 @@ class DeleteUserUseCase:
 
         self._repository = repository
 
-    def execute(self, input_dto: DeleteRequestInputDTO) -> None:
+    async def execute(self, input_dto: DeleteRequestInputDTO) -> None:
         """
         Execute the delete user use case.
         """
@@ -30,7 +30,7 @@ class DeleteUserUseCase:
                 "User does not have permission to delete users."
             )
 
-        user_to_delete = self._repository.get_by_id(
+        user_to_delete = await self._repository.get_by_id(
             entity_id=input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -43,4 +43,4 @@ class DeleteUserUseCase:
         user_to_delete.soft_delete()
         user_to_delete.updated_by = input_dto.actor.id
 
-        self._repository.update(user_to_delete)
+        await self._repository.update(user_to_delete)

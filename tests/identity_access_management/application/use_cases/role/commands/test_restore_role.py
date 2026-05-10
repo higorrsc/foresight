@@ -19,7 +19,7 @@ class TestRestoreRoleUseCase:
     Test the RestoreRoleUseCase.
     """
 
-    def test_restore_role(
+    async def test_restore_role(
         self,
         role_in_memory_repo,
         user_in_memory_repo,
@@ -39,16 +39,16 @@ class TestRestoreRoleUseCase:
             description="Description",
             tenant_id=admin_actor.tenant_id,
         )
-        role_in_memory_repo.save(role_to_delete)
+        await role_in_memory_repo.save(role_to_delete)
 
-        delete_use_case.execute(
+        await delete_use_case.execute(
             DeleteRequestInputDTO(
                 id=role_to_delete.id,
                 actor=admin_actor,
             )
         )
 
-        found_role = role_in_memory_repo.get_by_id(
+        found_role = await role_in_memory_repo.get_by_id(
             role_to_delete.id,
             admin_actor.tenant_id,
         )
@@ -57,21 +57,21 @@ class TestRestoreRoleUseCase:
 
         # Restore the role
         restore_use_case = RestoreRoleUseCase(role_in_memory_repo)
-        restore_use_case.execute(
+        await restore_use_case.execute(
             RestoreRequestInputDTO(
                 id=role_to_delete.id,
                 actor=admin_actor,
             )
         )
 
-        found_role = role_in_memory_repo.get_by_id(
+        found_role = await role_in_memory_repo.get_by_id(
             role_to_delete.id,
             admin_actor.tenant_id,
         )
         assert found_role.is_active is True
         assert found_role.deleted_at is None
 
-    def test_restore_non_existent_role_raises_error(
+    async def test_restore_non_existent_role_raises_error(
         self,
         role_in_memory_repo,
         admin_actor,
@@ -92,4 +92,4 @@ class TestRestoreRoleUseCase:
             RoleNotFoundError,
             match="Role to restore not found in this tenant.",
         ):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

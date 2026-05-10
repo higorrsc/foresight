@@ -12,7 +12,7 @@ class TestGenericGetByIdUseCase:
     Test suite for the GenericGetByIdUseCase.
     """
 
-    def test_get_by_id_existing_entity(
+    async def test_get_by_id_existing_entity(
         self,
         dummy_in_memory_repository,
         generic_get_by_id_use_case,
@@ -23,18 +23,18 @@ class TestGenericGetByIdUseCase:
         """
 
         entity = DummyEntity(name="Test Entity", tenant_id=admin_actor.tenant_id)
-        dummy_in_memory_repository.save(entity)
+        await dummy_in_memory_repository.save(entity)
 
         request = GetByIdRequestInputDTO(
             id=entity.id,
             actor=admin_actor,
         )
-        result = generic_get_by_id_use_case.execute(request=request)
+        result = await generic_get_by_id_use_case.execute(request=request)
 
         assert result.id == entity.id
         assert result.name == entity.name  # type: ignore
 
-    def test_get_by_id_non_existing_entity_raises_exception(
+    async def test_get_by_id_non_existing_entity_raises_exception(
         self,
         generic_get_by_id_use_case,
         admin_actor,
@@ -50,6 +50,6 @@ class TestGenericGetByIdUseCase:
         )
 
         with pytest.raises(EntityNotFoundError) as exc_info:
-            generic_get_by_id_use_case.execute(request=request)
+            await generic_get_by_id_use_case.execute(request=request)
 
         assert str(exc_info.value) == f"DummyEntity with id={invalid_id} not found"

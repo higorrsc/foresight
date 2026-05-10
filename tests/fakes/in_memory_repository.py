@@ -33,7 +33,7 @@ class UserInMemoryRepository(
     this implements get_by_username method.
     """
 
-    def get_by_username(
+    async def get_by_username(
         self,
         username: str,
         tenant_id: UUID | None,
@@ -48,7 +48,7 @@ class UserInMemoryRepository(
 
         return None
 
-    def get_by_username_global(self, username: str) -> User | None:
+    async def get_by_username_global(self, username: str) -> User | None:
         """
         Method to get a user by its username globally.
         """
@@ -59,7 +59,7 @@ class UserInMemoryRepository(
 
         return None
 
-    def get_by_email(self, email: str, tenant_id: UUID | None) -> User | None:
+    async def get_by_email(self, email: str, tenant_id: UUID | None) -> User | None:
         """
         Method to get a user by its email.
         """
@@ -70,7 +70,7 @@ class UserInMemoryRepository(
 
         return None
 
-    def count_users_by_role(self, role_id: UUID) -> int:
+    async def count_users_by_role(self, role_id: UUID) -> int:
         """
         Count the number of users associated with a role.
         """
@@ -93,7 +93,7 @@ class RoleInMemoryRepository(
     this implements get_by_name method.
     """
 
-    def get_by_name(
+    async def get_by_name(
         self,
         name: str,
         tenant_id: UUID | None,
@@ -118,14 +118,14 @@ class PermissionInMemoryRepository(
     this implements get_by_codename method.
     """
 
-    def list_all(self) -> list[Permission]:
+    async def list_all(self) -> list[Permission]:
         """
         Method to list all permissions.
         """
 
         return self._entities
 
-    def get_by_codename(self, codename: str) -> Permission | None:
+    async def get_by_codename(self, codename: str) -> Permission | None:
         """
         Method to get a permission by its codename.
         """
@@ -146,7 +146,7 @@ class PlanInMemoryRepository(
     this implements get_by_name method.
     """
 
-    def get_by_name(self, name: str) -> Plan | None:
+    async def get_by_name(self, name: str) -> Plan | None:
         """
         Method to get a plan by its name.
         """
@@ -166,7 +166,7 @@ class TenantInMemoryRepository(
     this implements get_by_name method.
     """
 
-    def get_by_name(self, name: str) -> Tenant | None:
+    async def get_by_name(self, name: str) -> Tenant | None:
         """
         Method to get a tenant by its name.
         """
@@ -177,7 +177,7 @@ class TenantInMemoryRepository(
 
         return None
 
-    def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
+    async def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
         """
         Finds a tenant by its unique id.
         """
@@ -224,7 +224,7 @@ class OrganizationalUnitInMemoryRepository(
     In Memory Repository specific to test OrganizationalUnit entity
     """
 
-    def get_by_parent_id(
+    async def get_by_parent_id(
         self,
         parent_id: UUID,
         tenant_id: UUID,

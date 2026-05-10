@@ -52,7 +52,7 @@ class CreateUserUseCase:
         self._user_repository = user_repository
         self._role_repository = role_repository
 
-    def execute(self, input_dto: CreateUserInputDTO) -> CreateUserOutputDTO:
+    async def execute(self, input_dto: CreateUserInputDTO) -> CreateUserOutputDTO:
         """
         Executes the use case to create a new user.
         """
@@ -60,7 +60,8 @@ class CreateUserUseCase:
         if AppPermission.USER_CREATE not in input_dto.actor.permissions:
             raise PermissionError("User does not have permission to create new users.")
 
-        if self._user_repository.get_by_username_global(input_dto.username):
+        user = await self._user_repository.get_by_username_global(input_dto.username)
+        if user:
             raise UsernameAlreadyExistsError(
                 f"Username '{input_dto.username}' already exists."
             )
@@ -68,7 +69,7 @@ class CreateUserUseCase:
         # 3. Validate and fetch Roles (WITHIN the actor's tenant)
         role_names_set = set(input_dto.roles)
         if not role_names_set:
-            guest_role = self._role_repository.get_by_name(
+            guest_role = await self._role_repository.get_by_name(
                 "guest",
                 input_dto.actor.tenant_id,
             )
@@ -77,7 +78,7 @@ class CreateUserUseCase:
             role_names_set = {guest_role.name}
         else:
             for role_name in role_names_set:
-                if not self._role_repository.get_by_name(
+                if not await self._role_repository.get_by_name(
                     role_name,
                     input_dto.actor.tenant_id,
                 ):
@@ -97,7 +98,7 @@ class CreateUserUseCase:
             updated_by=input_dto.actor.id,
         )
 
-        self._user_repository.save(new_user)
+        await self._user_repository.save(new_user)
 
         return CreateUserOutputDTO(
             id=new_user.id,

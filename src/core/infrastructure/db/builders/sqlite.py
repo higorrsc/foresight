@@ -10,4 +10,4 @@ def build_sqlite_url(config: DatabaseConfig) -> str:
     Build SQLite URL from environment variables.
     """
 
-    return f"sqlite+pysqlite:///{config.database}"
+    return f"sqlite+aiosqlite:///{config.database}"

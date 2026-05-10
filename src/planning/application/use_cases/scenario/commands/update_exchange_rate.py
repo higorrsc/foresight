@@ -43,7 +43,7 @@ class UpdateExchangeRateUseCase:
         self._scenario_repository = scenario_repository
         self._exchange_rate_repository = exchange_rate_repository
 
-    def execute(self, input_dto: UpdateExchangeRateInputDTO) -> None:
+    async def execute(self, input_dto: UpdateExchangeRateInputDTO) -> None:
         """
         Execute the use case to update an exchange rate.
         """
@@ -54,7 +54,7 @@ class UpdateExchangeRateUseCase:
             )
 
         # We need to check if the scenario is locked
-        exchange_rate = self._exchange_rate_repository.get_by_id(
+        exchange_rate = await self._exchange_rate_repository.get_by_id(
             input_dto.id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -64,7 +64,7 @@ class UpdateExchangeRateUseCase:
                 f"Exchange rate with id={input_dto.id} not found."
             )
 
-        scenario = self._scenario_repository.get_by_id(
+        scenario = await self._scenario_repository.get_by_id(
             exchange_rate.scenario_id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -82,4 +82,4 @@ class UpdateExchangeRateUseCase:
         exchange_rate.rate = input_dto.rate
         exchange_rate.validate()
 
-        self._exchange_rate_repository.update(exchange_rate)
+        await self._exchange_rate_repository.update(exchange_rate)

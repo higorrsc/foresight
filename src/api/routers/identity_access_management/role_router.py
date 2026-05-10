@@ -127,7 +127,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_role_create_or_update)],
 )
-def create_role_endpoint(
+async def create_role_endpoint(
     request_body: RoleCreateBody,
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     permission_repo: Annotated[
@@ -152,7 +152,7 @@ def create_role_endpoint(
             permissions=request_body.permissions,  # type: ignore
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
         return {"id": result.id}
     except (InvalidRoleError, RoleAlreadyExistsError) as e:
         status_code = (
@@ -182,7 +182,7 @@ def create_role_endpoint(
     response_model=PaginatedRoleResponse,
     dependencies=[Depends(require_role_read)],
 )
-def list_roles_endpoint(
+async def list_roles_endpoint(
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
     name: str | None = Query(None, description="Filter by part of the name"),
@@ -209,7 +209,7 @@ def list_roles_endpoint(
     use_case = ListRoleUseCase(repo)
 
     # Use Case returns PaginatedResponseDTO, compatible with PaginatedRoleResponse
-    result = use_case.execute(input_dto)
+    result = await use_case.execute(input_dto)
     return result
 
 
@@ -219,7 +219,7 @@ def list_roles_endpoint(
     response_model=RoleDetailResponse,
     dependencies=[Depends(require_role_read)],
 )
-def get_role_by_id_endpoint(
+async def get_role_by_id_endpoint(
     role_id: UUID,
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -230,7 +230,7 @@ def get_role_by_id_endpoint(
     try:
         use_case = GetRoleByIdUseCase(repo)
         input_dto = GetByIdRequestInputDTO(id=role_id, actor=actor)
-        role = use_case.execute(input_dto)
+        role = await use_case.execute(input_dto)
         return role
     except RoleNotFoundError as e:
         raise HTTPException(
@@ -244,7 +244,7 @@ def get_role_by_id_endpoint(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(require_role_create_or_update)],
 )
-def update_role_endpoint(
+async def update_role_endpoint(
     role_id: UUID,
     request_body: RoleCreateBody,
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
@@ -264,7 +264,7 @@ def update_role_endpoint(
             description=request_body.description,
         )
 
-        output_dto = use_case.execute(input_dto)
+        output_dto = await use_case.execute(input_dto)
         return {"id": output_dto.id, "name": output_dto.name}
     except (RoleNotFoundError, RoleAlreadyExistsError, InvalidRoleError) as e:
         if isinstance(e, RoleNotFoundError):
@@ -284,7 +284,7 @@ def update_role_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_role_delete)],
 )
-def delete_role_endpoint(
+async def delete_role_endpoint(
     role_id: UUID,
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
@@ -298,7 +298,7 @@ def delete_role_endpoint(
             role_repo,
             user_repo,
         )
-        use_case.execute(DeleteRequestInputDTO(id=role_id, actor=actor))
+        await use_case.execute(DeleteRequestInputDTO(id=role_id, actor=actor))
     except (RoleNotFoundError, RoleDeletionIntegrityError) as e:
         status_code = (
             status.HTTP_404_NOT_FOUND
@@ -326,7 +326,7 @@ def delete_role_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_role_set_permissions)],
 )
-def set_role_permissions_endpoint(
+async def set_role_permissions_endpoint(
     role_id: UUID,
     request_body: SetRolePermissionsBody,
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
@@ -349,7 +349,7 @@ def set_role_permissions_endpoint(
             role_id_to_update=role_id,
             permissions_codes=request_body.permission_codes,
         )
-        use_case.execute(input_dto)
+        await use_case.execute(input_dto)
     except (RoleNotFoundError, PermissionNotFoundError) as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -372,7 +372,7 @@ def set_role_permissions_endpoint(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_role_delete)],
 )
-def restore_user_endpoint(
+async def restore_user_endpoint(
     role_id: UUID,
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
@@ -383,7 +383,7 @@ def restore_user_endpoint(
 
     try:
         use_case = RestoreRoleUseCase(repo)
-        use_case.execute(RestoreRequestInputDTO(id=role_id, actor=actor))
+        await use_case.execute(RestoreRequestInputDTO(id=role_id, actor=actor))
     except RoleNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

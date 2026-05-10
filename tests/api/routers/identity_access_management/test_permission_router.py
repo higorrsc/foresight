@@ -1,5 +1,5 @@
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 
 class TestPermissionRouter:
@@ -7,11 +7,15 @@ class TestPermissionRouter:
     Tests for the Permission Router.
     """
 
-    def test_list_permissions_authenticated(self, client: TestClient, admin_token: str):
+    async def test_list_permissions_authenticated(
+        self,
+        client: AsyncClient,
+        admin_token: str,
+    ):
         """
         Authenticated user (admin) should be able to list permissions.
         """
-        response = client.get(
+        response = await client.get(
             "/permissions/",
             headers={"Authorization": f"Bearer {admin_token}"},
         )
@@ -24,9 +28,9 @@ class TestPermissionRouter:
         data = json_response["data"]
         assert isinstance(data, list)
 
-    def test_list_permissions_unauthorized(self, client: TestClient):
+    async def test_list_permissions_unauthorized(self, client: AsyncClient):
         """
         Unauthenticated request should fail.
         """
-        response = client.get("/permissions/")
+        response = await client.get("/permissions/")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

@@ -19,7 +19,7 @@ class TestGetScenarioByIdUseCase:
     Test suite for the GetScenarioByIdUseCase.
     """
 
-    def test_get_scenario_by_id_success(self, admin_actor: User):
+    async def test_get_scenario_by_id_success(self, admin_actor: User):
         """
         Test successful retrieval of a financial scenario by its ID.
         """
@@ -30,17 +30,17 @@ class TestGetScenarioByIdUseCase:
             tenant_id=admin_actor.tenant_id,
             assumptions=None,
         )
-        repository.save(scenario)
+        await repository.save(scenario)
 
         use_case = GetScenarioByIdUseCase(repository)
         input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=scenario.id)
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
 
         assert result.id == scenario.id
         assert result.description == "Found me"
 
-    def test_get_scenario_by_id_not_found(self, admin_actor: User):
+    async def test_get_scenario_by_id_not_found(self, admin_actor: User):
         """
         Test that retrieving a non-existent financial scenario raises an error.
         """
@@ -49,4 +49,4 @@ class TestGetScenarioByIdUseCase:
         input_dto = GetByIdRequestInputDTO(actor=admin_actor, id=uuid4())
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

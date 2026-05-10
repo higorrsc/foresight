@@ -6,7 +6,7 @@ class TestRoleRepository:
     Test suite for RoleRepository.
     """
 
-    def test_save_and_get_by_id(
+    async def test_save_and_get_by_id(
         self,
         role_sqlalchemy_repo,
         default_tenant_id,
@@ -20,19 +20,19 @@ class TestRoleRepository:
             description="Administrator role",
             tenant_id=default_tenant_id,
         )
-        saved_role = role_sqlalchemy_repo.save(role)
+        saved_role = await role_sqlalchemy_repo.save(role)
 
         assert saved_role is not None
         assert saved_role.id == role.id
 
-        found_role = role_sqlalchemy_repo.get_by_id(
+        found_role = await role_sqlalchemy_repo.get_by_id(
             entity_id=saved_role.id,
             tenant_id=default_tenant_id,
         )
         assert found_role is not None
         assert found_role.name == "admin2"
 
-    def test_get_by_name_found(
+    async def test_get_by_name_found(
         self,
         role_sqlalchemy_repo,
         default_tenant_id,
@@ -46,9 +46,9 @@ class TestRoleRepository:
             description="Viewer role",
             tenant_id=default_tenant_id,
         )
-        role_sqlalchemy_repo.save(role)
+        await role_sqlalchemy_repo.save(role)
 
-        found_role = role_sqlalchemy_repo.get_by_name(
+        found_role = await role_sqlalchemy_repo.get_by_name(
             name="viewer",
             tenant_id=default_tenant_id,
         )
@@ -57,7 +57,7 @@ class TestRoleRepository:
         assert found_role.id == role.id
         assert found_role.name == "viewer"
 
-    def test_get_by_name_not_found(
+    async def test_get_by_name_not_found(
         self,
         role_sqlalchemy_repo,
         default_tenant_id,
@@ -66,7 +66,7 @@ class TestRoleRepository:
         Test retrieving a role by name when it does not exist.
         """
 
-        found_role = role_sqlalchemy_repo.get_by_name(
+        found_role = await role_sqlalchemy_repo.get_by_name(
             name="non_existent_role",
             tenant_id=default_tenant_id,
         )

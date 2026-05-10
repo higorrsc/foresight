@@ -22,7 +22,7 @@ class TestAddExchangeRateToScenarioUseCase:
     Test suite for the AddExchangeRateToScenarioUseCase.
     """
 
-    def test_add_exchange_rate_success(self, admin_actor: User):
+    async def test_add_exchange_rate_success(self, admin_actor: User):
         """
         Test successful addition of an exchange rate to a scenario.
         """
@@ -36,7 +36,7 @@ class TestAddExchangeRateToScenarioUseCase:
             assumptions="Some assumptions",
             tenant_id=admin_actor.tenant_id,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         input_dto = AddExchangeRateInputDTO(
             actor=admin_actor,
@@ -46,15 +46,17 @@ class TestAddExchangeRateToScenarioUseCase:
             rate=Decimal("5.25"),
         )
 
-        result = use_case.execute(input_dto)
+        result = await use_case.execute(input_dto)
 
         assert result.id is not None
-        saved_rate = exchange_rate_repo.get_by_id(result.id, admin_actor.tenant_id)
+        saved_rate = await exchange_rate_repo.get_by_id(
+            result.id, admin_actor.tenant_id
+        )
         assert saved_rate.scenario_id == scenario.id  # type: ignore
         assert str(saved_rate.from_currency) == "USD"  # type: ignore
         assert saved_rate.rate == Decimal("5.25")  # type: ignore
 
-    def test_add_exchange_rate_scenario_not_found(self, admin_actor: User):
+    async def test_add_exchange_rate_scenario_not_found(self, admin_actor: User):
         """
         Test error when scenario is not found.
         """
@@ -71,9 +73,9 @@ class TestAddExchangeRateToScenarioUseCase:
         )
 
         with pytest.raises(ScenarioNotFoundError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_add_exchange_rate_scenario_locked(self, admin_actor: User):
+    async def test_add_exchange_rate_scenario_locked(self, admin_actor: User):
         """
         Test error when scenario is locked.
         """
@@ -88,7 +90,7 @@ class TestAddExchangeRateToScenarioUseCase:
             tenant_id=admin_actor.tenant_id,
             is_locked=True,
         )
-        scenario_repo.save(scenario)
+        await scenario_repo.save(scenario)
 
         input_dto = AddExchangeRateInputDTO(
             actor=admin_actor,
@@ -99,9 +101,9 @@ class TestAddExchangeRateToScenarioUseCase:
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)
 
-    def test_add_exchange_rate_insufficient_permission(self, guest_actor: User):
+    async def test_add_exchange_rate_insufficient_permission(self, guest_actor: User):
         """
         Test error when user has insufficient permission.
         """
@@ -118,4 +120,4 @@ class TestAddExchangeRateToScenarioUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            use_case.execute(input_dto)
+            await use_case.execute(input_dto)

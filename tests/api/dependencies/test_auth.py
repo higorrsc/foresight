@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -13,7 +13,7 @@ class TestAuthDependencies:
     Test suite for authentication dependencies.
     """
 
-    def test_get_auth_provider_local(self, auth_dependency_mock_session):
+    async def test_get_auth_provider_local(self, auth_dependency_mock_session):
         """
         Test retrieval of the local authentication provider.
         """
@@ -28,7 +28,7 @@ class TestAuthDependencies:
         Test successful retrieval of the current user.
         """
         token = "valid_token"
-        user = Mock(spec=User)
+        user = AsyncMock(spec=User)
         auth_dependency_mock_provider.get_user_from_token.return_value = user
 
         result = await get_current_user(auth_dependency_mock_provider, token)

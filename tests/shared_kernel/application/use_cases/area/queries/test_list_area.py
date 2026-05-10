@@ -8,7 +8,12 @@ class TestListArea:
     Test the ListArea use case.
     """
 
-    def test_list_areas(self, admin_actor, area_in_memory_repo, list_area_use_case):
+    async def test_list_areas(
+        self,
+        admin_actor,
+        area_in_memory_repo,
+        list_area_use_case,
+    ):
         """
         Test listing areas.
         """
@@ -22,10 +27,10 @@ class TestListArea:
             tenant_id=admin_actor.tenant_id,
         )
 
-        area_in_memory_repo.save(area1)
-        area_in_memory_repo.save(area2)
+        await area_in_memory_repo.save(area1)
+        await area_in_memory_repo.save(area2)
 
-        areas: PaginatedResponseDTO[Area] = list_area_use_case.execute(
+        areas: PaginatedResponseDTO[Area] = await list_area_use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 
@@ -35,12 +40,12 @@ class TestListArea:
         assert areas.data[1].id is not None
         assert areas.data[1].description == "Area 2"
 
-    def test_empty_list_area(self, admin_actor, list_area_use_case):
+    async def test_empty_list_area(self, admin_actor, list_area_use_case):
         """
         Test listing areas when there are no areas.
         """
 
-        areas: PaginatedResponseDTO[Area] = list_area_use_case.execute(
+        areas: PaginatedResponseDTO[Area] = await list_area_use_case.execute(
             ListRequestInputDTO(actor=admin_actor)
         )
 

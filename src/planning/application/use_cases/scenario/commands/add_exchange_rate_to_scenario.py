@@ -55,7 +55,9 @@ class AddExchangeRateToScenarioUseCase:
         self._scenario_repository = scenario_repository
         self._exchange_rate_repository = exchange_rate_repository
 
-    def execute(self, input_dto: AddExchangeRateInputDTO) -> AddExchangeRateOutputDTO:
+    async def execute(
+        self, input_dto: AddExchangeRateInputDTO
+    ) -> AddExchangeRateOutputDTO:
         """
         Execute the use case to add an exchange rate to a scenario.
         """
@@ -65,7 +67,7 @@ class AddExchangeRateToScenarioUseCase:
                 "User does not have permission to update scenario."
             )
 
-        scenario = self._scenario_repository.get_by_id(
+        scenario = await self._scenario_repository.get_by_id(
             input_dto.scenario_id,
             tenant_id=input_dto.actor.tenant_id,
         )
@@ -87,6 +89,6 @@ class AddExchangeRateToScenarioUseCase:
             rate=input_dto.rate,
         )
 
-        self._exchange_rate_repository.save(exchange_rate)
+        await self._exchange_rate_repository.save(exchange_rate)
 
         return AddExchangeRateOutputDTO(id=exchange_rate.id)

@@ -16,7 +16,7 @@ class TestRestoreOrganizationalUnitUseCase:
     Test suite for the RestoreOrganizationalUnitUseCase.
     """
 
-    def test_restore_organizational_unit_success(
+    async def test_restore_organizational_unit_success(
         self,
         restore_organizational_unit_use_case,
         organizational_unit_in_memory_repo,
@@ -25,6 +25,7 @@ class TestRestoreOrganizationalUnitUseCase:
         """
         Test successful restoration of a soft-deleted organizational unit.
         """
+
         admin_actor.permissions.add(AppPermission.ORGANIZATIONAL_UNIT_DELETE)
 
         entity_id = uuid4()
@@ -37,7 +38,7 @@ class TestRestoreOrganizationalUnitUseCase:
             updated_by=admin_actor.id,
         )
         entity.soft_delete()
-        organizational_unit_in_memory_repo.save(entity)
+        await organizational_unit_in_memory_repo.save(entity)
 
         assert entity.deleted_at is not None
 
@@ -46,16 +47,16 @@ class TestRestoreOrganizationalUnitUseCase:
             id=entity_id,
         )
 
-        restore_organizational_unit_use_case.execute(input_dto)
+        await restore_organizational_unit_use_case.execute(input_dto)
 
-        saved_entity = organizational_unit_in_memory_repo.get_by_id(
+        saved_entity = await organizational_unit_in_memory_repo.get_by_id(
             entity_id, admin_actor.tenant_id
         )
         assert saved_entity is not None
         assert saved_entity.deleted_at is None
         assert saved_entity.updated_by == admin_actor.id
 
-    def test_restore_organizational_unit_insufficient_permission(
+    async def test_restore_organizational_unit_insufficient_permission(
         self,
         restore_organizational_unit_use_case,
         organizational_unit_in_memory_repo,
@@ -64,7 +65,7 @@ class TestRestoreOrganizationalUnitUseCase:
         """
         Test that restoration fails when the actor has insufficient permissions.
         """
-        # Create an actor without the required permission
+
         from copy import deepcopy
 
         actor_no_perm = deepcopy(admin_actor)
@@ -77,14 +78,17 @@ class TestRestoreOrganizationalUnitUseCase:
         )
 
         with pytest.raises(InsufficientPermissionError):
-            restore_organizational_unit_use_case.execute(input_dto)
+            await restore_organizational_unit_use_case.execute(input_dto)
 
-    def test_restore_organizational_unit_not_found(
-        self, restore_organizational_unit_use_case, admin_actor
+    async def test_restore_organizational_unit_not_found(
+        self,
+        restore_organizational_unit_use_case,
+        admin_actor,
     ):
         """
         Test that restoration fails when the organizational unit is not found.
         """
+
         admin_actor.permissions.add(AppPermission.ORGANIZATIONAL_UNIT_DELETE)
 
         input_dto = RestoreRequestInputDTO(
@@ -93,4 +97,4 @@ class TestRestoreOrganizationalUnitUseCase:
         )
 
         with pytest.raises(OrganizationalUnitNotFoundError):
-            restore_organizational_unit_use_case.execute(input_dto)
+            await restore_organizational_unit_use_case.execute(input_dto)

@@ -45,7 +45,7 @@ class GenericListUseCase[T]:
         self._repository = repository
         self._required_permission = required_permission
 
-    def execute(self, input_dto: ListRequestInputDTO) -> PaginatedResponseDTO[T]:
+    async def execute(self, input_dto: ListRequestInputDTO) -> PaginatedResponseDTO[T]:
         """
         Execute the list use case.
 
@@ -57,7 +57,7 @@ class GenericListUseCase[T]:
                 "User does not have permission to list data."
             )
 
-        repo_result = self._repository.search(
+        repo_result = await self._repository.search(
             tenant_id=input_dto.actor.tenant_id,
             filters=input_dto.filters,
             sort_by=input_dto.sort_by,
