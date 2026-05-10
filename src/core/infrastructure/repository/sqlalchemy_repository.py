@@ -136,14 +136,10 @@ class SQLAlchemyRepository[T, M](AbstractRepository[T]):
 
         updated_model = self._mapper.to_model(entity)
 
-        mapper_info = inspect(self._model_cls)
-        for column in mapper_info.columns:  # type: ignore
-            col_name = column.name
-            if hasattr(updated_model, col_name):
-                setattr(existing_model, col_name, getattr(updated_model, col_name))
+        merged_model = await self._session.merge(updated_model)
 
         await self._session.flush()
-        return self._mapper.to_entity(existing_model)
+        return self._mapper.to_entity(merged_model)
 
     async def delete(
         self,
