@@ -1,8 +1,11 @@
+import asyncio
 import os
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from src.core.infrastructure.config import GUIDType, settings
@@ -32,21 +35,12 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-
 from src.identity_access_management.infrastructure.models import *  # noqa: E402, F403
 from src.planning.infrastructure.models import *  # noqa: E402, F403
 from src.shared_kernel.infrastructure.models import *  # noqa: E402, F403
 from src.tenant_management.infrastructure.models import *  # noqa: E402, F403
 
 target_metadata = Base.metadata
-
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def process_revision_directives(context, revision, directives):
@@ -95,34 +89,23 @@ def process_revision_directives(context, revision, directives):
 
 def render_item(type_, obj, autogen_context):
     """
-    Renderiza o tipo GUIDType customizado corretamente no ficheiro de migração,
-    adicionando o import necessário.
+    Renders the custom GUIDType correctly in the migration file,
+    by adding the necessary import.
     """
-    # Verifica se é o nosso tipo customizado
+
     if type_ == "type" and isinstance(obj, GUIDType):
-        # Adiciona o import no topo do ficheiro de migração gerado
         autogen_context.imports.add(
             "from src.core.infrastructure.config.custom_types import GUIDType"
         )
-        # Renderiza o tipo como "GUIDType()"
+
         return "GUIDType()"
 
-    # Deixa o Alembic lidar com todos os outros tipos
     return False
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
+    """Run migrations in 'offline' mode."""
 
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -138,30 +121,40 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+def do_run_migrations(connection: Connection) -> None:
+    """Run actual sync migrations using the async connection."""
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        process_revision_directives=process_revision_directives,
+        render_as_batch=True,
+        render_item=render_item,
+    )
 
-    """
-    connectable = engine_from_config(
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """Creates the asynchronous engine and executes the migrations."""
+
+    connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            process_revision_directives=process_revision_directives,
-            render_as_batch=True,
-            render_item=render_item,
-        )
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
 
-        with context.begin_transaction():
-            context.run_migrations()
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():
