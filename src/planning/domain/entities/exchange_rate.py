@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 from uuid import UUID
 
@@ -17,6 +18,7 @@ class ExchangeRate(AbstractEntity):
     from_currency: CurrencyCode
     to_currency: CurrencyCode
     rate: Decimal
+    effective_date: date
 
     def __post_init__(self) -> None:
         self.validate()

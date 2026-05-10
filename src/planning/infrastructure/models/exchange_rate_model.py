@@ -1,6 +1,7 @@
 from sqlalchemy import (
     CheckConstraint,
     Column,
+    Date,
     ForeignKey,
     Numeric,
     String,
@@ -36,6 +37,11 @@ class ExchangeRateModel(SQLAlchemyBase):
 
     rate = Column(
         Numeric(19, 7),
+        nullable=False,
+    )
+
+    effective_date = Column(
+        Date,
         nullable=False,
     )
 

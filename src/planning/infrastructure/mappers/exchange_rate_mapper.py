@@ -22,6 +22,7 @@ class ExchangeRateMapper(AbstractMapper[ExchangeRate, ExchangeRateModel]):
             from_currency=str(entity.from_currency),
             to_currency=str(entity.to_currency),
             rate=entity.rate,
+            effective_date=entity.effective_date,
         )
 
     def to_entity(self, model: ExchangeRateModel) -> ExchangeRate:
@@ -35,4 +36,5 @@ class ExchangeRateMapper(AbstractMapper[ExchangeRate, ExchangeRateModel]):
             from_currency=CurrencyCode(value=model.from_currency),  # type: ignore
             to_currency=CurrencyCode(value=model.to_currency),  # type: ignore
             rate=Decimal(str(model.rate)),  # type: ignore
+            effective_date=model.effective_date,  # type: ignore
         )
