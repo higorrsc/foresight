@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 
 from src.core.domain.entities import DescribedEntity
@@ -26,7 +26,25 @@ class Scenario(DescribedEntity, SoftDeletableMixin, UserAuditMixin):
     scenario_type: ScenarioType
     is_locked: bool = False
     assumptions: str | None
-    exchange_rates: list[ExchangeRate] | None = None
+    exchange_rates: list[ExchangeRate] = field(default_factory=list)
+
+    def add_exchange_rate(self, rate: "ExchangeRate") -> None:
+        """
+        Add new exchange rate to scenario.
+        """
+
+        for existing in self.exchange_rates:
+            if (
+                existing.from_currency == rate.from_currency
+                and existing.to_currency == rate.to_currency
+                and existing.effective_date == rate.effective_date
+            ):
+                raise ValueError(
+                    f"Já existe uma taxa de {rate.from_currency} "
+                    f"para {rate.to_currency} na data {rate.effective_date}."
+                )
+
+        self.exchange_rates.append(rate)
 
     def lock(self) -> None:
         """

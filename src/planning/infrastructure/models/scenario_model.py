@@ -46,4 +46,5 @@ class ScenarioModel(
         "ExchangeRateModel",
         back_populates="scenario",
         cascade="all, delete-orphan",
+        lazy="selectin",
     )

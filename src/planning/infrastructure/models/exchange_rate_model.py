@@ -55,6 +55,7 @@ class ExchangeRateModel(SQLAlchemyBase):
             "scenario_id",
             "from_currency",
             "to_currency",
+            "effective_date",
             name="uq_scenario_exchange_rate",
         ),
         CheckConstraint(
