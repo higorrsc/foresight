@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from src.finance.domain.value_objects import CurrencyCode
 from src.identity_access_management.domain.constants import AppPermission
@@ -13,12 +13,21 @@ from src.planning.domain.exceptions import (
     ScenarioNotFoundError,
 )
 from src.planning.domain.repositories import (
-    IExchangeRateRepository,
     IScenarioRepository,
 )
 
 if TYPE_CHECKING:
     from src.identity_access_management.domain.entities import User
+
+
+@dataclass
+class ExchangeRateEntryDTO:
+    """
+    Data Transfer Object for an exchange rate entry.
+    """
+
+    effective_date: date
+    rate: Decimal
 
 
 @dataclass(frozen=True)
@@ -31,8 +40,7 @@ class AddExchangeRateInputDTO:
     scenario_id: UUID
     from_currency: str
     to_currency: str
-    rate: Decimal
-    effective_date: date
+    exchange: list[ExchangeRateEntryDTO]
 
 
 @dataclass(frozen=True)
@@ -41,7 +49,8 @@ class AddExchangeRateOutputDTO:
     Data Transfer Object for the output of adding an exchange rate.
     """
 
-    id: UUID
+    scenario_id: UUID
+    inserted_count: int
 
 
 class AddExchangeRateToScenarioUseCase:
@@ -52,13 +61,12 @@ class AddExchangeRateToScenarioUseCase:
     def __init__(
         self,
         scenario_repository: IScenarioRepository,
-        exchange_rate_repository: IExchangeRateRepository,
     ) -> None:
         self._scenario_repository = scenario_repository
-        self._exchange_rate_repository = exchange_rate_repository
 
     async def execute(
-        self, input_dto: AddExchangeRateInputDTO
+        self,
+        input_dto: AddExchangeRateInputDTO,
     ) -> AddExchangeRateOutputDTO:
         """
         Execute the use case to add an exchange rate to a scenario.
@@ -84,14 +92,24 @@ class AddExchangeRateToScenarioUseCase:
                 f"Scenario with id={input_dto.scenario_id} is locked."
             )
 
-        exchange_rate = ExchangeRate(
-            scenario_id=input_dto.scenario_id,
-            from_currency=CurrencyCode(value=input_dto.from_currency),
-            to_currency=CurrencyCode(value=input_dto.to_currency),
-            rate=input_dto.rate,
-            effective_date=input_dto.effective_date,
+        from_curr = CurrencyCode(value=input_dto.from_currency)
+        to_curr = CurrencyCode(value=input_dto.to_currency)
+
+        for entry in input_dto.exchange:
+            rate_entity = ExchangeRate(
+                id=uuid4(),
+                scenario_id=input_dto.scenario_id,
+                from_currency=from_curr,
+                to_currency=to_curr,
+                effective_date=entry.effective_date,
+                rate=entry.rate,
+            )
+
+            scenario.add_exchange_rate(rate_entity)
+
+        await self._scenario_repository.update(scenario)
+
+        return AddExchangeRateOutputDTO(
+            scenario_id=scenario.id,
+            inserted_count=len(input_dto.exchange),
         )
-
-        await self._exchange_rate_repository.save(exchange_rate)
-
-        return AddExchangeRateOutputDTO(id=exchange_rate.id)

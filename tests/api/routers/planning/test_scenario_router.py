@@ -309,19 +309,24 @@ class TestScenarioRouter:
         db_session_for_test.add(scenario)
         await db_session_for_test.commit()
 
+        data = {
+            "from_currency": "USD",
+            "to_currency": "BRL",
+            "exchange": [
+                {"effective_date": "2026-05-10", "rate": 5.25},
+                {"effective_date": "2026-06-10", "rate": 5.30},
+            ],
+        }
+
         response = await client.post(
             f"/scenarios/{scenario.id}/exchange-rates",
             headers={"Authorization": f"Bearer {admin_token}"},
-            json={
-                "from_currency": "USD",
-                "to_currency": "BRL",
-                "rate": 5.25,
-                "effective_date": str(date.today()),
-            },
+            json=data,
         )
 
         assert response.status_code == 201
-        assert "id" in response.json()
+        assert "inserted_count" in response.json()
+        assert "message" in response.json()
 
     async def test_update_exchange_rate_api(
         self,

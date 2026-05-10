@@ -2,6 +2,7 @@ from .add_exchange_rate_to_scenario import (
     AddExchangeRateInputDTO,
     AddExchangeRateOutputDTO,
     AddExchangeRateToScenarioUseCase,
+    ExchangeRateEntryDTO,
 )
 from .create_scenario import (
     CreateScenarioInputDTO,
@@ -41,6 +42,7 @@ __all__ = [
     "CreateScenarioOutputDTO",
     "CreateScenarioUseCase",
     "DeleteScenarioUseCase",
+    "ExchangeRateEntryDTO",
     "ExchangeRateInputDTO",
     "LockScenarioInputDTO",
     "LockScenarioUseCase",

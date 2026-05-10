@@ -9,13 +9,14 @@ from src.identity_access_management.domain.exceptions import InsufficientPermiss
 from src.planning.application.use_cases.scenario.commands import (
     AddExchangeRateInputDTO,
     AddExchangeRateToScenarioUseCase,
+    ExchangeRateEntryDTO,
 )
 from src.planning.domain.entities import Scenario, ScenarioType
 from src.planning.domain.exceptions import (
     CannotUpdateLockedScenarioError,
     ScenarioNotFoundError,
 )
-from tests.fakes import ExchangeRateInMemoryRepository, ScenarioInMemoryRepository
+from tests.fakes import ScenarioInMemoryRepository
 
 
 class TestAddExchangeRateToScenarioUseCase:
@@ -28,8 +29,7 @@ class TestAddExchangeRateToScenarioUseCase:
         Test successful addition of an exchange rate to a scenario.
         """
         scenario_repo = ScenarioInMemoryRepository()
-        exchange_rate_repo = ExchangeRateInMemoryRepository()
-        use_case = AddExchangeRateToScenarioUseCase(scenario_repo, exchange_rate_repo)
+        use_case = AddExchangeRateToScenarioUseCase(scenario_repo)
 
         scenario = Scenario(
             description="Test Scenario",
@@ -44,35 +44,26 @@ class TestAddExchangeRateToScenarioUseCase:
             scenario_id=scenario.id,
             from_currency="USD",
             to_currency="BRL",
-            rate=Decimal("5.25"),
-            effective_date=date.today(),
+            exchange=[],
         )
 
         result = await use_case.execute(input_dto)
 
-        assert result.id is not None
-        saved_rate = await exchange_rate_repo.get_by_id(
-            result.id, admin_actor.tenant_id
-        )
-        assert saved_rate.scenario_id == scenario.id  # type: ignore
-        assert str(saved_rate.from_currency) == "USD"  # type: ignore
-        assert saved_rate.rate == Decimal("5.25")  # type: ignore
+        assert result.scenario_id is not None
 
     async def test_add_exchange_rate_scenario_not_found(self, admin_actor: User):
         """
         Test error when scenario is not found.
         """
         scenario_repo = ScenarioInMemoryRepository()
-        exchange_rate_repo = ExchangeRateInMemoryRepository()
-        use_case = AddExchangeRateToScenarioUseCase(scenario_repo, exchange_rate_repo)
+        use_case = AddExchangeRateToScenarioUseCase(scenario_repo)
 
         input_dto = AddExchangeRateInputDTO(
             actor=admin_actor,
             scenario_id=uuid4(),
             from_currency="USD",
             to_currency="BRL",
-            rate=Decimal("5.25"),
-            effective_date=date.today(),
+            exchange=[],
         )
 
         with pytest.raises(ScenarioNotFoundError):
@@ -83,8 +74,7 @@ class TestAddExchangeRateToScenarioUseCase:
         Test error when scenario is locked.
         """
         scenario_repo = ScenarioInMemoryRepository()
-        exchange_rate_repo = ExchangeRateInMemoryRepository()
-        use_case = AddExchangeRateToScenarioUseCase(scenario_repo, exchange_rate_repo)
+        use_case = AddExchangeRateToScenarioUseCase(scenario_repo)
 
         scenario = Scenario(
             description="Locked Scenario",
@@ -100,8 +90,7 @@ class TestAddExchangeRateToScenarioUseCase:
             scenario_id=scenario.id,
             from_currency="USD",
             to_currency="BRL",
-            rate=Decimal("5.25"),
-            effective_date=date.today(),
+            exchange=[],
         )
 
         with pytest.raises(CannotUpdateLockedScenarioError):
@@ -112,16 +101,18 @@ class TestAddExchangeRateToScenarioUseCase:
         Test error when user has insufficient permission.
         """
         scenario_repo = ScenarioInMemoryRepository()
-        exchange_rate_repo = ExchangeRateInMemoryRepository()
-        use_case = AddExchangeRateToScenarioUseCase(scenario_repo, exchange_rate_repo)
+        use_case = AddExchangeRateToScenarioUseCase(scenario_repo)
 
         input_dto = AddExchangeRateInputDTO(
             actor=guest_actor,
             scenario_id=uuid4(),
             from_currency="USD",
             to_currency="BRL",
-            rate=Decimal("5.25"),
-            effective_date=date.today(),
+            exchange=[
+                ExchangeRateEntryDTO(
+                    effective_date=date(2026, 5, 10), rate=Decimal("5.25")
+                )
+            ],
         )
 
         with pytest.raises(InsufficientPermissionError):

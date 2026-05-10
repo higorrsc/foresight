@@ -13,8 +13,8 @@ from src.api.dependencies import (
     get_scenario_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
-from src.core.application.use_cases.commands.generic_delete import DeleteRequestInputDTO
-from src.core.application.use_cases.commands.generic_restore import (
+from src.core.application.use_cases.commands import (
+    DeleteRequestInputDTO,
     RestoreRequestInputDTO,
 )
 from src.core.application.use_cases.queries import (
@@ -28,6 +28,7 @@ from src.planning.application.use_cases.scenario.commands import (
     CreateScenarioInputDTO,
     CreateScenarioUseCase,
     DeleteScenarioUseCase,
+    ExchangeRateEntryDTO,
     LockScenarioInputDTO,
     LockScenarioUseCase,
     RemoveExchangeRateInputDTO,
@@ -144,6 +145,21 @@ class PaginatedScenarioResponse(PaginatedApiResponse[ScenarioResponse]):
 
 
 # --- Request Body Models ---
+class ExchangeRateEntrySchema(BaseModel):
+    """Individual rate item"""
+
+    effective_date: date
+    rate: Decimal = Field(..., gt=0)
+
+
+class ExchangeRateCreateBody(BaseModel):
+    """Request model for creating an exchange rate."""
+
+    from_currency: str = Field(..., min_length=3, max_length=3)
+    to_currency: str = Field(..., min_length=3, max_length=3)
+    exchange: list[ExchangeRateEntrySchema] = Field(..., min_length=1)
+
+
 class ScenarioCreateBody(BaseModel):
     """
     Request model for creating an financial scenario.
@@ -164,17 +180,6 @@ class ScenarioUpdateBody(BaseModel):
     scenario_type: ScenarioType = Field(...)
     is_locked: bool = False
     assumptions: str | None = Field(None, min_length=3, max_length=2000)
-
-
-class ExchangeRateCreateBody(BaseModel):
-    """
-    Request model for creating an exchange rate.
-    """
-
-    from_currency: str = Field(..., min_length=3, max_length=3)
-    to_currency: str = Field(..., min_length=3, max_length=3)
-    rate: Decimal = Field(..., gt=0)
-    effective_date: date
 
 
 class ExchangeRateUpdateBody(BaseModel):
@@ -484,9 +489,6 @@ async def add_exchange_rate_to_scenario(
     scenario_id: UUID,
     request_body: ExchangeRateCreateBody,
     scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    exchange_rate_repo: Annotated[
-        IExchangeRateRepository, Depends(get_exchange_rate_repository)
-    ],
     actor: Annotated[User, Depends(get_current_user)],
 ):
     """
@@ -494,17 +496,29 @@ async def add_exchange_rate_to_scenario(
     """
 
     try:
-        use_case = AddExchangeRateToScenarioUseCase(scenario_repo, exchange_rate_repo)
+        use_case = AddExchangeRateToScenarioUseCase(scenario_repo)
+
+        exchange_entries = [
+            ExchangeRateEntryDTO(
+                effective_date=entry.effective_date,
+                rate=entry.rate,
+            )
+            for entry in request_body.exchange
+        ]
+
         input_dto = AddExchangeRateInputDTO(
             actor=actor,
             scenario_id=scenario_id,
             from_currency=request_body.from_currency,
             to_currency=request_body.to_currency,
-            rate=request_body.rate,
-            effective_date=request_body.effective_date,
+            exchange=exchange_entries,
         )
         result = await use_case.execute(input_dto)
-        return {"id": result.id}
+        return {
+            "scenario_id": result.scenario_id,
+            "inserted_count": result.inserted_count,
+            "message": "Exchange rate added successfully",
+        }
     except ScenarioNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
