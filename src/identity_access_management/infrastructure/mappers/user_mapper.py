@@ -1,3 +1,5 @@
+from sqlalchemy import inspect
+
 from src.core.infrastructure.mappers import AbstractMapper, BaseMapper
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.infrastructure.models import UserModel
@@ -32,22 +34,29 @@ class UserMapper(AbstractMapper[User, UserModel]):
     @staticmethod
     def to_entity(model: UserModel) -> User:
         """
-        Converts a UserModel instance to a User entity.
+        Converts a UserModel instance to a User entity safely.
         """
 
-        role_names = (
-            {role.name for role in model.roles_rel} if model.roles_rel else set()
-        )
+        role_names = set()
         effective_permissions = set()
 
-        if model.permissions_rel:
+        insp = inspect(model)
+
+        if "roles_rel" not in insp.unloaded and model.roles_rel is not None:
+            for role in model.roles_rel:
+                role_names.add(role.name)
+
+                role_insp = inspect(role)
+                if (
+                    "permissions_rel" not in role_insp.unloaded
+                    and role.permissions_rel is not None
+                ):
+                    for permission in role.permissions_rel:
+                        effective_permissions.add(permission.codename)
+
+        if "permissions_rel" not in insp.unloaded and model.permissions_rel is not None:
             for permission in model.permissions_rel:
                 effective_permissions.add(permission.codename)
-
-        if model.roles_rel:
-            for role in model.roles_rel:
-                for permission in role.permissions_rel:
-                    effective_permissions.add(permission.codename)
 
         entity = User(
             id=model.id,  # type: ignore
@@ -57,8 +66,8 @@ class UserMapper(AbstractMapper[User, UserModel]):
             first_name=model.first_name,  # type: ignore
             last_name=model.last_name,  # type: ignore
             email=model.email if model.email else None,  # type: ignore
-            roles=role_names,  # type: ignore
-            permissions=effective_permissions,  # type: ignore
+            roles=role_names,
+            permissions=effective_permissions,
         )
 
         BaseMapper.map_auditing_fields_to_entity(model, entity)

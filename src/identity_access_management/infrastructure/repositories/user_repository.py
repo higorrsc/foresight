@@ -40,7 +40,10 @@ class UserRepository(
         """Overwrites the base query to always load permissions and roles."""
 
         return select(self._model_cls).options(
-            selectinload(self._model_cls.permissions_rel)
+            selectinload(self._model_cls.permissions_rel),
+            selectinload(self._model_cls.roles_rel).selectinload(
+                RoleModel.permissions_rel
+            ),
         )
 
     async def get_by_id(
