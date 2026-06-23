@@ -29,15 +29,16 @@ class ExchangeRate(AbstractEntity):
         """
 
         if self.from_currency == self.to_currency:
-            raise InvalidExchangeRateError(
-                "Exchange rate currencies must be different."
-            )
+            self.notification.add_error("Exchange rate currencies must be different.")
 
         if self.rate <= Decimal("0"):
-            raise InvalidExchangeRateError("Exchange rate must be greater than zero.")
+            self.notification.add_error("Exchange rate must be greater than zero.")
 
         if self.rate.is_nan():
-            raise InvalidExchangeRateError("Exchange rate cannot be NaN.")
+            self.notification.add_error("Exchange rate cannot be NaN.")
 
         if self.rate.is_infinite():
-            raise InvalidExchangeRateError("Exchange rate cannot be infinite.")
+            self.notification.add_error("Exchange rate cannot be infinite.")
+
+        if self.notification.has_errors:
+            raise InvalidExchangeRateError(self.notification.messages)
