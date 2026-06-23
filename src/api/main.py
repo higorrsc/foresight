@@ -15,7 +15,12 @@ from src.api.routers.shared_kernel import (
 )
 from src.api.routers.tenant_management import plan_router, tenant_router
 from src.core.infrastructure.config import AsyncSessionLocal
+from src.core.infrastructure.logging import get_logger, setup_logging
 from src.scripts import seed_initial_data
+
+# Initialize logging configuration
+setup_logging()
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -24,22 +29,22 @@ async def lifespan(app: FastAPI):  # pragma: no cover
     Application lifespan.
     """
 
-    print("Starting the application...")
+    logger.info("Starting the application...")
     async with AsyncSessionLocal() as db_session:
         try:
             # Se o seu script de seed for síncrono, terá de o adaptar ou
             # usar db_session.run_sync() se for estritamente necessário.
             # O ideal é tornar o seed_initial_data também assíncrono.
-            await seed_initial_data(db_session)
+            await seed_initial_data(db_session)  # type: ignore
             await db_session.commit()
         except Exception as e:
             await db_session.rollback()
-            print(f"Seeding error: {e}")
+            logger.error(f"Seeding error: {e}")
 
     yield  # A aplicação fica em execução aqui
 
     # Código a ser executado QUANDO a aplicação for encerrada
-    print("Shutting down application...")
+    logger.info("Shutting down application...")
 
 
 app = FastAPI(

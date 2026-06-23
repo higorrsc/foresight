@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from src.core.infrastructure.logging import get_logger
 from src.identity_access_management.domain.constants import AppPermission
 
 # Import domain entities only for hashing password
@@ -15,13 +16,15 @@ from src.identity_access_management.infrastructure.models import (
 )
 from src.tenant_management.infrastructure.models import PlanModel, TenantModel
 
+logger = get_logger(__name__)
+
 
 async def seed_initial_plan(db_session: AsyncSession) -> PlanModel:
     """
     Creates the default 'Standard' plan if it doesn't exist.
     Returns the PlanModel object.
     """
-    print("Checking for initial plan...")
+    logger.info("Checking for initial plan...")
     # Query using the Model
     stmt = select(PlanModel).where(PlanModel.name == "Standard")
 
@@ -32,7 +35,7 @@ async def seed_initial_plan(db_session: AsyncSession) -> PlanModel:
         plan = PlanModel(name="Standard", price=0.01)
         db_session.add(plan)
         await db_session.flush()
-        print("Plan 'Standard' created.")
+        logger.info("Plan 'Standard' created.")
 
     return plan
 
@@ -42,7 +45,7 @@ async def seed_initial_tenant(db_session: AsyncSession, plan_id: str) -> TenantM
     Creates a default 'System Tenant' if it doesn't exist.
     Returns the TenantModel object.
     """
-    print("Checking for initial tenant...")
+    logger.info("Checking for initial tenant...")
     # Query using the Model
     stmt = select(TenantModel).where(TenantModel.name == "System Tenant")
     result = await db_session.execute(stmt)
@@ -52,7 +55,7 @@ async def seed_initial_tenant(db_session: AsyncSession, plan_id: str) -> TenantM
         tenant = TenantModel(name="System Tenant", plan_id=plan_id)
         db_session.add(tenant)
         await db_session.flush()
-        print("Tenant 'System Tenant' created.")
+        logger.info("Tenant 'System Tenant' created.")
 
     return tenant
 
@@ -66,7 +69,7 @@ async def seed_initial_roles(
     Queries using RoleModel.
     Returns a dictionary of the RoleModel objects.
     """
-    print(f"Checking for initial roles for tenant {tenant_id}...")
+    logger.info(f"Checking for initial roles for tenant {tenant_id}...")
     roles = {}
 
     admin_stmt = (
@@ -103,7 +106,7 @@ async def seed_initial_roles(
         )
         db_session.add(admin_role_model)
         roles["admin"] = admin_role_model
-        print("Role 'admin' created.")
+        logger.info("Role 'admin' created.")
     else:
         roles["admin"] = admin_exists
 
@@ -116,12 +119,12 @@ async def seed_initial_roles(
         )
         db_session.add(guest_role_model)
         roles["guest"] = guest_role_model
-        print("Role 'guest' created.")
+        logger.info("Role 'guest' created.")
     else:
         roles["guest"] = guest_exists
 
     await db_session.flush()
-    print("Initial roles seeding completed.")
+    logger.info("Initial roles seeding completed.")
     return roles
 
 
@@ -135,7 +138,7 @@ async def seed_app_permissions(
     for queries. Assigns all permissions to the admin role.
     """
 
-    print("Checking for app permissions...")
+    logger.info("Checking for app permissions...")
 
     permissions = AppPermission.get_all_permissions()
     admin_role_permissions = {p.codename for p in admin_role.permissions_rel}
@@ -165,7 +168,7 @@ async def seed_app_permissions(
             # IMPORTANTE
             await db_session.flush()
 
-            print(f"Permission '{permission_codename}' created.")
+            logger.info(f"Permission '{permission_codename}' created.")
 
         # ADMIN
         if permission_codename not in admin_role_permissions:
@@ -174,7 +177,7 @@ async def seed_app_permissions(
             # atualiza cache local
             admin_role_permissions.add(permission_codename)
 
-            print(f"Permission '{permission_codename}' set for role 'admin'.")
+            logger.info(f"Permission '{permission_codename}' set for role 'admin'.")
 
         # GUEST
         if (
@@ -186,11 +189,11 @@ async def seed_app_permissions(
 
             guest_role_permissions.add(permission_codename)
 
-            print(f"Permission '{permission_codename}' set for role 'guest'.")
+            logger.info(f"Permission '{permission_codename}' set for role 'guest'.")
 
     await db_session.flush()
 
-    print("App permissions seeding completed.")
+    logger.info("App permissions seeding completed.")
 
 
 async def seed_initial_users(
@@ -202,7 +205,7 @@ async def seed_initial_users(
     Creates initial 'admin' and 'guest' users for the tenant if they don't exist.
     Associates roles by querying RoleModel.
     """
-    print(f"Checking for initial users for tenant {tenant_id}...")
+    logger.info(f"Checking for initial users for tenant {tenant_id}...")
 
     # --- CORREÇÃO AQUI: Query using UserModel ---
     admin_stmt = select(UserModel).where(
@@ -237,7 +240,7 @@ async def seed_initial_users(
             is_active=True,
         )
         db_session.add(admin_user_model)
-        print("User 'admin' created.")
+        logger.info("User 'admin' created.")
 
     if not guest_exists:
         data = users_to_create_data["guest"]
@@ -250,9 +253,9 @@ async def seed_initial_users(
             is_active=True,
         )
         db_session.add(guest_user_model)
-        print("User 'guest' created.")
+        logger.info("User 'guest' created.")
 
-    print("Initial users seeding completed.")
+    logger.info("Initial users seeding completed.")
 
 
 async def seed_initial_data(db_session: AsyncSession):
@@ -260,7 +263,7 @@ async def seed_initial_data(db_session: AsyncSession):
     Runs all seeding functions in the correct order to populate
     the database with initial data for a default tenant.
     """
-    print("Starting database seeding process...")
+    logger.info("Starting database seeding process...")
 
     default_plan = await seed_initial_plan(db_session)
     default_tenant = await seed_initial_tenant(db_session, default_plan.id)  # type: ignore
@@ -280,4 +283,4 @@ async def seed_initial_data(db_session: AsyncSession):
         roles,
     )  # type: ignore
 
-    print("Database seeding finished.")
+    logger.info("Database seeding finished.")

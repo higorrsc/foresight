@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     auth_provider: str = "local"
 
+    # =========================
+    # LOGGING
+    # =========================
+
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
