@@ -72,6 +72,8 @@
     "unbuffered",
     "UNIQUEIDENTIFIER",
     "uvicorn",
+    "venv",
+    "VENV",
     "wrongpassword",
     "zoneinfo"
   ],
