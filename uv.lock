@@ -561,6 +561,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aioodbc" },
+    { name = "aiosqlite" },
     { name = "alembic" },
     { name = "argon2-cffi" },
     { name = "asyncpg" },
@@ -579,7 +580,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "aiosqlite" },
     { name = "httpx" },
     { name = "ipykernel" },
     { name = "ipython" },
@@ -597,6 +597,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aioodbc", specifier = ">=0.5.0" },
+    { name = "aiosqlite", specifier = ">=0.22.1" },
     { name = "alembic", specifier = ">=1.16.5" },
     { name = "argon2-cffi", specifier = ">=25.1.0" },
     { name = "asyncpg", specifier = ">=0.31.0" },
@@ -615,7 +616,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "aiosqlite", specifier = ">=0.22.1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "ipykernel", specifier = ">=7.2.0" },
     { name = "ipython", specifier = ">=9.5.0" },
