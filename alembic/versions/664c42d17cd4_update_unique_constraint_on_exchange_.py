@@ -59,7 +59,12 @@ def upgrade() -> None:
         )
 
     with op.batch_alter_table("exchange_rates", schema=None) as batch_op:
-        batch_op.execute("DROP INDEX exchange_rates@uq_scenario_exchange_rate CASCADE")
+        if op.get_bind().dialect.name == "sqlite":
+            batch_op.drop_constraint("uq_scenario_exchange_rate", type_="unique")
+        else:
+            batch_op.execute(
+                "DROP INDEX exchange_rates@uq_scenario_exchange_rate CASCADE"
+            )
         batch_op.create_unique_constraint(
             "uq_scenario_exchange_rate",
             ["scenario_id", "from_currency", "to_currency", "effective_date"],
@@ -464,7 +469,12 @@ def downgrade() -> None:
         )
 
     with op.batch_alter_table("exchange_rates", schema=None) as batch_op:
-        batch_op.execute("DROP INDEX exchange_rates@uq_scenario_exchange_rate CASCADE")
+        if op.get_bind().dialect.name == "sqlite":
+            batch_op.drop_constraint("uq_scenario_exchange_rate", type_="unique")
+        else:
+            batch_op.execute(
+                "DROP INDEX exchange_rates@uq_scenario_exchange_rate CASCADE"
+            )
         batch_op.create_unique_constraint(
             batch_op.f("uq_scenario_exchange_rate"),
             ["scenario_id", "from_currency", "to_currency"],
