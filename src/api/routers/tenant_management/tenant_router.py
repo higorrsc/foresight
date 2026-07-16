@@ -14,6 +14,7 @@ from src.api.dependencies import (
     get_user_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
@@ -36,6 +37,7 @@ from src.tenant_management.application.use_cases.tenant.queries import (
     ListTenantsInputDTO,
     ListTenantsUseCase,
 )
+from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.exceptions import (
     TenantNotFoundError,
 )
@@ -136,11 +138,11 @@ async def signup_endpoint(
 
         result = await use_case.execute(input_dto)
 
-        return {
-            "tenant_id": result.tenant_id,
-            "user_id": result.user_id,
-            "message": "Tenant e Administrador criados com sucesso.",
-        }
+        return SignupResponse(
+            tenant_id=result.tenant_id,
+            user_id=result.user_id,
+            message="Tenant e Administrador criados com sucesso.",
+        )
 
     except UsernameAlreadyExistsError as e:
         raise HTTPException(
@@ -163,7 +165,7 @@ async def signup_endpoint(
 async def list_tenants_endpoint(
     repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> PaginatedTenantResponse:
+) -> PaginatedResponseDTO[Tenant]:
     """
     List all tenants (Super Admin only).
     """

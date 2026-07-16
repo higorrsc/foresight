@@ -13,6 +13,7 @@ from src.api.dependencies import (
     get_user_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands import DeleteRequestInputDTO
 from src.core.application.use_cases.commands.generic_restore import (
     RestoreRequestInputDTO,
@@ -35,7 +36,7 @@ from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
     ListRoleUseCase,
 )
-from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.entities import Role, User
 from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
     InvalidRoleError,
@@ -187,10 +188,14 @@ async def list_roles_endpoint(
     actor: Annotated[User, Depends(get_current_user)],
     name: Annotated[str | None, Query(description="Filter by part of the name")] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "name",
-    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    sort_order: Annotated[
+        str, Query(enum=["asc", "desc"], description="Sort order")
+    ] = "asc",
     offset: Annotated[int, Query(ge=0, description="Offset for pagination")] = 0,
-    limit: Annotated[int, Query(ge=1, le=100, description="Limit of records per page")] = 10,
-) -> PaginatedRoleResponse:
+    limit: Annotated[
+        int, Query(ge=1, le=100, description="Limit of records per page")
+    ] = 10,
+) -> PaginatedResponseDTO[Role]:
     """
     List roles with filters, order and pagination.
     """
@@ -223,7 +228,7 @@ async def get_role_by_id_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> RoleDetailResponse:
+) -> Role:
     """
     Get a role by its ID.
     """

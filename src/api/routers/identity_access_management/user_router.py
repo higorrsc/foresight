@@ -13,6 +13,7 @@ from src.api.dependencies import (
     get_user_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands import (
     DeleteRequestInputDTO,
     RestoreRequestInputDTO,
@@ -25,6 +26,7 @@ from src.identity_access_management.application.use_cases.user.commands import (
     ChangePasswordInputDTO,
     ChangePasswordUseCase,
     CreateUserInputDTO,
+    CreateUserOutputDTO,
     CreateUserUseCase,
     DeleteUserUseCase,
     RestoreUserUseCase,
@@ -165,7 +167,7 @@ async def create_user_endpoint(
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> UserSummaryResponse:
+) -> CreateUserOutputDTO:
     """
     Create a new user in the current tenant (Admin only).
     """
@@ -214,7 +216,9 @@ async def create_user_endpoint(
     response_model=UserDetailResponse,
     dependencies=[Depends(require_user_me)],
 )
-def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]) -> UserDetailResponse:
+def get_current_user_me(
+    actor: Annotated[User, Depends(get_current_user)],
+) -> User:
     """
     Get the details of the currently authenticated user.
     """
@@ -231,12 +235,18 @@ def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]) -> Us
 async def list_users_endpoint(
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    username: Annotated[str | None, Query(description="Filter by part of the username")] = None,
+    username: Annotated[
+        str | None, Query(description="Filter by part of the username")
+    ] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "username",
-    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    sort_order: Annotated[
+        str, Query(enum=["asc", "desc"], description="Sort order")
+    ] = "asc",
     offset: Annotated[int, Query(ge=0, description="Offset for pagination")] = 0,
-    limit: Annotated[int, Query(ge=1, le=100, description="Limit of records per page")] = 10,
-) -> PaginatedUserResponse:
+    limit: Annotated[
+        int, Query(ge=1, le=100, description="Limit of records per page")
+    ] = 10,
+) -> PaginatedResponseDTO[User]:
     """
     List users with filters, order and pagination.
     """
@@ -269,7 +279,7 @@ async def get_user_by_id_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> UserDetailResponse:
+) -> User:
     """
     Get a specific user by their ID.
     """

@@ -13,6 +13,7 @@ from src.api.dependencies import (
     get_scenario_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands import (
     DeleteRequestInputDTO,
     RestoreRequestInputDTO,
@@ -39,6 +40,7 @@ from src.planning.application.use_cases.scenario.commands import (
     UpdateExchangeRateInputDTO,
     UpdateExchangeRateUseCase,
     UpdateScenarioInputDTO,
+    UpdateScenarioOutputDTO,
     UpdateScenarioUseCase,
 )
 from src.planning.application.use_cases.scenario.queries import (
@@ -46,7 +48,7 @@ from src.planning.application.use_cases.scenario.queries import (
     GetScenarioDetailsUseCase,
     ListScenarioUseCase,
 )
-from src.planning.domain.entities.scenario import ScenarioType
+from src.planning.domain.entities.scenario import Scenario, ScenarioType
 from src.planning.domain.exceptions import (
     CannotUpdateLockedScenarioError,
     ExchangeRateNotFoundError,
@@ -243,12 +245,16 @@ async def create_financial_scenario(
 async def list_financial_scenarios(
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    description: Annotated[str | None, Query(description="Filter by description")] = None,
+    description: Annotated[
+        str | None, Query(description="Filter by description")
+    ] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "description",
-    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    sort_order: Annotated[
+        str, Query(enum=["asc", "desc"], description="Sort order")
+    ] = "asc",
     offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
     limit: Annotated[int, Query(ge=1, le=100, description="Limit")] = 10,
-) -> PaginatedScenarioResponse:
+) -> PaginatedResponseDTO[Scenario]:
     """
     List financial_scenarios with filters, order and pagination.
     """
@@ -281,7 +287,7 @@ async def get_scenario_by_id(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> ScenarioResponse:
+) -> Scenario:
     """
     Get an financial scenario by its ID.
     """
@@ -313,7 +319,7 @@ async def get_scenario_details(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> ScenarioDetailResponse:
+) -> Scenario:
     """
     Get detailed information about a financial scenario.
     """
@@ -341,7 +347,7 @@ async def update_financial_scenario(
     request_body: ScenarioUpdateBody,
     repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> ScenarioResponse:
+) -> UpdateScenarioOutputDTO:
     """
     Update an existing financial scenario.
     """

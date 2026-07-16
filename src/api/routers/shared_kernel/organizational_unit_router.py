@@ -11,6 +11,7 @@ from src.api.dependencies import (
     get_organizational_unit_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands.generic_delete import DeleteRequestInputDTO
 from src.core.application.use_cases.commands.generic_restore import (
     RestoreRequestInputDTO,
@@ -26,12 +27,14 @@ from src.shared_kernel.application.use_cases.organizational_unit.commands import
     DeleteOrganizationalUnitUseCase,
     RestoreOrganizationalUnitUseCase,
     UpdateOrganizationalUnitInputDTO,
+    UpdateOrganizationalUnitOutputDTO,
     UpdateOrganizationalUnitUseCase,
 )
 from src.shared_kernel.application.use_cases.organizational_unit.queries import (
     GetOrganizationalUnitByIdUseCase,
     ListOrganizationalUnitUseCase,
 )
+from src.shared_kernel.domain.entities import OrganizationalUnit
 from src.shared_kernel.domain.exceptions import (
     InvalidOrganizationalUnitError,
     OrganizationalUnitNotFoundError,
@@ -171,12 +174,16 @@ async def list_organizational_units_endpoint(
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],
     actor: Annotated[User, Depends(get_current_user)],
-    description: Annotated[str | None, Query(description="Filter by description")] = None,
+    description: Annotated[
+        str | None, Query(description="Filter by description")
+    ] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "description",
-    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    sort_order: Annotated[
+        str, Query(enum=["asc", "desc"], description="Sort order")
+    ] = "asc",
     offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
     limit: Annotated[int, Query(ge=1, le=100, description="Limit")] = 10,
-) -> PaginatedOrganizationalUnitResponse:
+) -> PaginatedResponseDTO[OrganizationalUnit]:
     """
     List organizational_units with filters, order and pagination.
     """
@@ -206,12 +213,14 @@ async def list_organizational_units_endpoint(
     dependencies=[Depends(require_organizational_unit_read)],
 )
 async def get_organizational_unit_by_id_endpoint(
-    organizational_unit_id: Annotated[UUID, Path(description="The organizational unit ID")],
+    organizational_unit_id: Annotated[
+        UUID, Path(description="The organizational unit ID")
+    ],
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],
     actor: Annotated[User, Depends(get_current_user)],
-) -> OrganizationalUnitDetailResponse:
+) -> OrganizationalUnit:
     """
     Get an organizational unit by its ID.
     """
@@ -240,13 +249,15 @@ async def get_organizational_unit_by_id_endpoint(
     dependencies=[Depends(require_organizational_unit_create_or_update)],
 )
 async def update_organizational_unit_endpoint(
-    organizational_unit_id: Annotated[UUID, Path(description="The organizational unit ID")],
+    organizational_unit_id: Annotated[
+        UUID, Path(description="The organizational unit ID")
+    ],
     request_body: OrganizationalUnitUpdateBody,
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],
     actor: Annotated[User, Depends(get_current_user)],
-) -> OrganizationalUnitResponse:
+) -> UpdateOrganizationalUnitOutputDTO:
     """
     Update an existing organizational_unit.
     """
@@ -283,7 +294,9 @@ async def update_organizational_unit_endpoint(
     dependencies=[Depends(require_organizational_unit_delete)],
 )
 async def delete_organizational_unit_endpoint(
-    organizational_unit_id: Annotated[UUID, Path(description="The organizational unit ID")],
+    organizational_unit_id: Annotated[
+        UUID, Path(description="The organizational unit ID")
+    ],
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],
@@ -311,7 +324,9 @@ async def delete_organizational_unit_endpoint(
     dependencies=[Depends(require_organizational_unit_delete)],
 )
 async def restore_organizational_unit_endpoint(
-    organizational_unit_id: Annotated[UUID, Path(description="The organizational unit ID")],
+    organizational_unit_id: Annotated[
+        UUID, Path(description="The organizational unit ID")
+    ],
     repo: Annotated[
         IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
     ],

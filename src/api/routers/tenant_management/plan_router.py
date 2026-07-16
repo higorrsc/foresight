@@ -11,6 +11,7 @@ from src.api.dependencies import (
     get_plan_repository,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.identity_access_management.domain.entities import User
 from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.tenant_management.application.use_cases.plan.commands import (
@@ -21,6 +22,7 @@ from src.tenant_management.application.use_cases.plan.queries import (
     ListPlansInputDTO,
     ListPlansUseCase,
 )
+from src.tenant_management.domain.entities import Plan
 from src.tenant_management.domain.repositories import IPlanRepository
 
 require_plan_create = PermissionChecker(["plan:create"])
@@ -100,7 +102,7 @@ async def create_plan_endpoint(
 async def list_plans_endpoint(
     repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> PaginatedPlanResponse:
+) -> PaginatedResponseDTO[Plan]:
     """
     List all available plans.
     """

@@ -11,6 +11,7 @@ from src.api.dependencies import (
     get_current_user,
 )
 from src.api.routers._shared import PaginatedApiResponse
+from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands import (
     CreateDescribedEntityInputDTO,
     DeleteRequestInputDTO,
@@ -32,6 +33,7 @@ from src.shared_kernel.application.use_cases.area.queries import (
     GetAreaByIdUseCase,
     ListAreaUseCase,
 )
+from src.shared_kernel.domain.entities import Area
 from src.shared_kernel.domain.exceptions import (
     AreaNotFoundError,
     InvalidAreaError,
@@ -144,12 +146,16 @@ async def create_area_endpoint(
 async def list_areas_endpoint(
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    description: Annotated[str | None, Query(description="Filter by description")] = None,
+    description: Annotated[
+        str | None, Query(description="Filter by description")
+    ] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "description",
-    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    sort_order: Annotated[
+        str, Query(enum=["asc", "desc"], description="Sort order")
+    ] = "asc",
     offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
     limit: Annotated[int, Query(ge=1, le=100, description="Limit")] = 10,
-) -> PaginatedAreaResponse:
+) -> PaginatedResponseDTO[Area]:
     """
     List areas with filters, order and pagination.
     """
@@ -182,7 +188,7 @@ async def get_area_by_id_endpoint(
     area_id: Annotated[UUID, Path(description="The area ID")],
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-) -> AreaResponseDetail:
+) -> Area:
     """
     Get an area by its ID.
     """
