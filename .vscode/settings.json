@@ -1,0 +1,241 @@
+{
+  "cSpell.language": "en,pt-BR",
+  "cSpell.words": [
+    "addopts",
+    "adduser",
+    "aioodbc",
+    "aiosqlite",
+    "anotheruser",
+    "anypassword",
+    "appuser",
+    "asyncio",
+    "asyncpg",
+    "autoflush",
+    "autouse",
+    "cffi",
+    "cockroachdb",
+    "configparser",
+    "datefmt",
+    "dbname",
+    "descomentar",
+    "drivername",
+    "excinfo",
+    "fastapi",
+    "filterwarnings",
+    "httpx",
+    "ilike",
+    "importlib",
+    "ipykernel",
+    "ipython",
+    "isort",
+    "jose",
+    "levelname",
+    "localtime",
+    "mssql",
+    "mypy",
+    "nologin",
+    "nonexistentuser",
+    "NOTSET",
+    "nullable",
+    "ondelete",
+    "onupdate",
+    "openssl",
+    "passlib",
+    "pathsep",
+    "poolclass",
+    "POOLCLASS",
+    "postgresql",
+    "psycopg",
+    "pycodestyle",
+    "pydantic",
+    "Pyflakes",
+    "pylint",
+    "Pylint",
+    "pyodbc",
+    "pyproject",
+    "pysqlite",
+    "pytest",
+    "PYTHONDONTWRITEBYTECODE",
+    "pythonpath",
+    "PYTHONUNBUFFERED",
+    "pyupgrade",
+    "pyyaml",
+    "qualname",
+    "quantizer",
+    "selectinload",
+    "sessionmaker",
+    "SGBD",
+    "sqlalchemy",
+    "sqlite",
+    "testpaths",
+    "tzdata",
+    "unbuffered",
+    "UNIQUEIDENTIFIER",
+    "uvicorn",
+    "venv",
+    "VENV",
+    "wrongpassword",
+    "zoneinfo"
+  ],
+  // ----------------------------
+  // DOCKER
+  // ----------------------------
+  "docker.languageserver.formatter.ignoreMultilineInstructions": true,
+  // ----------------------------
+  // EDITOR
+  // ----------------------------
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.rulers": [
+    88,
+    100
+  ],
+  "editor.tabSize": 4,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.ruff": "explicit",
+    "source.organizeImports.ruff": "explicit"
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  // ----------------------------
+  // PYTHON
+  // ----------------------------
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoSearchPaths": false,
+  "python.analysis.importFormat": "absolute",
+  "python.analysis.inlayHints.callArgumentNames": "all",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.defaultInterpreterPath": ".venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.testing.pytestArgs": [
+    "--import-mode=importlib",
+    "-v",
+    "tests"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "always",
+      "source.organizeImports.ruff": "always"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.wordBasedSuggestions": "off",
+    "diffEditor.ignoreTrimWhitespace": false
+  },
+  // ----------------------------
+  // RUFF
+  // ----------------------------
+  "ruff.path": [
+    "uv",
+    "run",
+    "ruff"
+  ],
+  "ruff.nativeServer": "on",
+  // ----------------------------
+  // HTML / DJANGO / JINJA
+  // ----------------------------
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.tabSize": 2
+  },
+  "[django-html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.tabSize": 2
+  },
+  "[jinja-html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // CSS
+  // ----------------------------
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // JAVASCRIPT
+  // ----------------------------
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // JSON
+  // ----------------------------
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // YAML
+  // ----------------------------
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // DOCKERFILE
+  // ----------------------------
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers",
+    "editor.tabSize": 2
+  },
+  // ----------------------------
+  // MAKEFILE
+  // ----------------------------
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false
+  },
+  // ----------------------------
+  // CSV
+  // ----------------------------
+  "[csv]": {
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    },
+    "editor.wordWrap": "off"
+  },
+  // ----------------------------
+  // FILE ASSOCIATIONS
+  // ----------------------------
+  "files.associations": {
+    "*.csv": "csv",
+    "*.env": "dotenv",
+    "*.html": "html",
+    "Dockerfile*": "dockerfile",
+    "Makefile*": "makefile"
+  },
+  // ----------------------------
+  // EMMET
+  // ----------------------------
+  "emmet.includeLanguages": {
+    "django-html": "html",
+    "jinja-html": "html"
+  },
+  // ----------------------------
+  // SEARCH / IGNORE
+  // ----------------------------
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.venv": true,
+    "**/htmlcov": true,
+    "**/node_modules": true
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.venv": true
+  }
+}

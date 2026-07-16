@@ -1,0 +1,44 @@
+from uuid import UUID
+
+from jose import JWTError, jwt
+
+from src.api.auth._shared import AbstractAuthenticationProvider
+from src.core.infrastructure.config import settings
+from src.identity_access_management.domain.entities import User
+from src.identity_access_management.domain.repositories import IUserRepository
+
+
+class LocalAuthenticationProvider(AbstractAuthenticationProvider):
+    """
+    Local authentication provider.
+    """
+
+    def __init__(self, repository: IUserRepository):
+        """
+        Initialize the local authentication provider.
+        """
+
+        self._repository = repository
+
+    async def get_user_from_token(self, token: str) -> User | None:
+        try:
+            payload = jwt.decode(
+                token,
+                settings.secret_key,
+                algorithms=[settings.algorithm],
+            )
+            username: str | None = payload.get("sub")
+            tenant_id_str: str | None = payload.get("tenant_id")
+
+            if username is None:
+                return None
+
+            tenant_id = UUID(tenant_id_str) if tenant_id_str else None
+        except JWTError:
+            return None
+
+        user = await self._repository.get_by_username(
+            username=username,
+            tenant_id=tenant_id,
+        )
+        return user

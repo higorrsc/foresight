@@ -1,0 +1,25 @@
+from pydantic import BaseModel, ConfigDict
+
+
+class PaginationMetaResponse(BaseModel):
+    """
+    Response meta for API.
+    """
+
+    total_items: int
+    current_page: int
+    page_size: int
+    total_pages: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedApiResponse[T](BaseModel):
+    """
+    Response model for API.
+    """
+
+    data: list[T]
+    meta: PaginationMetaResponse
+
+    model_config = ConfigDict(from_attributes=True)

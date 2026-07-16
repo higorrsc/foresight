@@ -1,0 +1,51 @@
+from abc import abstractmethod
+from uuid import UUID
+
+from src.core.domain.repository import AbstractRepository
+from src.identity_access_management.domain.entities.user import User
+
+
+class IUserRepository(AbstractRepository[User]):
+    """
+    Interface for the User Repository.
+    """
+
+    @abstractmethod
+    async def get_by_email(
+        self,
+        email: str,
+        tenant_id: UUID | None,
+    ) -> User | None:
+        """
+        Get a user by its email.
+        """
+
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    async def get_by_username(
+        self,
+        username: str,
+        tenant_id: UUID | None,
+    ) -> User | None:
+        """
+        Get a user by its username and tenant.
+        """
+
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    async def get_by_username_global(self, username: str) -> User | None:
+        """
+        Get a user by its username at any tenant.
+        """
+
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    async def count_users_by_role(self, role_id: UUID) -> int:
+        """
+        Count the number of users associated with a role.
+        """
+
+        raise NotImplementedError  # pragma: no cover

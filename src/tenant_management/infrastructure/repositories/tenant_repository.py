@@ -1,0 +1,36 @@
+from uuid import UUID
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.core.infrastructure.repository import SQLAlchemyRepository
+from src.tenant_management.domain.entities import Tenant
+from src.tenant_management.domain.repositories import ITenantRepository
+from src.tenant_management.infrastructure.mappers import TenantMapper
+from src.tenant_management.infrastructure.models import TenantModel
+
+
+class TenantRepository(SQLAlchemyRepository[Tenant, TenantModel], ITenantRepository):
+    """
+    Repository for managing Tenant entities using SQLAlchemy.
+    """
+
+    def __init__(self, session: AsyncSession):
+        """
+        Initialize the TenantRepository with a SQLAlchemy session.
+
+        :param session: SQLAlchemy session.
+        """
+
+        super().__init__(
+            session,
+            TenantModel,
+            mapper=TenantMapper(),
+        )
+
+    async def get_by_id_global(self, tenant_id: UUID) -> Tenant | None:
+        """
+        Finds a tenant by its unique id.
+        """
+
+        model = await self._session.get(self._model_cls, tenant_id)
+        return self._mapper.to_entity(model) if model else None

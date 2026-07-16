@@ -1,0 +1,77 @@
+from enum import StrEnum
+
+
+class AppPermission(StrEnum):
+    """
+    Application permissions
+    """
+
+    AREA_CREATE = "area:create"
+    AREA_DELETE = "area:delete"
+    AREA_READ = "area:read"
+    AREA_UPDATE = "area:update"
+
+    ORGANIZATIONAL_UNIT_CREATE = "organizational_unit:create"
+    ORGANIZATIONAL_UNIT_DELETE = "organizational_unit:delete"
+    ORGANIZATIONAL_UNIT_READ = "organizational_unit:read"
+    ORGANIZATIONAL_UNIT_UPDATE = "organizational_unit:update"
+
+    SCENARIO_CREATE = "scenario:create"
+    SCENARIO_DELETE = "scenario:delete"
+    SCENARIO_READ = "scenario:read"
+    SCENARIO_UPDATE = "scenario:update"
+
+    PLAN_CREATE = "plan:create"
+    PLAN_DELETE = "plan:delete"
+    PLAN_READ = "plan:read"
+    PLAN_UPDATE = "plan:update"
+
+    ROLE_CREATE = "role:create"
+    ROLE_DELETE = "role:delete"
+    ROLE_READ = "role:read"
+    ROLE_SET_PERMISSIONS = "role:set_permissions"
+    ROLE_UPDATE = "role:update"
+
+    TENANT_READ = "tenant:read"
+    TENANT_UPDATE = "tenant:update"
+
+    USER_CHANGE_PASSWORD = "user:change_password"
+    USER_CREATE = "user:create"
+    USER_DELETE = "user:delete"
+    USER_ME = "user:me"
+    USER_READ = "user:read"
+    USER_SET_PERMISSIONS = "user:set_permissions"
+    USER_SET_ROLES = "user:set_roles"
+    USER_UPDATE = "user:update"
+    USER_UPDATE_PROFILE = "user:update_profile"
+
+    @classmethod
+    def get_all_permissions(cls) -> set["AppPermission"]:
+        """
+        Get all permissions
+        """
+
+        return set(cls)
+
+    @classmethod
+    def get_permissions_by_action(cls, action: str) -> set["AppPermission"]:
+        """
+        Returns permissions filtered by action.
+        """
+
+        suffix = f":{action}"
+
+        return {permission for permission in cls if permission.value.endswith(suffix)}
+
+    @classmethod
+    def get_guest_permissions(cls) -> set["AppPermission"]:
+        """
+        Returns the set of guest permissions.
+        """
+
+        return {
+            cls.USER_ME,
+            cls.USER_UPDATE_PROFILE,
+            cls.USER_CHANGE_PASSWORD,
+            cls.PLAN_READ,
+        }

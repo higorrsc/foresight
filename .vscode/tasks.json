@@ -1,0 +1,102 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Create Virtual Environment",
+      "type": "shell",
+      "command": "make venv",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "make install",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Export Requirements File",
+      "type": "shell",
+      "command": "make export-req",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API Server with Uvicorn",
+      "type": "shell",
+      "command": "make run-uvicorn",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API Server with FastAPI",
+      "type": "shell",
+      "command": "make run-fastapi",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format Code",
+      "type": "shell",
+      "command": "make format",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint Code",
+      "type": "shell",
+      "command": "make lint",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Type Check",
+      "type": "shell",
+      "command": "make type-check",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "make test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Coverage Report",
+      "type": "shell",
+      "command": "make coverage",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Full Quality Check",
+      "type": "shell",
+      "command": "make check",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate Project Secret",
+      "type": "shell",
+      "command": "make secret",
+      "group": "none",
+      "problemMatcher": []
+    }
+  ]
+}

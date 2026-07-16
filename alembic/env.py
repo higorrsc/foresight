@@ -1,0 +1,163 @@
+import asyncio
+import os
+import sys
+from logging.config import fileConfig
+
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from alembic import context
+from src.core.infrastructure.config import GUIDType, settings
+from src.core.infrastructure.config.base import Base
+
+project_root = os.path.realpath(
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+    )
+)
+sys.path.insert(
+    0,
+    project_root,
+)
+
+
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+config = context.config
+config.set_main_option("sqlalchemy.url", settings.database_url)  # type:ignore
+
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# add your model's MetaData object here
+# for 'autogenerate' support
+from src.identity_access_management.infrastructure.models import *  # noqa: E402, F403
+from src.planning.infrastructure.models import *  # noqa: E402, F403
+from src.shared_kernel.infrastructure.models import *  # noqa: E402, F403
+from src.tenant_management.infrastructure.models import *  # noqa: E402, F403
+
+target_metadata = Base.metadata
+
+
+def process_revision_directives(context, revision, directives):
+    """
+    Prevents Alembic from generating type-change migrations for UUID
+    columns when the backend is SQLite.
+    This is necessary due to a SQLite limitation with autogenerate.
+    """
+
+    if context.dialect.name != "sqlite":
+        return
+
+    script = directives[0]
+    if script.upgrade_ops is None:
+        return
+
+    for script in directives:
+        if script.upgrade_ops is not None:
+            new_upgrade_ops = []
+            for op in script.upgrade_ops.ops:
+                is_alter_uuid = (
+                    op.__class__.__name__ == "ModifyTableOps"
+                    and op.ops[0].__class__.__name__ == "AlterColumnOp"
+                    and "UUID" in str(getattr(op.ops[0], "modify_type", ""))
+                )
+                if is_alter_uuid:
+                    print("INFO: Ignoring UUID upgrade operation in SQLite.")
+                    continue
+                new_upgrade_ops.append(op)
+            script.upgrade_ops.ops = new_upgrade_ops
+
+        if script.downgrade_ops is not None:
+            new_downgrade_ops = []
+            for op in script.downgrade_ops.ops:
+                is_alter_uuid = (
+                    op.__class__.__name__ == "ModifyTableOps"
+                    and op.ops[0].__class__.__name__ == "AlterColumnOp"
+                    and "UUID" in str(getattr(op.ops[0], "existing_type", ""))
+                )
+                if is_alter_uuid:
+                    print("INFO: Ignoring UUID downgrade operation in SQLite..")
+                    continue
+                new_downgrade_ops.append(op)
+            script.downgrade_ops.ops = new_downgrade_ops
+
+
+def render_item(type_, obj, autogen_context):
+    """
+    Renders the custom GUIDType correctly in the migration file,
+    by adding the necessary import.
+    """
+
+    if type_ == "type" and isinstance(obj, GUIDType):
+        autogen_context.imports.add(
+            "from src.core.infrastructure.config.custom_types import GUIDType"
+        )
+
+        return "GUIDType()"
+
+    return False
+
+
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode."""
+
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+        process_revision_directives=process_revision_directives,
+        render_as_batch=True,
+        render_item=render_item,
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def do_run_migrations(connection: Connection) -> None:
+    """Run actual sync migrations using the async connection."""
+
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        process_revision_directives=process_revision_directives,
+        render_as_batch=True,
+        render_item=render_item,
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """Creates the asynchronous engine and executes the migrations."""
+
+    connectable = async_engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+
+    asyncio.run(run_async_migrations())
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
