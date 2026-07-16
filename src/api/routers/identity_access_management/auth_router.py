@@ -28,9 +28,9 @@ router = APIRouter(
 )
 async def login_for_access_token(
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    username: str = Form(...),
-    password: str = Form(...),
-):
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+) -> dict[str, str]:
     """
     Create JWT token for user.
     """

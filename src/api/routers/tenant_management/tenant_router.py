@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies import (
@@ -48,9 +48,9 @@ class SignupRequest(BaseModel):
     Request model for API.
     """
 
-    tenant_name: str = Field(..., min_length=3, max_length=100)
-    username: str = Field(..., min_length=3, max_length=50)
-    password: str = Field(..., min_length=8)
+    tenant_name: str = Field(min_length=3, max_length=100)
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=8)
     first_name: str | None = None
     email: EmailStr | None = None
     plan_name: str = "Standard"  # Valor padrão
@@ -111,7 +111,7 @@ async def signup_endpoint(
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     perm_repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
-):
+) -> SignupResponse:
     """
     Register a new tenant and admin user.
     """
@@ -163,7 +163,7 @@ async def signup_endpoint(
 async def list_tenants_endpoint(
     repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> PaginatedTenantResponse:
     """
     List all tenants (Super Admin only).
     """
@@ -185,11 +185,11 @@ async def list_tenants_endpoint(
     dependencies=[Depends(require_tenant_update)],
 )
 async def update_tenant_status_endpoint(
-    tenant_id: UUID,
+    tenant_id: Annotated[UUID, Path(description="The tenant ID")],
     body: TenantStatusUpdateBody,
     repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Update a tenant's status (e.g., suspend/activate) (Super Admin only).
     """

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
@@ -83,7 +83,7 @@ class AreaCreateBody(BaseModel):
     Request model for creating an area.
     """
 
-    description: str = Field(..., min_length=3, max_length=100)
+    description: str = Field(min_length=3, max_length=100)
 
 
 class AreaUpdateBody(BaseModel):
@@ -91,7 +91,7 @@ class AreaUpdateBody(BaseModel):
     Request model for updating an area.
     """
 
-    description: str = Field(..., min_length=3, max_length=100)
+    description: str = Field(min_length=3, max_length=100)
 
 
 # --- Router ---
@@ -114,7 +114,7 @@ async def create_area_endpoint(
     request_body: AreaCreateBody,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> dict[str, UUID]:
     """
     Create a new area.
     """
@@ -144,12 +144,12 @@ async def create_area_endpoint(
 async def list_areas_endpoint(
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    description: str | None = Query(None, description="Filter by description"),
-    sort_by: str | None = Query("description", description="Sort field"),
-    sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
-    offset: int = Query(0, ge=0, description="Offset"),
-    limit: int = Query(10, ge=1, le=100, description="Limit"),
-):
+    description: Annotated[str | None, Query(description="Filter by description")] = None,
+    sort_by: Annotated[str | None, Query(description="Sort field")] = "description",
+    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="Limit")] = 10,
+) -> PaginatedAreaResponse:
     """
     List areas with filters, order and pagination.
     """
@@ -179,10 +179,10 @@ async def list_areas_endpoint(
     dependencies=[Depends(require_area_read)],
 )
 async def get_area_by_id_endpoint(
-    area_id: UUID,
+    area_id: Annotated[UUID, Path(description="The area ID")],
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> AreaResponseDetail:
     """
     Get an area by its ID.
     """
@@ -210,11 +210,11 @@ async def get_area_by_id_endpoint(
     dependencies=[Depends(require_area_create_or_update)],
 )
 async def update_area_endpoint(
-    area_id: UUID,
+    area_id: Annotated[UUID, Path(description="The area ID")],
     request_body: AreaUpdateBody,
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> dict[str, UUID | str]:
     """
     Update an existing area.
     """
@@ -251,10 +251,10 @@ async def update_area_endpoint(
     dependencies=[Depends(require_area_delete)],
 )
 async def delete_area_endpoint(
-    area_id: UUID,
+    area_id: Annotated[UUID, Path(description="The area ID")],
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Delete an existing area (soft delete).
     """
@@ -275,10 +275,10 @@ async def delete_area_endpoint(
     dependencies=[Depends(require_area_delete)],
 )
 async def restore_area_endpoint(
-    area_id: UUID,
+    area_id: Annotated[UUID, Path(description="The area ID")],
     repo: Annotated[IAreaRepository, Depends(get_area_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Restore a soft-deleted area.
     """

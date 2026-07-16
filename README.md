@@ -26,27 +26,38 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 ├── src/
 │   ├── api/                      # Camada de Apresentação (FastAPI Endpoints)
 │   │
-│   ├── core/                     # Núcleo da aplicação (Base classes, Configs)
+│   ├── core/                     # Núcleo da aplicação (Base classes, Configs, Custom Types)
 │   │   ├── application/
 │   │   ├── domain/
 │   │   └── infrastructure/
+│   │
+│   ├── finance/                  # Contexto: Finanças (Catálogo de Moedas)
+│   │   └── domain/               # Entidades e Value Objects de Moedas
 │   │
 │   ├── identity_access_management/ # Contexto: Gestão de Identidade e Acesso
 │   │   ├── application/          # Casos de Uso, DTOs
 │   │   ├── domain/               # Entidades, Value Objects, Regras de Negócio
 │   │   └── infrastructure/       # Repositórios, Mappers, Modelos SQLAlchemy
 │   │
+│   ├── planning/                 # Contexto: Planejamento (Cenários e Taxas de Câmbio)
+│   │   ├── application/          # Casos de Uso, DTOs, Handlers
+│   │   ├── domain/               # Entidades de Cenários e Taxas de Câmbio
+│   │   └── infrastructure/       # Repositórios de Cenários, Modelos SQLAlchemy
+│   │
 │   ├── tenant_management/        # Contexto: Gestão de Tenants e Planos
 │   │   ├── application/
 │   │   ├── domain/
 │   │   └── infrastructure/
 │   │
-│   └── shared_kernel/            # Lógica compartilhada entre contextos
-│       ├── application/
-│       ├── domain/
-│       └── infrastructure/
+│   ├── shared_kernel/            # Lógica compartilhada entre contextos (Áreas, Unidades Organizacionais)
+│   │   ├── application/
+│   │   ├── domain/
+│   │   └── infrastructure/
+│   │
+│   └── scripts/                  # Scripts utilitários (ex: Seeding de banco de dados)
+│       └── seed.py
 │
-└── tests/                    # Testes (Unidade, Integração e API), separados do código-fonte.
+└── tests/                    # Testes (Unidade, Integração, API e Scripts), separados do código-fonte.
 ```
 
 | Camada | Responsabilidade | Tecnologias |
@@ -61,7 +72,7 @@ O projeto segue rigorosamente os princípios de **Clean Architecture** e **DDD**
 
 ## ✨ Funcionalidades Principais
 
-- **API RESTful Completa**: Endpoints para gestão de `Users`, `Roles`, `Permissions`, `Tenants`, `Plans`, `Areas` e `Organizational Units`.
+- **API RESTful Completa**: Endpoints para gestão de `Users`, `Roles`, `Permissions`, `Tenants`, `Plans`, `Areas`, `Organizational Units` e `Scenarios` (com suporte a taxas de câmbio multimoeda).
 - **Autenticação JWT**: Sistema de login seguro baseado em tokens.
 - **Autorização Baseada em Papéis (RBAC)**: Endpoints protegidos que requerem papéis específicos (ex: `admin`).
 - **Sistema de Migrações**: Evolução segura do esquema da base de dados com **Alembic**.

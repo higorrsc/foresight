@@ -47,9 +47,9 @@ router = APIRouter(
 async def list_permissions_endpoint(
     repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
-    limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),
-):
+    offset: Annotated[int, Query(ge=0, description="Offset for pagination")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="Limit of records per page")] = 10,
+) -> PaginatedPermissionResponse:
     """
     List all available system permissions.
     Useful for frontend interfaces when creating/editing Roles.

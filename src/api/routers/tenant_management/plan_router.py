@@ -32,8 +32,8 @@ class PlanCreateBody(BaseModel):
     Request model for API.
     """
 
-    name: str = Field(..., min_length=3, max_length=50)
-    price: float = Field(..., ge=0)
+    name: str = Field(min_length=3, max_length=50)
+    price: float = Field(ge=0)
 
 
 class PlanResponse(BaseModel):
@@ -67,7 +67,7 @@ async def create_plan_endpoint(
     body: PlanCreateBody,
     repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> dict[str, UUID]:
     """
     Create a new subscription plan (Super Admin only).
     """
@@ -100,7 +100,7 @@ async def create_plan_endpoint(
 async def list_plans_endpoint(
     repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> PaginatedPlanResponse:
     """
     List all available plans.
     """

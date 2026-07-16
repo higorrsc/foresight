@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies import (
@@ -107,8 +107,8 @@ class UserCreateBody(BaseModel):
     Request model for creating a user within a tenant.
     """
 
-    username: str = Field(..., min_length=3, max_length=50)
-    password: str = Field(..., min_length=8)
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=8)
     roles: list[str] | None = Field(default_factory=list)  # type:ignore
 
 
@@ -118,7 +118,7 @@ class ChangePasswordBody(BaseModel):
     """
 
     old_password: str
-    new_password: str = Field(..., min_length=8)
+    new_password: str = Field(min_length=8)
 
 
 class SetUserPermissionsBody(BaseModel):
@@ -165,7 +165,7 @@ async def create_user_endpoint(
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> UserSummaryResponse:
     """
     Create a new user in the current tenant (Admin only).
     """
@@ -214,7 +214,7 @@ async def create_user_endpoint(
     response_model=UserDetailResponse,
     dependencies=[Depends(require_user_me)],
 )
-def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]):
+def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]) -> UserDetailResponse:
     """
     Get the details of the currently authenticated user.
     """
@@ -231,12 +231,12 @@ def get_current_user_me(actor: Annotated[User, Depends(get_current_user)]):
 async def list_users_endpoint(
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    username: str | None = Query(None, description="Filter by part of the username"),
-    sort_by: str | None = Query("username", description="Sort field"),
-    sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
-    limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),
-):
+    username: Annotated[str | None, Query(description="Filter by part of the username")] = None,
+    sort_by: Annotated[str | None, Query(description="Sort field")] = "username",
+    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    offset: Annotated[int, Query(ge=0, description="Offset for pagination")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="Limit of records per page")] = 10,
+) -> PaginatedUserResponse:
     """
     List users with filters, order and pagination.
     """
@@ -266,10 +266,10 @@ async def list_users_endpoint(
     dependencies=[Depends(require_user_read)],
 )
 async def get_user_by_id_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> UserDetailResponse:
     """
     Get a specific user by their ID.
     """
@@ -292,10 +292,10 @@ async def get_user_by_id_endpoint(
     dependencies=[Depends(require_user_delete)],
 )
 async def delete_user_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Delete an existing user (soft delete).
     """
@@ -326,11 +326,11 @@ async def delete_user_endpoint(
     dependencies=[Depends(require_user_change_password)],
 )
 async def change_password_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: ChangePasswordBody,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Change a user's password.
     Users can change their own password. Admins can change anyone's.
@@ -373,7 +373,7 @@ async def change_password_endpoint(
     dependencies=[Depends(require_user_set_permissions)],
 )
 async def set_user_permissions_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: SetUserPermissionsBody,
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     permission_repo: Annotated[
@@ -381,7 +381,7 @@ async def set_user_permissions_endpoint(
         Depends(get_permission_repository),
     ],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Set (overwrite) the permissions for a specific user. (Admin only)
     """
@@ -420,11 +420,11 @@ async def set_user_permissions_endpoint(
     dependencies=[Depends(require_user_update_profile)],
 )
 async def update_user_profile_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: UpdateUserProfileBody,
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Partially update a user's profile.
     Admins can update anyone. Users can only update their own profile.
@@ -469,12 +469,12 @@ async def update_user_profile_endpoint(
     dependencies=[Depends(require_user_set_roles)],
 )
 async def set_user_roles_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: SetUserRolesBody,
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Set (overwrite) the roles for a specific user. (Admin only)
     """
@@ -513,10 +513,10 @@ async def set_user_roles_endpoint(
     dependencies=[Depends(require_user_delete)],
 )
 async def restore_user_endpoint(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(description="The user ID")],
     repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Restore a soft-deleted user.
     """

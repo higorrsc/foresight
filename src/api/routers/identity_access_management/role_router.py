@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
@@ -98,7 +98,7 @@ class RoleCreateBody(BaseModel):
     Request model for creating or updating a role.
     """
 
-    name: str = Field(..., min_length=3, max_length=100)
+    name: str = Field(min_length=3, max_length=100)
     description: str | None = Field(None, max_length=255)
     permissions: set[str] = set()
 
@@ -134,7 +134,7 @@ async def create_role_endpoint(
         IPermissionRepository, Depends(get_permission_repository)
     ],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> dict[str, UUID]:
     """
     Create a new role in the current tenant.
     """
@@ -185,12 +185,12 @@ async def create_role_endpoint(
 async def list_roles_endpoint(
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-    name: str | None = Query(None, description="Filter by part of the name"),
-    sort_by: str | None = Query("name", description="Sort field"),
-    sort_order: str = Query("asc", enum=["asc", "desc"], description="Sort order"),
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
-    limit: int = Query(10, ge=1, le=100, description="Limit of records per page"),
-):
+    name: Annotated[str | None, Query(description="Filter by part of the name")] = None,
+    sort_by: Annotated[str | None, Query(description="Sort field")] = "name",
+    sort_order: Annotated[str, Query(enum=["asc", "desc"], description="Sort order")] = "asc",
+    offset: Annotated[int, Query(ge=0, description="Offset for pagination")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="Limit of records per page")] = 10,
+) -> PaginatedRoleResponse:
     """
     List roles with filters, order and pagination.
     """
@@ -220,10 +220,10 @@ async def list_roles_endpoint(
     dependencies=[Depends(require_role_read)],
 )
 async def get_role_by_id_endpoint(
-    role_id: UUID,
+    role_id: Annotated[UUID, Path(description="The role ID")],
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> RoleDetailResponse:
     """
     Get a role by its ID.
     """
@@ -245,11 +245,11 @@ async def get_role_by_id_endpoint(
     dependencies=[Depends(require_role_create_or_update)],
 )
 async def update_role_endpoint(
-    role_id: UUID,
+    role_id: Annotated[UUID, Path(description="The role ID")],
     request_body: RoleCreateBody,
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> dict[str, UUID | str]:
     """
     Update an existing role.
     """
@@ -285,11 +285,11 @@ async def update_role_endpoint(
     dependencies=[Depends(require_role_delete)],
 )
 async def delete_role_endpoint(
-    role_id: UUID,
+    role_id: Annotated[UUID, Path(description="The role ID")],
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Delete an existing role.
     """
@@ -327,14 +327,14 @@ async def delete_role_endpoint(
     dependencies=[Depends(require_role_set_permissions)],
 )
 async def set_role_permissions_endpoint(
-    role_id: UUID,
+    role_id: Annotated[UUID, Path(description="The role ID")],
     request_body: SetRolePermissionsBody,
     role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     permission_repo: Annotated[
         IPermissionRepository, Depends(get_permission_repository)
     ],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Set (overwrite) the permissions for a specific role. (Admin only)
     """
@@ -373,10 +373,10 @@ async def set_role_permissions_endpoint(
     dependencies=[Depends(require_role_delete)],
 )
 async def restore_user_endpoint(
-    role_id: UUID,
+    role_id: Annotated[UUID, Path(description="The role ID")],
     repo: Annotated[IRoleRepository, Depends(get_role_repository)],
     actor: Annotated[User, Depends(get_current_user)],
-):
+) -> None:
     """
     Restore a soft-deleted user.
     """
