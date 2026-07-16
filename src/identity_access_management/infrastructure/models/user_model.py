@@ -54,12 +54,10 @@ class UserModel(
         "RoleModel",
         secondary=user_roles,
         back_populates="users_rel",
-        lazy="joined",
     )
 
     permissions_rel = relationship(
         "PermissionModel",
         secondary=user_permissions,
         back_populates="users_rel",
-        lazy="joined",
     )

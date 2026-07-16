@@ -32,5 +32,4 @@ class SQLAlchemyTenantMixin:
         return relationship(
             "TenantModel",
             foreign_keys=[cls.tenant_id],
-            lazy="joined",
         )

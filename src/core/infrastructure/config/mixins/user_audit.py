@@ -74,7 +74,6 @@ class SQLAlchemyUserAuditMixin:
         return relationship(
             "UserModel",
             foreign_keys=f"{cls.__name__}.created_by",  # type: ignore
-            lazy="joined",
         )
 
     @declared_attr
@@ -86,5 +85,4 @@ class SQLAlchemyUserAuditMixin:
         return relationship(
             "UserModel",
             foreign_keys=f"{cls.__name__}.updated_by",  # type: ignore
-            lazy="joined",
         )
