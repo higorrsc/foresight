@@ -47,7 +47,6 @@ class UserModel(
         String,
         nullable=True,
         unique=True,
-        index=True,
     )
 
     roles_rel = relationship(

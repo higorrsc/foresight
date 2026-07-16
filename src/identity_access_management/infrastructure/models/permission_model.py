@@ -18,7 +18,6 @@ class PermissionModel(SQLAlchemyBase):
     codename = Column(
         String,
         unique=True,
-        index=True,
         nullable=False,
     )
     description = Column(

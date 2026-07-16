@@ -24,7 +24,6 @@ class RoleModel(
 
     name = Column(
         String,
-        index=True,
         nullable=False,
     )
     description = Column(
