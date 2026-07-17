@@ -13,7 +13,7 @@ else
 	PYTHON_EXEC = $(VENV_DIR)/bin/python
 endif
 
-.PHONY: help venv install install-prd export-req run check format lint type-check test coverage secret check-python
+.PHONY: help venv install install-prd export-req run check format lint type-check test coverage secret check-python git-sync
 
 # === Server ===
 
@@ -99,6 +99,19 @@ secret: check-python
 	@echo "Generating project secret..."
 	$(RUN_PY) -c "import secrets; print(secrets.token_hex(32))"
 
+git-sync:
+	@echo "Fetching all branches..."
+	git fetch origin
+	@echo "Checking out develop branch..."
+	git checkout develop
+	@echo "Merging origin/main into develop..."
+	git merge origin/main --no-edit
+	@echo "Pushing develop branch to remote..."
+	git push origin develop
+	@echo "Updating local main branch pointer..."
+	git branch -f main origin/main
+	@echo "Synchronization completed successfully!"
+
 # === Help ===
 
 help:
@@ -124,5 +137,6 @@ help:
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make secret             - Generate a random project secret"
+	@echo "  make git-sync           - Synchronize develop and main branches after a PR merge"
 	@echo ""
 	@echo "Use VENV_DIR=<path> to override the virtual environment directory (default: .venv)"
