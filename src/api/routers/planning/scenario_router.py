@@ -7,10 +7,11 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.api.dependencies import (
+    CurrentUserDep,
+    ExchangeRateRepositoryDep,
     PermissionChecker,
+    ScenarioRepositoryDep,
     get_current_user,
-    get_exchange_rate_repository,
-    get_scenario_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
@@ -22,7 +23,8 @@ from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
-from src.identity_access_management.domain.entities import User
+
+# --- Commands & Queries ---
 from src.planning.application.use_cases.scenario.commands import (
     AddExchangeRateInputDTO,
     AddExchangeRateToScenarioUseCase,
@@ -58,10 +60,8 @@ from src.planning.domain.exceptions import (
     ScenarioAlreadyUnlockedError,
     ScenarioNotFoundError,
 )
-from src.planning.domain.repositories import (
-    IExchangeRateRepository,
-    IScenarioRepository,
-)
+
+# --- Permissions ---
 
 # --- Permissions ---
 require_scenario_create_or_update = PermissionChecker(
@@ -210,8 +210,8 @@ router = APIRouter(
 )
 async def create_financial_scenario(
     request_body: ScenarioCreateBody,
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID]:
     """
     Create a new financial scenario.
@@ -243,8 +243,8 @@ async def create_financial_scenario(
     dependencies=[Depends(require_scenario_read)],
 )
 async def list_financial_scenarios(
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
     description: Annotated[
         str | None, Query(description="Filter by description")
     ] = None,
@@ -285,8 +285,8 @@ async def list_financial_scenarios(
 )
 async def get_scenario_by_id(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> Scenario:
     """
     Get an financial scenario by its ID.
@@ -317,8 +317,8 @@ async def get_scenario_by_id(
 )
 async def get_scenario_details(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> Scenario:
     """
     Get detailed information about a financial scenario.
@@ -345,8 +345,8 @@ async def get_scenario_details(
 async def update_financial_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
     request_body: ScenarioUpdateBody,
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> UpdateScenarioOutputDTO:
     """
     Update an existing financial scenario.
@@ -386,8 +386,8 @@ async def update_financial_scenario(
 )
 async def delete_financial_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Delete an existing financial scenario (soft delete).
@@ -410,8 +410,8 @@ async def delete_financial_scenario(
 )
 async def restore_financial_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Restore a soft-deleted financial scenario.
@@ -434,8 +434,8 @@ async def restore_financial_scenario(
 )
 async def lock_financial_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Lock a financial scenario.
@@ -463,8 +463,8 @@ async def lock_financial_scenario(
 )
 async def unlock_financial_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
-    repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Unlock a financial scenario.
@@ -494,8 +494,8 @@ async def unlock_financial_scenario(
 async def add_exchange_rate_to_scenario(
     scenario_id: Annotated[UUID, Path(description="The scenario ID")],
     request_body: ExchangeRateCreateBody,
-    scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    scenario_repo: ScenarioRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID | int | str]:
     """
     Add a new exchange rate to a financial scenario.
@@ -550,11 +550,9 @@ async def add_exchange_rate_to_scenario(
 async def update_exchange_rate(
     exchange_rate_id: Annotated[UUID, Path(description="The exchange rate ID")],
     request_body: ExchangeRateUpdateBody,
-    scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    exchange_rate_repo: Annotated[
-        IExchangeRateRepository, Depends(get_exchange_rate_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    scenario_repo: ScenarioRepositoryDep,
+    exchange_rate_repo: ExchangeRateRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, str]:
     """
     Update an existing exchange rate.
@@ -598,11 +596,9 @@ async def update_exchange_rate(
 )
 async def remove_exchange_rate(
     exchange_rate_id: Annotated[UUID, Path(description="The exchange rate ID")],
-    scenario_repo: Annotated[IScenarioRepository, Depends(get_scenario_repository)],
-    exchange_rate_repo: Annotated[
-        IExchangeRateRepository, Depends(get_exchange_rate_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    scenario_repo: ScenarioRepositoryDep,
+    exchange_rate_repo: ExchangeRateRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Remove an exchange rate from a scenario.

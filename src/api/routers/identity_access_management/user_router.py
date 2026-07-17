@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies import (
+    CurrentUserDep,
     PermissionChecker,
+    PermissionRepositoryDep,
+    RoleRepositoryDep,
+    UserRepositoryDep,
     get_current_user,
-    get_permission_repository,
-    get_role_repository,
-    get_user_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
@@ -50,11 +51,8 @@ from src.identity_access_management.domain.exceptions import (
     UsernameAlreadyExistsError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.repositories import (
-    IPermissionRepository,
-    IRoleRepository,
-    IUserRepository,
-)
+
+# --- Permissions ---
 
 require_user_change_password = PermissionChecker(["user:change_password"])
 require_user_create = PermissionChecker(["user:create"])
@@ -164,9 +162,9 @@ router = APIRouter(
 )
 async def create_user_endpoint(
     request_body: UserCreateBody,
-    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    user_repo: UserRepositoryDep,
+    role_repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
 ) -> CreateUserOutputDTO:
     """
     Create a new user in the current tenant (Admin only).
@@ -217,7 +215,7 @@ async def create_user_endpoint(
     dependencies=[Depends(require_user_me)],
 )
 def get_current_user_me(
-    actor: Annotated[User, Depends(get_current_user)],
+    actor: CurrentUserDep,
 ) -> User:
     """
     Get the details of the currently authenticated user.
@@ -233,8 +231,8 @@ def get_current_user_me(
     dependencies=[Depends(require_user_read)],
 )
 async def list_users_endpoint(
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
     username: Annotated[
         str | None, Query(description="Filter by part of the username")
     ] = None,
@@ -277,8 +275,8 @@ async def list_users_endpoint(
 )
 async def get_user_by_id_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> User:
     """
     Get a specific user by their ID.
@@ -303,8 +301,8 @@ async def get_user_by_id_endpoint(
 )
 async def delete_user_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Delete an existing user (soft delete).
@@ -338,8 +336,8 @@ async def delete_user_endpoint(
 async def change_password_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: ChangePasswordBody,
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Change a user's password.
@@ -385,12 +383,9 @@ async def change_password_endpoint(
 async def set_user_permissions_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: SetUserPermissionsBody,
-    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    permission_repo: Annotated[
-        IPermissionRepository,
-        Depends(get_permission_repository),
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    user_repo: UserRepositoryDep,
+    permission_repo: PermissionRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Set (overwrite) the permissions for a specific user. (Admin only)
@@ -432,8 +427,8 @@ async def set_user_permissions_endpoint(
 async def update_user_profile_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: UpdateUserProfileBody,
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Partially update a user's profile.
@@ -481,9 +476,9 @@ async def update_user_profile_endpoint(
 async def set_user_roles_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
     request_body: SetUserRolesBody,
-    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    user_repo: UserRepositoryDep,
+    role_repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Set (overwrite) the roles for a specific user. (Admin only)
@@ -524,8 +519,8 @@ async def set_user_roles_endpoint(
 )
 async def restore_user_endpoint(
     user_id: Annotated[UUID, Path(description="The user ID")],
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Restore a soft-deleted user.

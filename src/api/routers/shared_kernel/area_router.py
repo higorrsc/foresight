@@ -6,8 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
+    AreaRepositoryDep,
+    CurrentUserDep,
     PermissionChecker,
-    get_area_repository,
     get_current_user,
 )
 from src.api.routers._shared import PaginatedApiResponse
@@ -22,7 +23,8 @@ from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
-from src.identity_access_management.domain.entities import User
+
+# --- Core Use Cases ---
 from src.shared_kernel.application.use_cases.area.commands import (
     CreateAreaUseCase,
     DeleteAreaUseCase,
@@ -38,7 +40,8 @@ from src.shared_kernel.domain.exceptions import (
     AreaNotFoundError,
     InvalidAreaError,
 )
-from src.shared_kernel.domain.repositories import IAreaRepository
+
+# --- Permissions ---
 
 # --- Permissions ---
 require_area_create_or_update = PermissionChecker(["area:create", "area:update"])
@@ -114,8 +117,8 @@ router = APIRouter(
 )
 async def create_area_endpoint(
     request_body: AreaCreateBody,
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID]:
     """
     Create a new area.
@@ -144,8 +147,8 @@ async def create_area_endpoint(
     dependencies=[Depends(require_area_read)],
 )
 async def list_areas_endpoint(
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
     description: Annotated[
         str | None, Query(description="Filter by description")
     ] = None,
@@ -186,8 +189,8 @@ async def list_areas_endpoint(
 )
 async def get_area_by_id_endpoint(
     area_id: Annotated[UUID, Path(description="The area ID")],
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
 ) -> Area:
     """
     Get an area by its ID.
@@ -218,8 +221,8 @@ async def get_area_by_id_endpoint(
 async def update_area_endpoint(
     area_id: Annotated[UUID, Path(description="The area ID")],
     request_body: AreaUpdateBody,
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID | str]:
     """
     Update an existing area.
@@ -258,8 +261,8 @@ async def update_area_endpoint(
 )
 async def delete_area_endpoint(
     area_id: Annotated[UUID, Path(description="The area ID")],
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Delete an existing area (soft delete).
@@ -282,8 +285,8 @@ async def delete_area_endpoint(
 )
 async def restore_area_endpoint(
     area_id: Annotated[UUID, Path(description="The area ID")],
-    repo: Annotated[IAreaRepository, Depends(get_area_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: AreaRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Restore a soft-deleted area.

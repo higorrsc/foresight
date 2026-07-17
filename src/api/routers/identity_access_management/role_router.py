@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
+    CurrentUserDep,
     PermissionChecker,
+    PermissionRepositoryDep,
+    RoleRepositoryDep,
+    UserRepositoryDep,
     get_current_user,
-    get_permission_repository,
-    get_role_repository,
-    get_user_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
@@ -36,7 +37,7 @@ from src.identity_access_management.application.use_cases.role.queries import (
     GetRoleByIdUseCase,
     ListRoleUseCase,
 )
-from src.identity_access_management.domain.entities import Role, User
+from src.identity_access_management.domain.entities import Role
 from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
     InvalidRoleError,
@@ -44,11 +45,6 @@ from src.identity_access_management.domain.exceptions import (
     RoleAlreadyExistsError,
     RoleDeletionIntegrityError,
     RoleNotFoundError,
-)
-from src.identity_access_management.domain.repositories import (
-    IPermissionRepository,
-    IRoleRepository,
-    IUserRepository,
 )
 
 # --- Permissions ---
@@ -130,11 +126,9 @@ router = APIRouter(
 )
 async def create_role_endpoint(
     request_body: RoleCreateBody,
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    permission_repo: Annotated[
-        IPermissionRepository, Depends(get_permission_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    role_repo: RoleRepositoryDep,
+    permission_repo: PermissionRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID]:
     """
     Create a new role in the current tenant.
@@ -184,8 +178,8 @@ async def create_role_endpoint(
     dependencies=[Depends(require_role_read)],
 )
 async def list_roles_endpoint(
-    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
     name: Annotated[str | None, Query(description="Filter by part of the name")] = None,
     sort_by: Annotated[str | None, Query(description="Sort field")] = "name",
     sort_order: Annotated[
@@ -226,8 +220,8 @@ async def list_roles_endpoint(
 )
 async def get_role_by_id_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
-    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
 ) -> Role:
     """
     Get a role by its ID.
@@ -252,8 +246,8 @@ async def get_role_by_id_endpoint(
 async def update_role_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
     request_body: RoleCreateBody,
-    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID | str]:
     """
     Update an existing role.
@@ -291,9 +285,9 @@ async def update_role_endpoint(
 )
 async def delete_role_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    role_repo: RoleRepositoryDep,
+    user_repo: UserRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Delete an existing role.
@@ -334,11 +328,9 @@ async def delete_role_endpoint(
 async def set_role_permissions_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
     request_body: SetRolePermissionsBody,
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    permission_repo: Annotated[
-        IPermissionRepository, Depends(get_permission_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    role_repo: RoleRepositoryDep,
+    permission_repo: PermissionRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Set (overwrite) the permissions for a specific role. (Admin only)
@@ -379,8 +371,8 @@ async def set_role_permissions_endpoint(
 )
 async def restore_user_endpoint(
     role_id: Annotated[UUID, Path(description="The role ID")],
-    repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: RoleRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Restore a soft-deleted user.

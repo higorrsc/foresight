@@ -1,10 +1,10 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Form, HTTPException, status
 
 from src.api.auth.security import create_access_token
-from src.api.dependencies import get_user_repository
+from src.api.dependencies import UserRepositoryDep
 from src.core.infrastructure.config import settings
 from src.identity_access_management.application.use_cases.user.commands import (
     AuthenticateUserInputDTO,
@@ -14,7 +14,6 @@ from src.identity_access_management.domain.exceptions import (
     InvalidPasswordError,
     UserNotFoundError,
 )
-from src.identity_access_management.domain.repositories import IUserRepository
 
 router = APIRouter(
     prefix="/auth",
@@ -27,7 +26,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def login_for_access_token(
-    repo: Annotated[IUserRepository, Depends(get_user_repository)],
+    repo: UserRepositoryDep,
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
 ) -> dict[str, str]:

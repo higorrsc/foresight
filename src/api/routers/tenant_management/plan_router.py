@@ -1,18 +1,18 @@
 from decimal import Decimal
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
+    CurrentUserDep,
     PermissionChecker,
-    get_current_user,
-    get_plan_repository,
+    PlanRepositoryDep,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
-from src.identity_access_management.domain.entities import User
+
+# --- Tenant Management Use Cases ---
 from src.identity_access_management.domain.exceptions import InsufficientPermissionError
 from src.tenant_management.application.use_cases.plan.commands import (
     CreatePlanInputDTO,
@@ -23,7 +23,8 @@ from src.tenant_management.application.use_cases.plan.queries import (
     ListPlansUseCase,
 )
 from src.tenant_management.domain.entities import Plan
-from src.tenant_management.domain.repositories import IPlanRepository
+
+# --- Router ---
 
 require_plan_create = PermissionChecker(["plan:create"])
 require_plan_read = PermissionChecker(["plan:read"])
@@ -67,8 +68,8 @@ router = APIRouter(prefix="/plans", tags=["Plans"])
 )
 async def create_plan_endpoint(
     body: PlanCreateBody,
-    repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: PlanRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID]:
     """
     Create a new subscription plan (Super Admin only).
@@ -100,8 +101,8 @@ async def create_plan_endpoint(
     dependencies=[Depends(require_plan_read)],
 )
 async def list_plans_endpoint(
-    repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: PlanRepositoryDep,
+    actor: CurrentUserDep,
 ) -> PaginatedResponseDTO[Plan]:
     """
     List all available plans.

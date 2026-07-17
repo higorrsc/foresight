@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from src.core.infrastructure.config import GUIDType, SQLAlchemyBase
@@ -50,6 +50,11 @@ class OrganizationalUnitModel(
     __table_args__ = (
         UniqueConstraint(
             "code",
+            "tenant_id",
+        ),
+        Index(
+            "idx_org_units_parent_tenant",
+            "parent_id",
             "tenant_id",
         ),
     )
