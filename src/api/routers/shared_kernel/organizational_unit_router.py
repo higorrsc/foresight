@@ -6,9 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.dependencies import (
+    CurrentUserDep,
+    OrganizationalUnitRepositoryDep,
     PermissionChecker,
     get_current_user,
-    get_organizational_unit_repository,
 )
 from src.api.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
@@ -20,7 +21,8 @@ from src.core.application.use_cases.queries import (
     GetByIdRequestInputDTO,
     ListRequestInputDTO,
 )
-from src.identity_access_management.domain.entities import User
+
+# --- Shared Kernel Use Cases ---
 from src.shared_kernel.application.use_cases.organizational_unit.commands import (
     CreateOrganizationalUnitInputDTO,
     CreateOrganizationalUnitUseCase,
@@ -39,7 +41,8 @@ from src.shared_kernel.domain.exceptions import (
     InvalidOrganizationalUnitError,
     OrganizationalUnitNotFoundError,
 )
-from src.shared_kernel.domain.repositories import IOrganizationalUnitRepository
+
+# --- Permissions ---
 
 # --- Permissions ---
 require_organizational_unit_create_or_update = PermissionChecker(
@@ -136,10 +139,8 @@ router = APIRouter(
 )
 async def create_organizational_unit(
     request_body: OrganizationalUnitCreateBody,
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
 ) -> dict[str, UUID]:
     """
     Create a new organizational unit.
@@ -170,10 +171,8 @@ async def create_organizational_unit(
     dependencies=[Depends(require_organizational_unit_read)],
 )
 async def list_organizational_units_endpoint(
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
     description: Annotated[
         str | None, Query(description="Filter by description")
     ] = None,
@@ -216,10 +215,8 @@ async def get_organizational_unit_by_id_endpoint(
     organizational_unit_id: Annotated[
         UUID, Path(description="The organizational unit ID")
     ],
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
 ) -> OrganizationalUnit:
     """
     Get an organizational unit by its ID.
@@ -253,10 +250,8 @@ async def update_organizational_unit_endpoint(
         UUID, Path(description="The organizational unit ID")
     ],
     request_body: OrganizationalUnitUpdateBody,
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
 ) -> UpdateOrganizationalUnitOutputDTO:
     """
     Update an existing organizational_unit.
@@ -297,10 +292,8 @@ async def delete_organizational_unit_endpoint(
     organizational_unit_id: Annotated[
         UUID, Path(description="The organizational unit ID")
     ],
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Delete an existing organizational_unit (soft delete).
@@ -327,10 +320,8 @@ async def restore_organizational_unit_endpoint(
     organizational_unit_id: Annotated[
         UUID, Path(description="The organizational unit ID")
     ],
-    repo: Annotated[
-        IOrganizationalUnitRepository, Depends(get_organizational_unit_repository)
-    ],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: OrganizationalUnitRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Restore a soft-deleted organizational_unit.

@@ -19,6 +19,7 @@ class PlanModel(SQLAlchemyBase, SQLAlchemyUserAuditMixin):
     name = Column(
         String(100),
         nullable=False,
+        unique=True,
     )
     price: Mapped[Decimal] = mapped_column(
         DECIMAL(19, 7),

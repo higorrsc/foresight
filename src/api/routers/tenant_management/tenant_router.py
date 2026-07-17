@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.api.dependencies import (
+    CurrentUserDep,
     PermissionChecker,
-    get_current_user,
-    get_permission_repository,
-    get_plan_repository,
-    get_role_repository,
-    get_tenant_repository,
-    get_user_repository,
+    PermissionRepositoryDep,
+    PlanRepositoryDep,
+    RoleRepositoryDep,
+    TenantRepositoryDep,
+    UserRepositoryDep,
 )
 from src.api.routers._shared.dto import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
@@ -19,16 +19,14 @@ from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,
     OnboardingUseCase,
 )
-from src.identity_access_management.domain.entities import User
+
+# --- Domain Exceptions ---
 from src.identity_access_management.domain.exceptions import (
     InsufficientPermissionError,
     UsernameAlreadyExistsError,
 )
-from src.identity_access_management.domain.repositories import (
-    IPermissionRepository,
-    IRoleRepository,
-    IUserRepository,
-)
+
+# --- Tenant Management commands ---
 from src.tenant_management.application.use_cases.tenant.commands import (
     UpdateTenantStatusInputDTO,
     UpdateTenantStatusUseCase,
@@ -41,7 +39,8 @@ from src.tenant_management.domain.entities import Tenant
 from src.tenant_management.domain.exceptions import (
     TenantNotFoundError,
 )
-from src.tenant_management.domain.repositories import IPlanRepository, ITenantRepository
+
+# --- Tenant Management Value Objects ---
 from src.tenant_management.domain.value_objects import TenantStatus
 
 
@@ -108,11 +107,11 @@ router = APIRouter(prefix="/tenants", tags=["Tenant Management"])
 )
 async def signup_endpoint(
     request: SignupRequest,
-    plan_repo: Annotated[IPlanRepository, Depends(get_plan_repository)],
-    tenant_repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
-    role_repo: Annotated[IRoleRepository, Depends(get_role_repository)],
-    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
-    perm_repo: Annotated[IPermissionRepository, Depends(get_permission_repository)],
+    plan_repo: PlanRepositoryDep,
+    tenant_repo: TenantRepositoryDep,
+    role_repo: RoleRepositoryDep,
+    user_repo: UserRepositoryDep,
+    perm_repo: PermissionRepositoryDep,
 ) -> SignupResponse:
     """
     Register a new tenant and admin user.
@@ -163,8 +162,8 @@ async def signup_endpoint(
     dependencies=[Depends(require_tenant_read)],
 )
 async def list_tenants_endpoint(
-    repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: TenantRepositoryDep,
+    actor: CurrentUserDep,
 ) -> PaginatedResponseDTO[Tenant]:
     """
     List all tenants (Super Admin only).
@@ -189,8 +188,8 @@ async def list_tenants_endpoint(
 async def update_tenant_status_endpoint(
     tenant_id: Annotated[UUID, Path(description="The tenant ID")],
     body: TenantStatusUpdateBody,
-    repo: Annotated[ITenantRepository, Depends(get_tenant_repository)],
-    actor: Annotated[User, Depends(get_current_user)],
+    repo: TenantRepositoryDep,
+    actor: CurrentUserDep,
 ) -> None:
     """
     Update a tenant's status (e.g., suspend/activate) (Super Admin only).
