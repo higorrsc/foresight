@@ -1,0 +1,89 @@
+{
+  "project-context-reminder": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "echo 'Remember: use available skills. Follow Git Flow, Conventional Commits with Gitmojis, English-only Git messages, and project quality gates.'"
+      }
+    ]
+  },
+  "block-dangerous-commands": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.agents/hooks/block-dangerous-commands.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "commit-quality-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.agents/hooks/pre-commit-check.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  },
+  "python-format-on-edit": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.agents/hooks/python-format.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "database-change-warning": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.agents/hooks/check-database-changes.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "alembic-migration-check": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.agents/hooks/check-alembic.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "final-validation": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "./.agents/hooks/final-check.sh",
+        "timeout": 30
+      }
+    ]
+  }
+}
