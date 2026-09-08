@@ -14,9 +14,11 @@ BLOCKED_PATTERNS=(
 for pattern in "${BLOCKED_PATTERNS[@]}"
 do
     if [[ "$COMMAND" == *"$pattern"* ]]; then
-        echo "Blocked dangerous command: $pattern"
-        exit 1
+        echo "Blocked dangerous command: $pattern" >&2
+        echo "{\"decision\": \"deny\", \"reason\": \"Blocked dangerous command: $pattern\"}"
+        exit 0
     fi
 done
 
+echo '{"decision": "allow"}'
 exit 0

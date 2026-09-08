@@ -10,7 +10,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/check-alembic.sh",
+            "command": "./hooks/check-alembic.sh",
             "prompt": "",
             "timeout": 10
           }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/block-dangerous-commands.sh",
+            "command": "./hooks/block-dangerous-commands.sh",
             "prompt": "",
             "timeout": 5
           }
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/pre-commit-check.sh",
+            "command": "./hooks/pre-commit-check.sh",
             "prompt": "",
             "timeout": 120
           }
@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/check-database-changes.sh",
+            "command": "./hooks/check-database-changes.sh",
             "prompt": "",
             "timeout": 10
           }
@@ -90,7 +90,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/debug-env.sh",
+            "command": "./hooks/debug-env.sh",
             "prompt": "",
             "timeout": 10
           }
@@ -106,7 +106,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "./.agents/hooks/final-check.sh",
+        "command": "./hooks/final-check.sh",
         "prompt": "",
         "timeout": 30
       }
@@ -141,7 +141,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.agents/hooks/python-format.sh",
+            "command": "./hooks/python-format.sh",
             "prompt": "",
             "timeout": 30
           }

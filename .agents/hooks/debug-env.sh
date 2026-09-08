@@ -2,7 +2,7 @@
 
 set -e
 
-LOG_FILE=".agents/hooks/debug.log"
+LOG_FILE="hooks/debug.log"
 
 {
     echo "=========="
@@ -18,4 +18,5 @@ LOG_FILE=".agents/hooks/debug.log"
 
 } >> "$LOG_FILE"
 
+echo '{"decision": "allow"}'
 exit 0
