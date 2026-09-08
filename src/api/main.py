@@ -67,7 +67,6 @@ def read_root():
     return {"message": "Bem-vindo à Foresight API!"}
 
 
-
 # API v1 endpoints
 v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(auth_router)
