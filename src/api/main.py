@@ -67,16 +67,6 @@ def read_root():
     return {"message": "Bem-vindo à Foresight API!"}
 
 
-# Legacy (deprecated) endpoints
-app.include_router(auth_router, deprecated=True)
-app.include_router(permission_router, deprecated=True)
-app.include_router(plan_router, deprecated=True)
-app.include_router(tenant_router, deprecated=True)
-app.include_router(user_router, deprecated=True)
-app.include_router(role_router, deprecated=True)
-app.include_router(area_router, deprecated=True)
-app.include_router(scenario_router, deprecated=True)
-app.include_router(organizational_unit_router, deprecated=True)
 
 # API v1 endpoints
 v1_router = APIRouter(prefix="/api/v1")
