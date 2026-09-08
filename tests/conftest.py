@@ -251,7 +251,7 @@ async def client(db_session_for_test: AsyncSession) -> AsyncGenerator[AsyncClien
 
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url="http://test",
+        base_url="http://test/api/v1",
     ) as ac:
         yield ac
 

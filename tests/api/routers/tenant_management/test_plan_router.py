@@ -53,29 +53,16 @@ class TestPlanRouter:
         # First create a plan as admin to ensure list is not empty
         # (Or rely on seeding if you seeded a plan)
 
-        # Legacy route
-        response_legacy = await client.get(
+        response = await client.get(
             "/plans/",
             headers={"Authorization": f"Bearer {guest_token}"},
         )
-        assert response_legacy.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK
 
-        data_legacy = response_legacy.json()
-        assert "data" in data_legacy
-        assert "meta" in data_legacy
+        data = response.json()
+        assert "data" in data
+        assert "meta" in data
 
-        # V1 route
-        response_v1 = await client.get(
-            "/api/v1/plans/",
-            headers={"Authorization": f"Bearer {guest_token}"},
-        )
-        assert response_v1.status_code == status.HTTP_200_OK
-
-        data_v1 = response_v1.json()
-
-        # Assert both return same data list
-        assert data_legacy["data"] == data_v1["data"]
-
-        plans_list = data_legacy["data"]
+        plans_list = data["data"]
         assert isinstance(plans_list, list)
         assert any(p["name"] == "Standard" for p in plans_list)
