@@ -9,7 +9,7 @@ from src.api.dependencies import (
     PermissionChecker,
     PlanRepositoryDep,
 )
-from src.api.routers._shared.dto import PaginatedApiResponse
+from src.api.v1.routers._shared.dto import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
 
 # --- Tenant Management Use Cases ---

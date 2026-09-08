@@ -1,19 +1,19 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
-from src.api.routers.identity_access_management import (
+from src.api.v1.routers.identity_access_management import (
     auth_router,
     permission_router,
     role_router,
     user_router,
 )
-from src.api.routers.planning import scenario_router
-from src.api.routers.shared_kernel import (
+from src.api.v1.routers.planning import scenario_router
+from src.api.v1.routers.shared_kernel import (
     area_router,
     organizational_unit_router,
 )
-from src.api.routers.tenant_management import plan_router, tenant_router
+from src.api.v1.routers.tenant_management import plan_router, tenant_router
 from src.core.infrastructure.config import AsyncSessionLocal
 from src.core.infrastructure.logging import get_logger, setup_logging
 from src.scripts import seed_initial_data
@@ -48,9 +48,12 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
 
 app = FastAPI(
-    title="Foresight API",
-    description="API para simulação orçamentária e projeção de gastos/custos.",
-    version="1.0.0",
+    title="Foresight API (v1 & Legacy)",
+    description=(
+        "API para simulação orçamentária e projeção de gastos/custos. "
+        "Supports v1 and legacy (deprecated) endpoints."
+    ),
+    version="1.1.0",
     lifespan=lifespan,
 )
 
@@ -64,12 +67,27 @@ def read_root():
     return {"message": "Bem-vindo à Foresight API!"}
 
 
-app.include_router(auth_router)
-app.include_router(permission_router)
-app.include_router(plan_router)
-app.include_router(tenant_router)
-app.include_router(user_router)
-app.include_router(role_router)
-app.include_router(area_router)
-app.include_router(scenario_router)
-app.include_router(organizational_unit_router)
+# Legacy (deprecated) endpoints
+app.include_router(auth_router, deprecated=True)
+app.include_router(permission_router, deprecated=True)
+app.include_router(plan_router, deprecated=True)
+app.include_router(tenant_router, deprecated=True)
+app.include_router(user_router, deprecated=True)
+app.include_router(role_router, deprecated=True)
+app.include_router(area_router, deprecated=True)
+app.include_router(scenario_router, deprecated=True)
+app.include_router(organizational_unit_router, deprecated=True)
+
+# API v1 endpoints
+v1_router = APIRouter(prefix="/api/v1")
+v1_router.include_router(auth_router)
+v1_router.include_router(permission_router)
+v1_router.include_router(plan_router)
+v1_router.include_router(tenant_router)
+v1_router.include_router(user_router)
+v1_router.include_router(role_router)
+v1_router.include_router(area_router)
+v1_router.include_router(scenario_router)
+v1_router.include_router(organizational_unit_router)
+
+app.include_router(v1_router)
