@@ -13,7 +13,7 @@ from src.api.dependencies import (
     ScenarioRepositoryDep,
     get_current_user,
 )
-from src.api.routers._shared import PaginatedApiResponse
+from src.api.v1.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.commands import (
     DeleteRequestInputDTO,

@@ -13,7 +13,7 @@ from src.api.dependencies import (
     TenantRepositoryDep,
     UserRepositoryDep,
 )
-from src.api.routers._shared.dto import PaginatedApiResponse
+from src.api.v1.routers._shared.dto import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
 from src.identity_access_management.application.use_cases.user.commands import (
     OnboardingInputDTO,

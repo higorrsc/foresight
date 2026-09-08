@@ -9,7 +9,7 @@ from src.api.dependencies import (
     PermissionRepositoryDep,
     get_current_user,
 )
-from src.api.routers._shared import PaginatedApiResponse
+from src.api.v1.routers._shared import PaginatedApiResponse
 from src.core.application import PaginatedResponseDTO
 from src.core.application.use_cases.queries.generic_list import ListRequestInputDTO
 from src.identity_access_management.application.use_cases.permission.queries import (
