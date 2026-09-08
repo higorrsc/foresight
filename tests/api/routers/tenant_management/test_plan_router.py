@@ -72,10 +72,10 @@ class TestPlanRouter:
         assert response_v1.status_code == status.HTTP_200_OK
 
         data_v1 = response_v1.json()
-        
+
         # Assert both return same data list
         assert data_legacy["data"] == data_v1["data"]
-        
+
         plans_list = data_legacy["data"]
         assert isinstance(plans_list, list)
         assert any(p["name"] == "Standard" for p in plans_list)

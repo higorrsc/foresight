@@ -49,7 +49,10 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
 app = FastAPI(
     title="Foresight API (v1 & Legacy)",
-    description="API para simulação orçamentária e projeção de gastos/custos. Supports v1 and legacy (deprecated) endpoints.",
+    description=(
+        "API para simulação orçamentária e projeção de gastos/custos. "
+        "Supports v1 and legacy (deprecated) endpoints."
+    ),
     version="1.1.0",
     lifespan=lifespan,
 )
