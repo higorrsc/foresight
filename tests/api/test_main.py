@@ -11,6 +11,6 @@ class TestMainRouter:
         """
         Test the root endpoint.
         """
-        response = await client.get("/")
+        response = await client.get("http://test/")
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"message": "Bem-vindo à Foresight API!"}
